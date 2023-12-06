@@ -95,17 +95,61 @@
       </div>
       <img src="assets/iankaneshiro.jpg"  style="width: 400px; margin-top: 20px;" alt="ian kaneshiros portrait photo"/>
     </header>
+     <!-- About Section-->
+     <section class="page-section mb-0" id="about">
+      <div class="container">
+        <!-- About Section Heading-->
+        <h2 class="page-section-heading text-center text-uppercase ">
+          About
+        </h2>
+        <!-- Icon Divider-->
+        <div class="divider-custom ">
+          <div class="divider-custom-line"></div>
+          <div class="divider-custom-icon"><i class="fa-solid fa-circle-user"></i></div>
+          <div class="divider-custom-line"></div>
+        </div>
+        <!-- About Section Content-->
+        <div class="row">
+          <div class="col-lg-4 ms-auto">
+            <p class="lead">
+              I am a passionate software engineer with a love for solving
+              challenging problems and a strong desire to continually grow and
+              improve myself.
+            </p>
+          </div>
+          <div class="col-lg-4 me-auto">
+            <p class="lead">
+              Currently I am proficient in JavaScript, React.js / Redux, and
+              Python and I'm actively working on expanding beyond my current
+              knowledge base. One of my favorite parts of being a software
+              engineer is no longer having to say “I wish there was an app for
+              that”. I can just create one!
+            </p>
+          </div>
+        </div>
+        <!-- About Section Button-->
+        <div class="text-center mt-4">
+          <a
+            class="btn btn-xl btn-outline-dark"
+            href="./assets/Kaneshiro_Ian_Resume.pdf"
+          >
+            <i class="fas fa-download me-2"></i>
+            Resume
+          </a>
+        </div>
+      </div>
+    </section>
     <!-- Portfolio Section-->
-    <section class="page-section portfolio" id="portfolio">
+    <section class="page-section bg-primary portfolio text-white" id="portfolio">
       <div class="container">
         <!-- Portfolio Section Heading-->
         <h2
-          class="page-section-heading text-center text-uppercase text-secondary mb-0"
+          class="page-section-heading text-center text-uppercase text-white mb-0"
         >
           Portfolio
         </h2>
         <!-- Icon Divider-->
-        <div class="divider-custom">
+        <div class="divider-custom divider-light">
           <div class="divider-custom-line"></div>
           <div class="divider-custom-icon"><i class="fa-solid fa-code"></i></i></div>
           <div class="divider-custom-line"></div>
@@ -187,50 +231,7 @@
         </div>
       </div>
     </section>
-    <!-- About Section-->
-    <section class="page-section bg-primary text-white mb-0" id="about">
-      <div class="container">
-        <!-- About Section Heading-->
-        <h2 class="page-section-heading text-center text-uppercase text-white">
-          About
-        </h2>
-        <!-- Icon Divider-->
-        <div class="divider-custom divider-light">
-          <div class="divider-custom-line"></div>
-          <div class="divider-custom-icon"><i class="fa-solid fa-circle-user"></i></div>
-          <div class="divider-custom-line"></div>
-        </div>
-        <!-- About Section Content-->
-        <div class="row">
-          <div class="col-lg-4 ms-auto">
-            <p class="lead">
-              I am a passionate software engineer with a love for solving
-              challenging problems and a strong desire to continually grow and
-              improve myself.
-            </p>
-          </div>
-          <div class="col-lg-4 me-auto">
-            <p class="lead">
-              Currently I am proficient in JavaScript, React.js / Redux, and
-              Python and I'm actively working on expanding beyond my current
-              knowledge base. One of my favorite parts of being a software
-              engineer is no longer having to say “I wish there was an app for
-              that”. I can just create one!
-            </p>
-          </div>
-        </div>
-        <!-- About Section Button-->
-        <div class="text-center mt-4">
-          <a
-            class="btn btn-xl btn-outline-light"
-            href="./assets/Kaneshiro_Ian_Resume.pdf"
-          >
-            <i class="fas fa-download me-2"></i>
-            Resume
-          </a>
-        </div>
-      </div>
-    </section>
+
     <!-- Contact Section-->
     <section class="page-section" id="contact">
       <div class="container">
@@ -349,9 +350,19 @@
                     />
                   </a>
                   <!-- Portfolio Modal - Text-->
-                  <p class="mb-4">
+                  <h4 class="mb-4">
                    KanDiscer is a web app built to help disc golfers improve their game!
-                  </p>
+                  </h4>
+                 <ul >
+                  <li class="mb-1">Incorporated MapBox’s Javascript library to allow users to preview layouts of courses, as well as navigate courses using live GPS positioning, enhancing the overall user experience (UX).
+                  </li>
+                  <li class="mb-1">Utilized Recharts library to generate a visual representation of the flight path of each disc, empowering users to pinpoint areas for improvement in their bag design.
+                  </li>
+                  <li class="mb-1">Designed a filters menu leveraging SQLAlchemy’s filters, enabling users to effortlessly refine their search criteria by manufacturer and flight characteristics.
+                  </li>
+                  <li>Created a search bar using a debouncing technique to minimize unnecessary API calls, resulting in a smoother and more efficient UX.
+                  </li>
+                 </ul>
                   <button class="btn btn-primary" data-bs-dismiss="modal">
                     <i class="fas fa-xmark fa-fw"></i>
                     Close Window
