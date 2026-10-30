@@ -22,32 +22,26 @@ look first. The gate enforces the shape (GATE-011, GATE-017, GATE-019).
 bun run pr:body --out /tmp/pr-body.md
 ```
 
-This runs the gate and the scenarios on this branch and on main, then fills in the facts:
-- **Behaviors**: every behavior that now passes, with its status before and after.
-- **Spec trace**: the intents and journey steps those behaviors serve.
-- **What changed**: files grouped by area, with lines added and removed.
-- **How it was verified**: each check's result and behavior coverage before and after.
-- **Protected changes** and **Dependencies**: the files that need Ian's label and the packages added.
+This runs the gate and the scenarios on this branch and on main, then fills in the facts: the
+behaviors that are new or changed and what they serve, the files to review closely, the gate result
+with behavior coverage before → after, and any added dependencies.
 
 ## 3. Write the prompts it leaves
 
-Replace every `<!-- ... -->` prompt with real content. Read the diff (`git diff origin/main...`)
-and the spec trace (`bun run specs:trace <ID>`) first.
+Keep it short. Ian reads this to decide where to look, not to relive the work. Read the diff
+(`git diff origin/main...`) first.
 
-- **Summary**: 2 to 4 sentences. What it does, why, and the intent it serves. Lead with the
-  outcome, not the file list.
-- **What changed**: one line per area saying what changed and why, where file names don't say it.
-- **How it was verified**: add anything beyond the gate. Mutation tests (break the code and show
-  the scenario fails), screenshots for anything visual, and manual runs with their output.
-- **Decisions**: choices that weren't obvious, and the alternatives you rejected. Delete the
-  section if there were none.
-- **Protected changes**: one reason per file.
-- **Dependencies**: one reason per package.
-- **Risks and follow-ups**: what could break, what's deferred, spec questions for Ian. Delete the
-  section if there are none.
-- **Review guide**: where Ian should start reading and in what order, riskiest change first.
+- **Summary**: 2 or 3 sentences. What it does and why. Lead with the outcome.
+- **Review guide**: where to start and what deserves the closest look, riskiest first. A short
+  numbered list of files or functions. The "Review closely" line is generated; keep it.
+- **Verification**: keep the generated line. Add only what goes beyond the gate (mutation tests,
+  screenshots, manual runs), as one line each. Delete the prompt if there's nothing.
+- **Notes**: only decisions, risks or follow-ups Ian should know about, as one bullet each. Delete
+  the section if there are none.
+- **Dependencies**: one reason per package, if the section is there.
 
-Be specific and honest. If something wasn't verified, say so. Don't pad.
+Don't add sections, file tables or per-check results: GitHub's Files and Checks tabs already show
+them. Be specific and honest. If something wasn't verified, say so.
 
 End the description with the attribution line from your system prompt, if there is one.
 

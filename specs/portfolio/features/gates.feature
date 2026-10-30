@@ -108,11 +108,11 @@ Feature: Gates that keep agents honest
 
   @GATE-019 @ci
   Scenario: Pull requests explain the work
-    Then the pull request template has sections for the summary, behaviors, spec trace, what changed, verification, decisions, protected changes, dependencies, risks and follow-ups, and a review guide
-    And the pr-trace check fails if the summary, verification or review guide is empty, naming each one
+    Then the pull request template has sections for the summary, behaviors, review guide, verification, notes and dependencies
+    And the pr-trace check fails if the summary, review guide or verification is empty, naming each one
 
   @GATE-020 @ci
   Scenario: The facts in a pull request are generated
     When an agent runs "bun run pr:body"
-    Then it drafts the description with the behaviors that now pass, the intents and journeys they serve, the files changed by area, the protected files, the added dependencies and each check's result
-    And it leaves the summary, decisions, risks and review guide for the agent to write
+    Then it drafts the description with the behaviors that are new or changed and what they serve, the files to review closely, the added dependencies, and the gate and coverage results
+    And it leaves the summary, review guide and notes for the agent to write

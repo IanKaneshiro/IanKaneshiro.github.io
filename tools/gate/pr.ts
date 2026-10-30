@@ -17,31 +17,28 @@ export function section(body: string, title: string): string {
 }
 
 /** The pull request description's sections, in order (GATE-019). */
-export const PR_SECTIONS = [
-  "Summary",
-  "Behaviors",
-  "Spec trace",
-  "What changed",
-  "How it was verified",
-  "Decisions",
-  "Protected changes",
-  "Dependencies",
-  "Risks and follow-ups",
-  "Review guide",
-];
+export const PR_SECTIONS = ["Summary", "Behaviors", "Review guide", "Verification", "Notes", "Dependencies"];
 /** Sections that need words from whoever opened the pull request. */
-export const REQUIRED_SECTIONS = ["Summary", "How it was verified", "Review guide"];
+export const REQUIRED_SECTIONS = ["Summary", "Review guide", "Verification"];
 
-/** GATE-019: the summary, verification and review guide can't be left empty. */
+/** GATE-019: the summary, review guide and verification can't be left empty. */
 export function checkSections(body: string): Failure[] {
-  return REQUIRED_SECTIONS.filter((title) => !section(body, title).trim()).map((title) => ({
+  // The generated "Review closely" line doesn't count as a review guide; someone has to write one.
+  const written = (title: string) =>
+    section(body, title)
+      .replace(/^Review closely \(.*\)$/gm, "")
+      .trim();
+  return REQUIRED_SECTIONS.filter((title) => !written(title)).map((title) => ({
     rule: "explain-the-work",
     message: `the ## ${title} section is missing or empty`,
     fix: `write the ## ${title} section of the pull request description (bun run pr:body drafts the rest)`,
   }));
 }
 
-export const behaviorIds = (body: string) => [...new Set(section(body, "Behaviors").match(ID) ?? [])];
+/** Behavior IDs under ## Behaviors. INT- and JRN- IDs there are what the behaviors serve, not behaviors (GRAPH-002). */
+export const behaviorIds = (body: string) => [
+  ...new Set((section(body, "Behaviors").match(ID) ?? []).filter((id) => !/^(?:INT|JRN)-/.test(id))),
+];
 
 /**
  * GATE-011: a pull request names the behaviors it implements. Fails if it names none

@@ -24,10 +24,10 @@ because someone read every line.
 4. **Run the gate:** `bun run gate`. Fix everything it reports.
 5. **Push and open a pull request as the agent:** `bun run agent:push`, then
    `bun run agent:gh -- pr create --title "..." --body-file pr.md`. Draft the description with
-   `bun run pr:body --out pr.md`, which fills in the behaviors, spec trace, changes, verification,
-   protected files and dependencies from the code. Then write the parts it leaves as prompts:
-   Summary, Decisions, Risks and follow-ups, Review guide, and a reason for each protected file and
-   dependency. In Claude Code, the `pr` skill does all of this.
+   `bun run pr:body --out pr.md`, which fills in the behaviors, what they serve, the files to review
+   closely, the gate result and any dependencies. Then write what it leaves as prompts: the Summary,
+   the Review guide, Notes if there's anything worth flagging, and a reason for each new dependency.
+   Keep it short. In Claude Code, the `pr` skill does all of this.
 6. **Fix until green.** Read the failures (`gh pr checks`, and the gate summary comment on the
    pull request), fix them, `bun run agent:push` again. Repeat.
 7. **Done means green.** You're done only when the pull request passes every required check.

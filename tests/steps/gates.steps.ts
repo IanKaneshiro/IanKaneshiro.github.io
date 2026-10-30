@@ -20,7 +20,7 @@ import {
   prTraceFailures,
   section,
 } from "../../tools/gate/pr";
-import { fileChanges, renderBody } from "../../tools/gate/pr-body";
+import { renderBody } from "../../tools/gate/pr-body";
 import {
   ADMIN_ROLE_ID,
   evaluateProtection,
@@ -29,12 +29,12 @@ import {
   type Ruleset,
 } from "../../tools/gate/protection";
 import { APP, botEmail, botName, evaluateAppPermissions, installationToken } from "../../tools/agent/app";
-import { refuseGh, refusePush } from "../../tools/agent/guard";
+import { parsePrEdit, refuseGh, refusePush } from "../../tools/agent/guard";
 import { runGate, type GateRun } from "../../tools/gate/run";
 import { scanSecrets } from "../../tools/gate/secrets";
 import { MARKER, planUpsert, renderSummary } from "../../tools/gate/summary";
 import type { Check, CheckResult, Context, Failure } from "../../tools/gate/types";
-import { loadGraph } from "../../tools/specs/graph";
+import { loadGraph, type Graph } from "../../tools/specs/graph";
 import { featureFiles, loadScenarios } from "../support/gherkin";
 import { status } from "../support/status";
 import { Given, steps, Then, When } from "../support/steps";
@@ -410,7 +410,8 @@ const known = () =>
 
 Then("a pull request names the behavior IDs it implements in its description", () => {
   expect(read(".github/pull_request_template.md")).toMatch(/^## Behaviors$/m);
-  const body = "## Behaviors\n\n- GATE-008\n- GATE-016: secrets\n\n## Notes\n\nSee SITE-001 later.";
+  const body =
+    "## Behaviors\n\n- GATE-008\n- GATE-016: secrets\n\nServes INT-010 Trust · JRN-014 step 3\n\n## Notes\n\nSee SITE-001 later.";
   expect(behaviorIds(body)).toEqual(["GATE-008", "GATE-016"]);
 });
 
@@ -686,6 +687,8 @@ Then(
     expect(refusePush("feature/x", ["--force"])).toContain("no options");
     expect(refusePush("+feature/x")).not.toBeNull();
     expect(refusePush("agent/identity")).toBeNull();
+    expect(parsePrEdit(["pr", "edit", "5", "--body-file", "pr.md"])).toEqual({ number: 5, bodyFile: "pr.md" });
+    expect(parsePrEdit(["pr", "edit", "5", "--add-label", "chore"])).toBeNull();
     for (const cmd of [
       "git push -u origin agent/identity",
       "git push --force",
@@ -734,38 +737,29 @@ const headings = (md: string) =>
   [...md.replace(/<!--[\s\S]*?-->/g, "").matchAll(/^## (.+)$/gm)].map((m) => m[1].trim());
 
 Then(
-  "the pull request template has sections for the summary, behaviors, spec trace, what changed, verification, decisions, protected changes, dependencies, risks and follow-ups, and a review guide",
+  "the pull request template has sections for the summary, behaviors, review guide, verification, notes and dependencies",
   () => {
-    expect(PR_SECTIONS).toEqual([
-      "Summary",
-      "Behaviors",
-      "Spec trace",
-      "What changed",
-      "How it was verified",
-      "Decisions",
-      "Protected changes",
-      "Dependencies",
-      "Risks and follow-ups",
-      "Review guide",
-    ]);
+    expect(PR_SECTIONS).toEqual(["Summary", "Behaviors", "Review guide", "Verification", "Notes", "Dependencies"]);
     expect(headings(read(".github/pull_request_template.md"))).toEqual(PR_SECTIONS);
   },
 );
 
-Then("the pr-trace check fails if the summary, verification or review guide is empty, naming each one", () => {
+Then("the pr-trace check fails if the summary, review guide or verification is empty, naming each one", () => {
   const template = read(".github/pull_request_template.md");
-  const empty = prTraceFailures(template, ["chore"], known(), {});
-  expect(empty.map((f) => f.message)).toEqual([
+  expect(prTraceFailures(template, ["chore"], known(), {}).map((f) => f.message)).toEqual([
     "the ## Summary section is missing or empty",
-    "the ## How it was verified section is missing or empty",
     "the ## Review guide section is missing or empty",
+    "the ## Verification section is missing or empty",
   ]);
   const filled = template
     .replace("## Summary\n", "## Summary\n\nAdds the thing.\n")
-    .replace("## How it was verified\n", "## How it was verified\n\nbun run gate: 12/12.\n")
-    .replace("## Review guide\n", "## Review guide\n\nStart with pr.ts.\n");
+    .replace("## Review guide\n", "## Review guide\n\nStart with pr.ts.\n")
+    .replace("## Verification\n", "## Verification\n\nGate passes.\n");
   expect(prTraceFailures(filled, ["chore"], known(), {})).toEqual([]);
-  expect(checkSections("## Summary\n\nOnly a summary.")).toHaveLength(2);
+  const onlyGenerated = filled.replace("Start with pr.ts.", "Review closely (specs: `specs/x.feature`)");
+  expect(checkSections(onlyGenerated).map((f) => f.message)).toEqual([
+    "the ## Review guide section is missing or empty",
+  ]);
 });
 
 // ── GATE-020 The facts in a pull request are generated ──
@@ -780,67 +774,81 @@ When('an agent runs "bun run pr:body"', (world) => {
   };
   git("init", "-q");
   write("package.json", JSON.stringify({ name: "x", scripts: { test: "bun test" }, dependencies: {} }, null, 2));
-  write("README.md", "# x\n");
   git("add", ".");
   git("commit", "-q", "-m", "base");
   const base = git("rev-parse", "HEAD").stdout.trim();
-  write("tools/gate/pr.ts", "export const a = 1;\nexport const b = 2;\n");
+  write("tools/gate/pr.ts", "export const a = 1;\n");
   write("packages/components/src/kan-plan.tsx", "export {};\n");
   write("specs/portfolio/features/gates.feature", "@area-GATE\nFeature: Gates\n");
+  write("specs/portfolio/GRAPH.md", "# Spec graph\n");
   write(
     "package.json",
     JSON.stringify({ name: "x", scripts: { test: "bun test" }, dependencies: { "left-pad": "1.0.0" } }, null, 2),
   );
-  const results: CheckResult[] = [
-    { name: "lint", title: "Lint", status: "fail", ms: 1, failures: [{ rule: "r", message: "m", fix: "f" }] },
-    { name: "behaviors", title: "Behaviors", status: "pass", ms: 1, failures: [], note: "1 → 2/3 behaviors pass" },
-    { name: "pr-trace", title: "PR", status: "skip", ms: 1, failures: [], note: "no pull request yet" },
-  ];
-  world.body = renderBody({
-    graph: loadGraph(path.join(ROOT, "specs/portfolio")),
-    before: { "GATE-001": "pass", "GATE-019": "todo", "GATE-020": "todo" },
-    after: { "GATE-001": "pass", "GATE-019": "pass", "GATE-020": "todo" },
-    changes: fileChanges(dir, base),
+
+  const graph = loadGraph(path.join(ROOT, "specs/portfolio"));
+  const baseGraph: Graph = structuredClone(graph);
+  baseGraph.behaviors.find((b) => b.id === "GATE-003")!.steps[0].text = "an older wording";
+  const result = (name: string, status: "pass" | "fail" | "skip"): CheckResult => ({
+    name,
+    title: name,
+    status,
+    ms: 1,
+    failures: status === "fail" ? [{ rule: "r", message: "m", fix: "f" }] : [],
+  });
+  const facts = {
+    graph,
+    baseGraph,
+    before: { "GATE-001": "pass", "GATE-003": "pass", "GATE-019": "todo", "GATE-020": "todo" },
+    after: { "GATE-001": "pass", "GATE-003": "pass", "GATE-019": "pass", "GATE-020": "todo" },
     protectedFiles: protectedFiles(dir, base),
     dependencies: addedDependencies(dir, base),
-    results,
+    results: [result("lint", "fail"), result("test", "pass"), result("pr-trace", "skip")],
+  };
+  world.body = renderBody(facts);
+  world.clean = renderBody({
+    ...facts,
+    dependencies: [],
+    results: [result("lint", "pass"), result("test", "pass"), result("pr-trace", "skip")],
   });
 });
 
 Then(
-  "it drafts the description with the behaviors that now pass, the intents and journeys they serve, the files changed by area, the protected files, the added dependencies and each check's result",
+  "it drafts the description with the behaviors that are new or changed and what they serve, the files to review closely, the added dependencies, and the gate and coverage results",
   (world) => {
     const body = world.body as string;
     expect(headings(body)).toEqual(PR_SECTIONS);
-    expect(section(body, "Behaviors")).toContain("| GATE-019 | Pull requests explain the work | todo → pass |");
-    expect(section(body, "Behaviors")).not.toContain("GATE-001");
-    expect(section(body, "Spec trace")).toContain(
-      "**Intents:** INT-010 Agent output is trusted because gates enforce the rules",
-    );
-    expect(section(body, "Spec trace")).toContain("JRN-014 An agent delivers a feature through the gates (step 3)");
-    const changed = section(body, "What changed");
-    expect(changed).toContain("| Gate | `tools/gate/pr.ts` | +2 −0 |");
-    expect(changed).toContain("| packages/components | `packages/components/src/kan-plan.tsx` |");
-    expect(changed).toContain("| Specs | `specs/portfolio/features/gates.feature` |");
-    const prot = section(body, "Protected changes");
-    expect(prot).toContain("`tools/gate/pr.ts` (gate scripts)");
-    expect(prot).toContain("`specs/portfolio/features/gates.feature` (specs)");
-    expect(prot).not.toContain("package.json");
-    expect(body).toContain("- `left-pad` (package.json):");
-    const verified = section(body, "How it was verified");
-    expect(verified).toContain("| `lint` | ✗ 1 failure |");
-    expect(verified).toContain("| `behaviors` | ✓ 1 → 2/3 behaviors pass |");
-    expect(verified).toContain("| `pr-trace` | – no pull request yet |");
-    expect(verified).toContain("Behavior coverage: 1 → 2 of 3 pass");
+    const behaviors = section(body, "Behaviors");
+    expect(behaviors).toContain("- GATE-003 main only changes through a green, approved pull request (changed)");
+    expect(behaviors).toContain("- GATE-019 Pull requests explain the work (new)");
+    expect(behaviors).not.toContain("GATE-001");
+    expect(behaviors).not.toContain("GATE-020");
+    expect(behaviors).toContain("Serves INT-010 Agent output is trusted because gates enforce the rules");
+    expect(behaviors).toMatch(/JRN-014 step [\d, ]*\b3\b/);
+    const review = section(body, "Review guide");
+    expect(review).toContain("specs: `specs/portfolio/features/gates.feature`");
+    expect(review).toContain("gate scripts: `tools/gate/pr.ts`");
+    expect(review).not.toContain("GRAPH.md");
+    expect(section(body, "Dependencies")).toContain("- `left-pad`:");
+    expect(section(body, "Verification")).toContain("Gate ✗ failing: lint · behaviors 2 → 3 of 4 pass");
+    const clean = world.clean as string;
+    expect(section(clean, "Verification")).toContain("Gate ✓ 2 checks pass, 1 run only on the pull request");
+    expect(headings(clean)).not.toContain("Dependencies");
+    expect(body.split("\n").length).toBeLessThan(35);
+    // What pr:body generates must pass pr-trace once the prompts are written.
+    const written = body
+      .replace("<!-- What this does and why, in 2 or 3 sentences. -->", "Does the thing.")
+      .replace("<!-- Where to start and what deserves the closest look, riskiest first. -->", "Start with pr.ts.");
+    const after = { "GATE-001": "pass", "GATE-003": "pass", "GATE-019": "pass", "GATE-020": "todo" };
+    expect(prTraceFailures(written, [], known(), after)).toEqual([]);
   },
 );
 
-Then("it leaves the summary, decisions, risks and review guide for the agent to write", (world) => {
+Then("it leaves the summary, review guide and notes for the agent to write", (world) => {
   const body = world.body as string;
-  for (const title of ["Summary", "Decisions", "Risks and follow-ups", "Review guide"]) {
-    expect([title, section(body, title).trim()]).toEqual([title, ""]);
-  }
-  expect(body).toContain("<!-- What this does and why, in 2 to 4 sentences. Name the intent it serves. -->");
+  expect(section(body, "Summary").trim()).toBe("");
+  expect(section(body, "Notes").trim()).toBe("");
+  expect(body).toContain("<!-- Where to start and what deserves the closest look, riskiest first. -->");
   expect(checkSections(body).map((f) => f.message)).toEqual([
     "the ## Summary section is missing or empty",
     "the ## Review guide section is missing or empty",

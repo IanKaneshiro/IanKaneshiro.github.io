@@ -38,3 +38,18 @@ export function refusePush(branch: string, extra: string[] = []): string | null 
     return `agent:push takes no options (got ${extra.join(" ")}); force pushes and deletes aren't allowed`;
   return null;
 }
+
+/**
+ * `pr edit <number> [--title t] [--body-file f]`, parsed so agent:gh can do it over REST.
+ * (gh pr edit queries classic projects, which fails for GitHub App tokens.) Null for anything else.
+ */
+export function parsePrEdit(args: string[]): { number: number; title?: string; bodyFile?: string } | null {
+  if (args[0] !== "pr" || args[1] !== "edit" || !/^\d+$/.test(args[2] ?? "")) return null;
+  const out: { number: number; title?: string; bodyFile?: string } = { number: Number(args[2]) };
+  for (let i = 3; i < args.length; i += 2) {
+    if (args[i] === "--title" && args[i + 1] !== undefined) out.title = args[i + 1];
+    else if (args[i] === "--body-file" && args[i + 1] !== undefined) out.bodyFile = args[i + 1];
+    else return null;
+  }
+  return out.title !== undefined || out.bodyFile !== undefined ? out : null;
+}
