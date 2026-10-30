@@ -1,0 +1,18 @@
+:host {
+  display: inline-block;
+}
+
+.tag {
+  display: inline-flex;
+  gap: var(--kan-space-inline-sm);
+  align-items: center;
+  padding: 0 var(--kan-space-inline-sm);
+  border: 1px solid var(--kan-color-border-default);
+  background: var(--kan-color-bg-raised);
+  color: var(--kan-color-text-muted);
+  font-family: var(--kan-typography-label-font-family);
+  font-size: var(--kan-typography-label-font-size);
+  font-weight: var(--kan-typography-label-font-weight);
+  line-height: var(--kan-typography-body-md-line-height);
+  white-space: nowrap;
+}

@@ -1,0 +1,53 @@
+:host {
+  display: block;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  gap: var(--kan-space-stack-sm);
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--kan-space-inset-md);
+  border: 1px solid var(--kan-color-border-subtle);
+  background: var(--kan-color-bg-surface);
+  color: var(--kan-color-text-default);
+}
+
+.linked:hover {
+  border-color: var(--kan-color-border-strong);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The link covers the whole card, so a click anywhere follows it. */
+a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+a:focus-visible {
+  outline: none;
+}
+
+a:focus-visible::after {
+  outline: var(--kan-focus-ring-width) solid var(--kan-focus-ring-color);
+  outline-offset: var(--kan-focus-ring-offset);
+}
+
+/* Footer content sits above the stretched link, so its own links stay clickable. */
+::slotted([slot="footer"]) {
+  position: relative;
+  z-index: 1;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kan-space-inline-md);
+  align-items: center;
+}

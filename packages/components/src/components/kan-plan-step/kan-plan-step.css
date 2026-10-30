@@ -1,0 +1,36 @@
+:host {
+  display: flex;
+  gap: var(--kan-space-inline-md);
+  align-items: baseline;
+  font-family: var(--kan-typography-code-font-family);
+  font-size: var(--kan-typography-code-font-size);
+  line-height: var(--kan-typography-code-line-height);
+  color: var(--kan-color-text-default);
+}
+
+.glyph {
+  flex: none;
+  color: var(--kan-color-text-subtle);
+  white-space: pre;
+}
+
+:host([state="done"]) .glyph {
+  color: var(--kan-color-status-success-fg);
+}
+
+:host([state="in-progress"]) .glyph {
+  color: var(--kan-color-text-accent);
+}
+
+:host([state="done"]) .text {
+  color: var(--kan-color-text-muted);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

@@ -104,13 +104,19 @@ export type Opened = { page: Page; context: BrowserContext; url: string; scripts
 /** Opens `body` in a fresh page, waits for the components to hydrate, and records the scripts loaded. */
 export async function open(
   body: string,
-  options: { theme?: "light" | "dark"; reducedMotion?: boolean; javaScript?: boolean } = {},
+  options: {
+    theme?: "light" | "dark";
+    reducedMotion?: boolean;
+    javaScript?: boolean;
+    viewport?: { width: number; height: number };
+  } = {},
 ): Promise<Opened> {
   const { url } = await serve();
   const b = await (browser ??= chromium.launch({ executablePath: chromiumPath() }));
   const context = await b.newContext({
     javaScriptEnabled: options.javaScript ?? true,
     reducedMotion: options.reducedMotion ? "reduce" : "no-preference",
+    ...(options.viewport ? { viewport: options.viewport } : {}),
   });
   const page = await context.newPage();
   const scripts: string[] = [];

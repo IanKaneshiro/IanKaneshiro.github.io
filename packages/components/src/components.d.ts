@@ -5,9 +5,82 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { IconName } from "./components/kan-icon/icons";
+import { StepState } from "./components/kan-plan-step/kan-plan-step";
 import { ToolCallStatus } from "./components/kan-tool-call/kan-tool-call";
+export { IconName } from "./components/kan-icon/icons";
+export { StepState } from "./components/kan-plan-step/kan-plan-step";
 export { ToolCallStatus } from "./components/kan-tool-call/kan-tool-call";
 export namespace Components {
+    /**
+     * A container on bg.surface with optional header and footer (KIT-004). With an href, the whole
+     * card is clickable through one link around the header, stretched over the card, so links in the
+     * footer stay separate and links are never nested.
+     */
+    interface KanCard {
+        /**
+          * Makes the whole card a link to this address.
+         */
+        "href"?: string;
+    }
+    /**
+     * An icon from the kan- set (KIT-012). Decorative by default and hidden from assistive tech;
+     * give it a label and it's announced as an image instead.
+     */
+    interface KanIcon {
+        /**
+          * What the icon means, for screen readers. Leave it out when the icon is decoration.
+         */
+        "label"?: string;
+        /**
+          * Which icon to draw.
+          * @default "terminal"
+         */
+        "name": IconName;
+    }
+    /**
+     * A link (KIT-002): a native anchor in the accent color, underlined, and more so on hover and
+     * focus. A link that opens a new tab says so, with an icon and a hint for screen readers, and
+     * gets rel="noopener noreferrer".
+     */
+    interface KanLink {
+        /**
+          * Where the link goes.
+          * @default ""
+         */
+        "href": string;
+        /**
+          * Where to open it. "_blank" opens a new tab.
+         */
+        "target"?: string;
+    }
+    /**
+     * An ordered checklist of steps, like an agent's plan (KIT-014). Put kan-plan-step elements in it.
+     */
+    interface KanPlan {
+    }
+    /**
+     * One step of a kan-plan (KIT-014). Its state shows as a glyph and is announced as text.
+     */
+    interface KanPlanStep {
+        /**
+          * Whether the step is done, in progress or not started yet.
+          * @default "pending"
+         */
+        "state": StepState;
+    }
+    /**
+     * A project (KIT-005): its name, a one-line summary, its stack as tags, and links to the source
+     * and, when there is one, a live demo. It's a kan-card; put kan-tag elements in the stack slot and
+     * kan-link elements in the links slot.
+     */
+    interface KanProjectCard {
+        /**
+          * The project's name.
+          * @default ""
+         */
+        "name": string;
+    }
     /**
      * A prompt line, like the start of an agent session (KIT-007). The text is ordinary page content,
      * so it's in the HTML before JavaScript runs and screen readers read it once. The cursor is
@@ -35,6 +108,27 @@ export namespace Components {
           * @default 2
          */
         "level": 2 | 3 | 4 | 5 | 6;
+    }
+    /**
+     * A short mono label, like a technology name (KIT-003). It isn't interactive.
+     */
+    interface KanTag {
+        /**
+          * An icon before the label.
+         */
+        "icon"?: IconName;
+    }
+    /**
+     * A terminal window (KIT-008): a framed window on bg.inset with a title bar. Commands and output
+     * go in the default slot, in the mono family. Long lines scroll inside the window, which can be
+     * focused and scrolled with the keyboard, instead of widening the page.
+     */
+    interface KanTerminal {
+        /**
+          * The window's title, like "~/ian".
+          * @default "terminal"
+         */
+        "heading": string;
     }
     /**
      * A tool call the way an agent session shows it (KIT-013):
@@ -70,6 +164,67 @@ export interface KanToolCallCustomEvent<T> extends CustomEvent<T> {
 }
 declare global {
     /**
+     * A container on bg.surface with optional header and footer (KIT-004). With an href, the whole
+     * card is clickable through one link around the header, stretched over the card, so links in the
+     * footer stay separate and links are never nested.
+     */
+    interface HTMLKanCardElement extends Components.KanCard, HTMLStencilElement {
+    }
+    var HTMLKanCardElement: {
+        prototype: HTMLKanCardElement;
+        new (): HTMLKanCardElement;
+    };
+    /**
+     * An icon from the kan- set (KIT-012). Decorative by default and hidden from assistive tech;
+     * give it a label and it's announced as an image instead.
+     */
+    interface HTMLKanIconElement extends Components.KanIcon, HTMLStencilElement {
+    }
+    var HTMLKanIconElement: {
+        prototype: HTMLKanIconElement;
+        new (): HTMLKanIconElement;
+    };
+    /**
+     * A link (KIT-002): a native anchor in the accent color, underlined, and more so on hover and
+     * focus. A link that opens a new tab says so, with an icon and a hint for screen readers, and
+     * gets rel="noopener noreferrer".
+     */
+    interface HTMLKanLinkElement extends Components.KanLink, HTMLStencilElement {
+    }
+    var HTMLKanLinkElement: {
+        prototype: HTMLKanLinkElement;
+        new (): HTMLKanLinkElement;
+    };
+    /**
+     * An ordered checklist of steps, like an agent's plan (KIT-014). Put kan-plan-step elements in it.
+     */
+    interface HTMLKanPlanElement extends Components.KanPlan, HTMLStencilElement {
+    }
+    var HTMLKanPlanElement: {
+        prototype: HTMLKanPlanElement;
+        new (): HTMLKanPlanElement;
+    };
+    /**
+     * One step of a kan-plan (KIT-014). Its state shows as a glyph and is announced as text.
+     */
+    interface HTMLKanPlanStepElement extends Components.KanPlanStep, HTMLStencilElement {
+    }
+    var HTMLKanPlanStepElement: {
+        prototype: HTMLKanPlanStepElement;
+        new (): HTMLKanPlanStepElement;
+    };
+    /**
+     * A project (KIT-005): its name, a one-line summary, its stack as tags, and links to the source
+     * and, when there is one, a live demo. It's a kan-card; put kan-tag elements in the stack slot and
+     * kan-link elements in the links slot.
+     */
+    interface HTMLKanProjectCardElement extends Components.KanProjectCard, HTMLStencilElement {
+    }
+    var HTMLKanProjectCardElement: {
+        prototype: HTMLKanProjectCardElement;
+        new (): HTMLKanProjectCardElement;
+    };
+    /**
      * A prompt line, like the start of an agent session (KIT-007). The text is ordinary page content,
      * so it's in the HTML before JavaScript runs and screen readers read it once. The cursor is
      * decoration, and it stops blinking when the visitor prefers reduced motion.
@@ -89,6 +244,26 @@ declare global {
     var HTMLKanSectionHeadingElement: {
         prototype: HTMLKanSectionHeadingElement;
         new (): HTMLKanSectionHeadingElement;
+    };
+    /**
+     * A short mono label, like a technology name (KIT-003). It isn't interactive.
+     */
+    interface HTMLKanTagElement extends Components.KanTag, HTMLStencilElement {
+    }
+    var HTMLKanTagElement: {
+        prototype: HTMLKanTagElement;
+        new (): HTMLKanTagElement;
+    };
+    /**
+     * A terminal window (KIT-008): a framed window on bg.inset with a title bar. Commands and output
+     * go in the default slot, in the mono family. Long lines scroll inside the window, which can be
+     * focused and scrolled with the keyboard, instead of widening the page.
+     */
+    interface HTMLKanTerminalElement extends Components.KanTerminal, HTMLStencilElement {
+    }
+    var HTMLKanTerminalElement: {
+        prototype: HTMLKanTerminalElement;
+        new (): HTMLKanTerminalElement;
     };
     interface HTMLKanToolCallElementEventMap {
         "kanToggle": { open: boolean };
@@ -114,12 +289,89 @@ declare global {
         new (): HTMLKanToolCallElement;
     };
     interface HTMLElementTagNameMap {
+        "kan-card": HTMLKanCardElement;
+        "kan-icon": HTMLKanIconElement;
+        "kan-link": HTMLKanLinkElement;
+        "kan-plan": HTMLKanPlanElement;
+        "kan-plan-step": HTMLKanPlanStepElement;
+        "kan-project-card": HTMLKanProjectCardElement;
         "kan-prompt": HTMLKanPromptElement;
         "kan-section-heading": HTMLKanSectionHeadingElement;
+        "kan-tag": HTMLKanTagElement;
+        "kan-terminal": HTMLKanTerminalElement;
         "kan-tool-call": HTMLKanToolCallElement;
     }
 }
 declare namespace LocalJSX {
+    /**
+     * A container on bg.surface with optional header and footer (KIT-004). With an href, the whole
+     * card is clickable through one link around the header, stretched over the card, so links in the
+     * footer stay separate and links are never nested.
+     */
+    interface KanCard {
+        /**
+          * Makes the whole card a link to this address.
+         */
+        "href"?: string;
+    }
+    /**
+     * An icon from the kan- set (KIT-012). Decorative by default and hidden from assistive tech;
+     * give it a label and it's announced as an image instead.
+     */
+    interface KanIcon {
+        /**
+          * What the icon means, for screen readers. Leave it out when the icon is decoration.
+         */
+        "label"?: string;
+        /**
+          * Which icon to draw.
+          * @default "terminal"
+         */
+        "name"?: IconName;
+    }
+    /**
+     * A link (KIT-002): a native anchor in the accent color, underlined, and more so on hover and
+     * focus. A link that opens a new tab says so, with an icon and a hint for screen readers, and
+     * gets rel="noopener noreferrer".
+     */
+    interface KanLink {
+        /**
+          * Where the link goes.
+          * @default ""
+         */
+        "href"?: string;
+        /**
+          * Where to open it. "_blank" opens a new tab.
+         */
+        "target"?: string;
+    }
+    /**
+     * An ordered checklist of steps, like an agent's plan (KIT-014). Put kan-plan-step elements in it.
+     */
+    interface KanPlan {
+    }
+    /**
+     * One step of a kan-plan (KIT-014). Its state shows as a glyph and is announced as text.
+     */
+    interface KanPlanStep {
+        /**
+          * Whether the step is done, in progress or not started yet.
+          * @default "pending"
+         */
+        "state"?: StepState;
+    }
+    /**
+     * A project (KIT-005): its name, a one-line summary, its stack as tags, and links to the source
+     * and, when there is one, a live demo. It's a kan-card; put kan-tag elements in the stack slot and
+     * kan-link elements in the links slot.
+     */
+    interface KanProjectCard {
+        /**
+          * The project's name.
+          * @default ""
+         */
+        "name"?: string;
+    }
     /**
      * A prompt line, like the start of an agent session (KIT-007). The text is ordinary page content,
      * so it's in the HTML before JavaScript runs and screen readers read it once. The cursor is
@@ -147,6 +399,27 @@ declare namespace LocalJSX {
           * @default 2
          */
         "level"?: 2 | 3 | 4 | 5 | 6;
+    }
+    /**
+     * A short mono label, like a technology name (KIT-003). It isn't interactive.
+     */
+    interface KanTag {
+        /**
+          * An icon before the label.
+         */
+        "icon"?: IconName;
+    }
+    /**
+     * A terminal window (KIT-008): a framed window on bg.inset with a title bar. Commands and output
+     * go in the default slot, in the mono family. Long lines scroll inside the window, which can be
+     * focused and scrolled with the keyboard, instead of widening the page.
+     */
+    interface KanTerminal {
+        /**
+          * The window's title, like "~/ian".
+          * @default "terminal"
+         */
+        "heading"?: string;
     }
     /**
      * A tool call the way an agent session shows it (KIT-013):
@@ -180,12 +453,35 @@ declare namespace LocalJSX {
         "status"?: ToolCallStatus;
     }
 
+    interface KanCardAttributes {
+        "href": string;
+    }
+    interface KanIconAttributes {
+        "name": IconName;
+        "label": string;
+    }
+    interface KanLinkAttributes {
+        "href": string;
+        "target": string;
+    }
+    interface KanPlanStepAttributes {
+        "state": StepState;
+    }
+    interface KanProjectCardAttributes {
+        "name": string;
+    }
     interface KanPromptAttributes {
         "glyph": string;
         "cursor": boolean;
     }
     interface KanSectionHeadingAttributes {
         "level": 2 | 3 | 4 | 5 | 6;
+    }
+    interface KanTagAttributes {
+        "icon": IconName;
+    }
+    interface KanTerminalAttributes {
+        "heading": string;
     }
     interface KanToolCallAttributes {
         "name": string;
@@ -195,8 +491,16 @@ declare namespace LocalJSX {
     }
 
     interface IntrinsicElements {
+        "kan-card": Omit<KanCard, keyof KanCardAttributes> & { [K in keyof KanCard & keyof KanCardAttributes]?: KanCard[K] } & { [K in keyof KanCard & keyof KanCardAttributes as `attr:${K}`]?: KanCardAttributes[K] } & { [K in keyof KanCard & keyof KanCardAttributes as `prop:${K}`]?: KanCard[K] };
+        "kan-icon": Omit<KanIcon, keyof KanIconAttributes> & { [K in keyof KanIcon & keyof KanIconAttributes]?: KanIcon[K] } & { [K in keyof KanIcon & keyof KanIconAttributes as `attr:${K}`]?: KanIconAttributes[K] } & { [K in keyof KanIcon & keyof KanIconAttributes as `prop:${K}`]?: KanIcon[K] };
+        "kan-link": Omit<KanLink, keyof KanLinkAttributes> & { [K in keyof KanLink & keyof KanLinkAttributes]?: KanLink[K] } & { [K in keyof KanLink & keyof KanLinkAttributes as `attr:${K}`]?: KanLinkAttributes[K] } & { [K in keyof KanLink & keyof KanLinkAttributes as `prop:${K}`]?: KanLink[K] };
+        "kan-plan": KanPlan;
+        "kan-plan-step": Omit<KanPlanStep, keyof KanPlanStepAttributes> & { [K in keyof KanPlanStep & keyof KanPlanStepAttributes]?: KanPlanStep[K] } & { [K in keyof KanPlanStep & keyof KanPlanStepAttributes as `attr:${K}`]?: KanPlanStepAttributes[K] } & { [K in keyof KanPlanStep & keyof KanPlanStepAttributes as `prop:${K}`]?: KanPlanStep[K] };
+        "kan-project-card": Omit<KanProjectCard, keyof KanProjectCardAttributes> & { [K in keyof KanProjectCard & keyof KanProjectCardAttributes]?: KanProjectCard[K] } & { [K in keyof KanProjectCard & keyof KanProjectCardAttributes as `attr:${K}`]?: KanProjectCardAttributes[K] } & { [K in keyof KanProjectCard & keyof KanProjectCardAttributes as `prop:${K}`]?: KanProjectCard[K] };
         "kan-prompt": Omit<KanPrompt, keyof KanPromptAttributes> & { [K in keyof KanPrompt & keyof KanPromptAttributes]?: KanPrompt[K] } & { [K in keyof KanPrompt & keyof KanPromptAttributes as `attr:${K}`]?: KanPromptAttributes[K] } & { [K in keyof KanPrompt & keyof KanPromptAttributes as `prop:${K}`]?: KanPrompt[K] };
         "kan-section-heading": Omit<KanSectionHeading, keyof KanSectionHeadingAttributes> & { [K in keyof KanSectionHeading & keyof KanSectionHeadingAttributes]?: KanSectionHeading[K] } & { [K in keyof KanSectionHeading & keyof KanSectionHeadingAttributes as `attr:${K}`]?: KanSectionHeadingAttributes[K] } & { [K in keyof KanSectionHeading & keyof KanSectionHeadingAttributes as `prop:${K}`]?: KanSectionHeading[K] };
+        "kan-tag": Omit<KanTag, keyof KanTagAttributes> & { [K in keyof KanTag & keyof KanTagAttributes]?: KanTag[K] } & { [K in keyof KanTag & keyof KanTagAttributes as `attr:${K}`]?: KanTagAttributes[K] } & { [K in keyof KanTag & keyof KanTagAttributes as `prop:${K}`]?: KanTag[K] };
+        "kan-terminal": Omit<KanTerminal, keyof KanTerminalAttributes> & { [K in keyof KanTerminal & keyof KanTerminalAttributes]?: KanTerminal[K] } & { [K in keyof KanTerminal & keyof KanTerminalAttributes as `attr:${K}`]?: KanTerminalAttributes[K] } & { [K in keyof KanTerminal & keyof KanTerminalAttributes as `prop:${K}`]?: KanTerminal[K] };
         "kan-tool-call": Omit<KanToolCall, keyof KanToolCallAttributes> & { [K in keyof KanToolCall & keyof KanToolCallAttributes]?: KanToolCall[K] } & { [K in keyof KanToolCall & keyof KanToolCallAttributes as `attr:${K}`]?: KanToolCallAttributes[K] } & { [K in keyof KanToolCall & keyof KanToolCallAttributes as `prop:${K}`]?: KanToolCall[K] };
     }
 }
@@ -204,6 +508,37 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            /**
+             * A container on bg.surface with optional header and footer (KIT-004). With an href, the whole
+             * card is clickable through one link around the header, stretched over the card, so links in the
+             * footer stay separate and links are never nested.
+             */
+            "kan-card": LocalJSX.IntrinsicElements["kan-card"] & JSXBase.HTMLAttributes<HTMLKanCardElement>;
+            /**
+             * An icon from the kan- set (KIT-012). Decorative by default and hidden from assistive tech;
+             * give it a label and it's announced as an image instead.
+             */
+            "kan-icon": LocalJSX.IntrinsicElements["kan-icon"] & JSXBase.HTMLAttributes<HTMLKanIconElement>;
+            /**
+             * A link (KIT-002): a native anchor in the accent color, underlined, and more so on hover and
+             * focus. A link that opens a new tab says so, with an icon and a hint for screen readers, and
+             * gets rel="noopener noreferrer".
+             */
+            "kan-link": LocalJSX.IntrinsicElements["kan-link"] & JSXBase.HTMLAttributes<HTMLKanLinkElement>;
+            /**
+             * An ordered checklist of steps, like an agent's plan (KIT-014). Put kan-plan-step elements in it.
+             */
+            "kan-plan": LocalJSX.IntrinsicElements["kan-plan"] & JSXBase.HTMLAttributes<HTMLKanPlanElement>;
+            /**
+             * One step of a kan-plan (KIT-014). Its state shows as a glyph and is announced as text.
+             */
+            "kan-plan-step": LocalJSX.IntrinsicElements["kan-plan-step"] & JSXBase.HTMLAttributes<HTMLKanPlanStepElement>;
+            /**
+             * A project (KIT-005): its name, a one-line summary, its stack as tags, and links to the source
+             * and, when there is one, a live demo. It's a kan-card; put kan-tag elements in the stack slot and
+             * kan-link elements in the links slot.
+             */
+            "kan-project-card": LocalJSX.IntrinsicElements["kan-project-card"] & JSXBase.HTMLAttributes<HTMLKanProjectCardElement>;
             /**
              * A prompt line, like the start of an agent session (KIT-007). The text is ordinary page content,
              * so it's in the HTML before JavaScript runs and screen readers read it once. The cursor is
@@ -215,6 +550,16 @@ declare module "@stencil/core" {
              * so it's in the page outline; the rule characters are hidden from screen readers.
              */
             "kan-section-heading": LocalJSX.IntrinsicElements["kan-section-heading"] & JSXBase.HTMLAttributes<HTMLKanSectionHeadingElement>;
+            /**
+             * A short mono label, like a technology name (KIT-003). It isn't interactive.
+             */
+            "kan-tag": LocalJSX.IntrinsicElements["kan-tag"] & JSXBase.HTMLAttributes<HTMLKanTagElement>;
+            /**
+             * A terminal window (KIT-008): a framed window on bg.inset with a title bar. Commands and output
+             * go in the default slot, in the mono family. Long lines scroll inside the window, which can be
+             * focused and scrolled with the keyboard, instead of widening the page.
+             */
+            "kan-terminal": LocalJSX.IntrinsicElements["kan-terminal"] & JSXBase.HTMLAttributes<HTMLKanTerminalElement>;
             /**
              * A tool call the way an agent session shows it (KIT-013):
              *     ● Read(profile)
