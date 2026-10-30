@@ -1,0 +1,83 @@
+:host {
+  display: block;
+  font-family: var(--kan-typography-code-font-family);
+  font-size: var(--kan-typography-code-font-size);
+  line-height: var(--kan-typography-code-line-height);
+  color: var(--kan-color-text-default);
+}
+
+.call {
+  display: inline-flex;
+  gap: var(--kan-space-inline-sm);
+  align-items: baseline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+button.call {
+  cursor: pointer;
+}
+
+button.call:focus-visible {
+  outline: var(--kan-focus-ring-width) solid var(--kan-focus-ring-color);
+  outline-offset: var(--kan-focus-ring-offset);
+}
+
+button.call:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.glyph {
+  color: var(--kan-color-status-success-fg);
+}
+
+:host([status="pending"]) .glyph {
+  color: var(--kan-color-text-subtle);
+}
+
+:host([status="error"]) .glyph {
+  color: var(--kan-color-status-danger-fg);
+}
+
+.name {
+  font-weight: var(--kan-typography-heading-3-font-weight);
+}
+
+.arg,
+.result {
+  color: var(--kan-color-text-muted);
+}
+
+.result {
+  display: flex;
+  gap: var(--kan-space-inline-sm);
+  padding-left: var(--kan-space-inline-md);
+}
+
+.elbow,
+.chevron {
+  color: var(--kan-color-text-subtle);
+}
+
+.details {
+  margin: var(--kan-space-inline-sm) 0 0 var(--kan-space-inline-lg);
+  padding: var(--kan-space-inset-sm);
+  background: var(--kan-color-bg-inset);
+}
+
+.details[hidden] {
+  display: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

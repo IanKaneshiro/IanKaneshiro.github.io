@@ -1,1 +1,7 @@
 storybook-static/
+www/
+dist/
+loader/
+docs.json
+docs.d.ts
+.stencil/

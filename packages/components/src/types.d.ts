@@ -1,6 +1,6 @@
 declare module "*.css";
 
-declare module "@kan/tokens/tokens.json" {
-  const rows: import("@kan/tokens/build").Row[];
-  export default rows;
+declare module "@kan/components/docs.json" {
+  const docs: import("./docs/api").DocsJson;
+  export default docs;
 }

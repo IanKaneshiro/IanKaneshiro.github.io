@@ -1,0 +1,36 @@
+:host {
+  display: block;
+  font-family: var(--kan-typography-code-font-family);
+  color: var(--kan-color-text-default);
+}
+
+.line {
+  display: inline-flex;
+  gap: var(--kan-space-inline-md);
+  align-items: baseline;
+}
+
+.glyph {
+  color: var(--kan-color-text-accent);
+}
+
+.cursor {
+  display: inline-block;
+  align-self: center;
+  width: 0.6em;
+  height: 1.1em;
+  background: var(--kan-color-accent-default);
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    animation: none;
+  }
+}

@@ -1,0 +1,24 @@
+:host {
+  display: block;
+}
+
+.heading {
+  display: flex;
+  gap: var(--kan-space-inline-md);
+  align-items: center;
+  margin: 0;
+  font-family: var(--kan-typography-label-font-family);
+  font-size: var(--kan-typography-label-font-size);
+  font-weight: var(--kan-typography-label-font-weight);
+  line-height: var(--kan-typography-label-line-height);
+  color: var(--kan-color-text-muted);
+}
+
+.rule {
+  color: var(--kan-color-border-strong);
+}
+
+.rule-end {
+  flex: 1;
+  border-top: 1px solid var(--kan-color-border-default);
+}
