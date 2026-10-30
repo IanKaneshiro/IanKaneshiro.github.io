@@ -59,6 +59,17 @@ export function stylelintFailures(results: stylelint.LintResult[], root: string)
   );
 }
 
+/** tsconfig.json files of the workspace packages, e.g. packages/components/tsconfig.json. */
+export function packageTsconfigs(root: string): string[] {
+  const dir = path.join(root, "packages");
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir)
+    .map((p) => `packages/${p}/tsconfig.json`)
+    .filter((f) => fs.existsSync(path.join(root, f)))
+    .sort();
+}
+
 /** Dependencies any package.json gained since `base`. */
 export function addedDependencies(root: string, base: string): { file: string; name: string }[] {
   const added: { file: string; name: string }[] = [];
@@ -117,20 +128,26 @@ export const CHECKS: Check[] = [
     name: "typecheck",
     title: "TypeScript, strict",
     async run({ root }) {
-      const r = exec([bin(root, "tsc"), "--noEmit", "--pretty", "false", "-p", "tsconfig.json"], root);
-      const failures = r.stdout
-        .split("\n")
-        .map((l) => /^(.+?)\((\d+),\d+\): error (TS\d+): (.*)$/.exec(l))
-        .filter((m): m is RegExpExecArray => !!m)
-        .map(([, file, line, code, message]) => ({
-          file,
-          line: Number(line),
-          rule: code,
-          message,
-          fix: `fix the type error; see https://typescript.tv/errors/#${code.toLowerCase()}`,
-        }));
-      if (r.code !== 0 && !failures.length) throw new Error(r.stdout.trim() || r.stderr.trim());
-      return fromFailures(failures);
+      // The root project plus every package with its own tsconfig (GATE-004: every package).
+      const projects = ["tsconfig.json", ...packageTsconfigs(root)];
+      const failures: Failure[] = [];
+      for (const project of projects) {
+        const r = exec([bin(root, "tsc"), "--noEmit", "--pretty", "false", "-p", project], root);
+        const found = r.stdout
+          .split("\n")
+          .map((l) => /^(.+?)\((\d+),\d+\): error (TS\d+): (.*)$/.exec(l))
+          .filter((m): m is RegExpExecArray => !!m)
+          .map(([, file, line, code, message]) => ({
+            file: path.normalize(path.isAbsolute(file) ? path.relative(root, file) : file),
+            line: Number(line),
+            rule: code,
+            message,
+            fix: `fix the type error; see https://typescript.tv/errors/#${code.toLowerCase()}`,
+          }));
+        if (r.code !== 0 && !found.length) throw new Error(`${project}: ${r.stdout.trim() || r.stderr.trim()}`);
+        failures.push(...found);
+      }
+      return fromFailures(failures, `${projects.length} projects`);
     },
   },
   {

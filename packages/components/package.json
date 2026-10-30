@@ -3,18 +3,34 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "The kan- web components and their Storybook. For now: the token Foundations pages.",
+  "description": "The kan- web components (Stencil) and their Storybook.",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "collection": "dist/collection/collection-manifest.json",
+  "files": [
+    "dist/",
+    "loader/"
+  ],
   "scripts": {
+    "build": "stencil build --docs",
     "tokens": "bun run --cwd ../tokens build",
-    "storybook": "bun run tokens && storybook dev --port 6006 --no-open",
-    "build-storybook": "bun run tokens && storybook build --output-dir storybook-static"
+    "storybook": "bun run tokens && bun run build && storybook dev --port 6006 --no-open",
+    "build-storybook": "bun run tokens && bun run build && storybook build --output-dir storybook-static"
   },
   "dependencies": {
     "@kan/tokens": "workspace:*"
   },
   "devDependencies": {
+    "@stencil/core": "4.45.2",
     "@storybook/web-components-vite": "10.6.5",
     "storybook": "10.6.5",
     "vite": "^8.3.5"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./docs.json": "./docs.json",
+    "./loader": "./loader/index.js",
+    "./components": "./dist/components/index.js"
   }
 }
