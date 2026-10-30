@@ -9,8 +9,8 @@ steps:
     behaviors: [GRAPH-009, GRAPH-008, GATE-010]
   - do: Builds it on a branch, running the gate locally
     behaviors: [GATE-001, GATE-013]
-  - do: Opens a pull request with gh that names the behaviors it implements
-    behaviors: [GATE-018, GATE-011, GATE-017]
+  - do: Opens a pull request with gh that names the behaviors it implements and explains the work
+    behaviors: [GATE-018, GATE-011, GATE-017, GATE-019, GATE-020]
   - do: CI runs every gate
     behaviors: [GATE-002, GATE-004, GATE-005, GATE-006, GATE-007, GATE-016, GATE-015]
   - do: Reads the failures and fixes them until everything is green

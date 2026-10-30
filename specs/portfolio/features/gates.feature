@@ -101,3 +101,14 @@ Feature: Gates that keep agents honest
     Given agents push branches and open pull requests with the gh CLI, as Ian
     Then Claude Code permission rules deny them merging pull requests, adding or removing labels, pushing to main, force pushing, and changing branch protection or rulesets
     And AGENTS.md states the same limits for Cursor, Grok Build and any other agent
+
+  @GATE-019 @ci
+  Scenario: Pull requests explain the work
+    Then the pull request template has sections for the summary, behaviors, spec trace, what changed, verification, decisions, protected changes, dependencies, risks and follow-ups, and a review guide
+    And the pr-trace check fails if the summary, verification or review guide is empty, naming each one
+
+  @GATE-020 @ci
+  Scenario: The facts in a pull request are generated
+    When an agent runs "bun run pr:body"
+    Then it drafts the description with the behaviors that now pass, the intents and journeys they serve, the files changed by area, the protected files, the added dependencies and each check's result
+    And it leaves the summary, decisions, risks and review guide for the agent to write
