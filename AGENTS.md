@@ -94,6 +94,7 @@ bun run agent:gh -- pr create --title "..." --body-file pr.md   # gh as ians-age
 
 ```
 specs/portfolio/   intents/, journeys/, features/ (Gherkin), README.md, GRAPH.md (generated)
+packages/tokens/   design tokens: DTCG JSON in src/, built with Style Dictionary (bun run build) into dist/
 tests/             scenarios.test.ts runs every behavior; steps/ holds step definitions
 tools/gate/        the gate: checks.ts lists every check; cli.ts runs them
 tools/agent/       the agent's identity: token minting, agent:gh, agent:push and their guards
