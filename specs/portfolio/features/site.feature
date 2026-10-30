@@ -54,7 +54,7 @@ Feature: The site: who I am and what I build
 
   @SITE-010 @site
   Scenario: Shares well
-    Then every page has a title, a description, a canonical URL under https://iankaneshiro.github.io, and Open Graph and Twitter card tags with an image
+    Then every page has a title, a description, a canonical URL under https://www.iankaneshiro.dev, and Open Graph and Twitter card tags with an image
     And the favicon uses the brand mark
 
   @SITE-011 @site @a11y
@@ -72,6 +72,12 @@ Feature: The site: who I am and what I build
     Then the hero is a prompt asking who Ian is, answered by a few tool calls and a short summary
     And every word of it is in the page HTML from the start
     And any reveal animation is skipped when the visitor prefers reduced motion
+
+  @SITE-015 @site
+  Scenario: Resume download
+    Given a resume PDF is in the content
+    Then the about and contact sections link to it, saying it's a PDF and when it was last updated
+    And without a resume in the content, no resume link is shown
 
   @SITE-014 @site
   Scenario: How this site was built

@@ -9,7 +9,7 @@ steps:
     behaviors: [GRAPH-009, GRAPH-008, GATE-010]
   - do: Builds it on a branch, running the gate locally
     behaviors: [GATE-001, GATE-013]
-  - do: Opens a pull request that names the behaviors it implements
+  - do: Opens a pull request with gh that names the behaviors it implements
     behaviors: [GATE-018, GATE-011, GATE-017]
   - do: CI runs every gate
     behaviors: [GATE-002, GATE-004, GATE-005, GATE-006, GATE-007, GATE-016, GATE-015]
@@ -17,7 +17,7 @@ steps:
     behaviors: [GATE-012, GATE-013]
   - do: Can't loosen a gate to get there
     behaviors: [GATE-008, GATE-009, GATE-003]
-  - do: Is done when the PR is green, and Ian approves and merges
+  - do: Is done when the PR is green, and Ian merges
     behaviors: [GATE-014, GATE-003]
 ---
 

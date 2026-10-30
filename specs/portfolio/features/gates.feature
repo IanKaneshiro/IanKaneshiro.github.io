@@ -16,9 +16,10 @@ Feature: Gates that keep agents honest
     Then GitHub Actions runs each check as its own required status check: typecheck, lint, format, unit and scenario tests, spec check, build, Storybook tests, end-to-end and accessibility tests, budgets and the secret scan
 
   @GATE-003 @ci @security
-  Scenario: main only changes through a green, approved pull request
+  Scenario: main only changes through a green pull request
     Then main rejects direct pushes and force pushes
-    And a pull request can't merge until every required check passes and Ian has approved it
+    And a pull request can't merge until every required check passes
+    And these rules apply to admins too, so nobody can merge red
     And "bun run gate:protection" fails if GitHub's branch protection settings don't say so
 
   @GATE-004 @ci
@@ -48,14 +49,16 @@ Feature: Gates that keep agents honest
     And if it adds a lint-disable, @ts-ignore or @ts-expect-error comment without a reason on the same line
 
   @GATE-009 @ci @security
-  Scenario: The gates themselves are owner-protected
-    Then changes to workflows, lint and format configs, tsconfig, budgets, thresholds or gate scripts need Ian's review
-    And CODEOWNERS enforces this
+  Scenario: Changes to the gates need Ian's sign-off
+    Given a pull request changes workflows, lint or format configs, tsconfig, budgets, thresholds or gate scripts
+    Then the protected-paths check fails, listing those files
+    And it passes only once Ian adds the owner-approved label
 
   @GATE-010 @ci @security
-  Scenario: Specs are owner-protected
-    Then changes under specs/ need Ian's review
-    And CODEOWNERS enforces this
+  Scenario: Changes to the specs need Ian's sign-off
+    Given a pull request changes anything under specs/
+    Then the protected-paths check fails, listing those files
+    And it passes only once Ian adds the owner-approved label
 
   @GATE-011 @ci
   Scenario: Pull requests trace to behaviors
@@ -79,7 +82,7 @@ Feature: Gates that keep agents honest
   Scenario: Done means green
     Then an agent's work is done only when its pull request passes every required check
     And the agent reports the pull request link and its check status
-    And Ian approves and merges
+    And only Ian merges, and the merge is the approval
 
   @GATE-015 @ci
   Scenario: The gate is fast
@@ -94,6 +97,7 @@ Feature: Gates that keep agents honest
     Then a pull request that adds a dependency fails unless its description gives a reason for each one
 
   @GATE-018 @ci @security
-  Scenario: Agents work as their own GitHub identity
-    Then agents push and open pull requests as a separate bot account with write access
-    And the bot account can't approve pull requests, merge to main or bypass branch protection
+  Scenario: What agents may not do with gh
+    Given agents push branches and open pull requests with the gh CLI, as Ian
+    Then Claude Code permission rules deny them merging pull requests, adding or removing labels, pushing to main, force pushing, and changing branch protection or rulesets
+    And AGENTS.md states the same limits for Cursor, Grok Build and any other agent

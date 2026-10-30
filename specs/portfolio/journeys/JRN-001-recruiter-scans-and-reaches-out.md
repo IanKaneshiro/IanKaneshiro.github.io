@@ -14,7 +14,7 @@ steps:
   - do: Reads a little about Ian
     behaviors: [SITE-004, KIT-008, KIT-014]
   - do: Gets in touch
-    behaviors: [SITE-005, KIT-011, KIT-002]
+    behaviors: [SITE-005, SITE-015, KIT-011, KIT-002]
 ---
 
 The most common visit and the one the home page is built for. The recruiter decides in

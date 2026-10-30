@@ -53,7 +53,8 @@ Review notes from the UI are saved to `review-notes.json` in this folder, keyed 
 5. **The build is part of the portfolio.** The Storybook and this graph are public on purpose.
 6. **Content is data.** Projects, stack and bio live in content files, never in components.
 7. **Trust comes from gates.** Every rule here is a check that runs on every pull request. Agents
-   aren't done until the gates are green, and they can't change the gates or the specs without Ian.
+   aren't done until the gates are green, they can't change the gates or the specs without Ian's
+   sign-off, and only Ian merges.
 
 ## Areas
 
@@ -101,9 +102,10 @@ This is JRN-010. When Ian asks for a feature:
    new dependency (GATE-017).
 8. **Fix until green.** Read the failures (`gh pr checks`, and the summary comment from GATE-012),
    fix them, and push again. Never loosen a gate, skip a test or edit specs to get to green: those
-   changes need Ian (GATE-008 to GATE-010). If a gate seems wrong, say so in the pull request.
-9. **Done** means every required check passes. Report the pull request link and its status;
-   Ian approves and merges (GATE-014).
+   changes need Ian's owner-approved label (GATE-008 to GATE-010). If a gate seems wrong, say so in
+   the pull request.
+9. **Done** means every required check passes. Report the pull request link and its status. Never
+   merge or label: only Ian merges (GATE-014, GATE-018).
 
 ## Decisions
 
@@ -111,13 +113,14 @@ Confirmed on 2026-10-30.
 
 | Decision | Where |
 |---|---|
-| Served at https://iankaneshiro.github.io from the `IanKaneshiro.github.io` repo | SHIP-006, SITE-010 |
+| Served at https://www.iankaneshiro.dev (the existing custom domain) from the `IanKaneshiro.github.io` repo. The old site keeps serving until the new one ships | SHIP-006, SHIP-008, SITE-010 |
+| A resume download, shown once an updated PDF is in the content | SITE-015 |
 | Component prefix `kan-`: tags `kan-*`, classes `Kan*`, events `kan*`, custom properties `--kan-*` | CMP-001, CMP-008, TOK-002 |
 | JetBrains Mono for headings, labels and code; Inter for body text | PRIM-007 |
 | AI crawlers are welcome | AGENT-005 |
-| Agents push and open pull requests as a separate bot account, and Ian approves as Ian | GATE-003, GATE-018 |
+| Agents open pull requests with the gh CLI as Ian. They can't merge, label, push to main or change protection. Only Ian merges, and the merge is the approval | GATE-003, GATE-014, GATE-018 |
 | Lint and format with ESLint (with the Stencil plugin), Stylelint and Prettier | GATE-005, GATE-006 |
-| v1 is the home page and "How this site was built". More pages go through the graph later | SITE-* |
+| v1 is the home page, "How this site was built" and a resume link. More pages go through the graph later | SITE-* |
 
 **Starting values,** accepted for now and open to tuning at the identity checkpoint in Storybook:
 
@@ -140,7 +143,7 @@ content collections when the site is built.
 
 ## Not in v1
 
-Project detail pages, a writing section, work history, a resume download, and a live "ask about Ian"
+Project detail pages, a writing section, work history, and a live "ask about Ian"
 agent (it needs a backend, which GitHub Pages doesn't have, and would break QUAL-004). Each of these
 would come back through the graph as a new journey or behaviors.
 

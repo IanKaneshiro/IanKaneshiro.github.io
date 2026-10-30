@@ -34,9 +34,15 @@ Feature: Building, deploying and the profile README
     And a failed build leaves the live site unchanged
 
   @SHIP-006 @site
-  Scenario: Served at iankaneshiro.github.io
-    Then the site is built from the IanKaneshiro.github.io repo and served at https://iankaneshiro.github.io
+  Scenario: Served at www.iankaneshiro.dev
+    Then the site is built from the IanKaneshiro.github.io repo and served at https://www.iankaneshiro.dev
     And every link and asset works there and in a local preview
+
+  @SHIP-008 @ci
+  Scenario: Cutover from the old site
+    Then until the new site ships, the old site keeps serving www.iankaneshiro.dev from the root of main, unchanged
+    And the pull request that ships the new site switches GitHub Pages to the Actions deploy and removes the old site's files
+    And www.iankaneshiro.dev keeps working through the switch
 
   @SHIP-007 @profile
   Scenario: The profile README points to the site

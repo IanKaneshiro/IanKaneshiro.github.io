@@ -10,5 +10,5 @@ steps:
   - do: Opens a pull request and the gate runs
     behaviors: [GATE-001, GATE-002, QUAL-001, QUAL-002, QUAL-006, DOCS-007, GRAPH-006]
   - do: Merges, and the site and Storybook deploy
-    behaviors: [SHIP-005, SHIP-006]
+    behaviors: [SHIP-005, SHIP-006, SHIP-008]
 ---

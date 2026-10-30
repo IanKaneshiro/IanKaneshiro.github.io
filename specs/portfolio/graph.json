@@ -655,7 +655,7 @@
     {
       "kind": "behavior",
       "id": "GATE-003",
-      "title": "main only changes through a green, approved pull request",
+      "title": "main only changes through a green pull request",
       "area": "GATE",
       "tags": [
         "@ci",
@@ -669,7 +669,11 @@
         },
         {
           "keyword": "And",
-          "text": "a pull request can't merge until every required check passes and Ian has approved it"
+          "text": "a pull request can't merge until every required check passes"
+        },
+        {
+          "keyword": "And",
+          "text": "these rules apply to admins too, so nobody can merge red"
         },
         {
           "keyword": "And",
@@ -699,7 +703,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 25
+      "line": 26
     },
     {
       "kind": "behavior",
@@ -721,7 +725,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 30
+      "line": 31
     },
     {
       "kind": "behavior",
@@ -747,7 +751,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 35
+      "line": 36
     },
     {
       "kind": "behavior",
@@ -769,7 +773,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 41
+      "line": 42
     },
     {
       "kind": "behavior",
@@ -792,12 +796,12 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 46
+      "line": 47
     },
     {
       "kind": "behavior",
       "id": "GATE-009",
-      "title": "The gates themselves are owner-protected",
+      "title": "Changes to the gates need Ian's sign-off",
       "area": "GATE",
       "tags": [
         "@ci",
@@ -806,21 +810,25 @@
       "retired": false,
       "steps": [
         {
+          "keyword": "Given",
+          "text": "a pull request changes workflows, lint or format configs, tsconfig, budgets, thresholds or gate scripts"
+        },
+        {
           "keyword": "Then",
-          "text": "changes to workflows, lint and format configs, tsconfig, budgets, thresholds or gate scripts need Ian's review"
+          "text": "the protected-paths check fails, listing those files"
         },
         {
           "keyword": "And",
-          "text": "CODEOWNERS enforces this"
+          "text": "it passes only once Ian adds the owner-approved label"
         }
       ],
       "file": "features/gates.feature",
-      "line": 51
+      "line": 52
     },
     {
       "kind": "behavior",
       "id": "GATE-010",
-      "title": "Specs are owner-protected",
+      "title": "Changes to the specs need Ian's sign-off",
       "area": "GATE",
       "tags": [
         "@ci",
@@ -829,16 +837,20 @@
       "retired": false,
       "steps": [
         {
+          "keyword": "Given",
+          "text": "a pull request changes anything under specs/"
+        },
+        {
           "keyword": "Then",
-          "text": "changes under specs/ need Ian's review"
+          "text": "the protected-paths check fails, listing those files"
         },
         {
           "keyword": "And",
-          "text": "CODEOWNERS enforces this"
+          "text": "it passes only once Ian adds the owner-approved label"
         }
       ],
       "file": "features/gates.feature",
-      "line": 56
+      "line": 58
     },
     {
       "kind": "behavior",
@@ -864,7 +876,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 61
+      "line": 64
     },
     {
       "kind": "behavior",
@@ -886,7 +898,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 67
+      "line": 70
     },
     {
       "kind": "behavior",
@@ -916,7 +928,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 72
+      "line": 75
     },
     {
       "kind": "behavior",
@@ -938,11 +950,11 @@
         },
         {
           "keyword": "And",
-          "text": "Ian approves and merges"
+          "text": "only Ian merges, and the merge is the approval"
         }
       ],
       "file": "features/gates.feature",
-      "line": 79
+      "line": 82
     },
     {
       "kind": "behavior",
@@ -960,7 +972,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 85
+      "line": 88
     },
     {
       "kind": "behavior",
@@ -979,7 +991,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 89
+      "line": 92
     },
     {
       "kind": "behavior",
@@ -997,12 +1009,12 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 93
+      "line": 96
     },
     {
       "kind": "behavior",
       "id": "GATE-018",
-      "title": "Agents work as their own GitHub identity",
+      "title": "What agents may not do with gh",
       "area": "GATE",
       "tags": [
         "@ci",
@@ -1011,16 +1023,20 @@
       "retired": false,
       "steps": [
         {
+          "keyword": "Given",
+          "text": "agents push branches and open pull requests with the gh CLI, as Ian"
+        },
+        {
           "keyword": "Then",
-          "text": "agents push and open pull requests as a separate bot account with write access"
+          "text": "Claude Code permission rules deny them merging pull requests, adding or removing labels, pushing to main, force pushing, and changing branch protection or rulesets"
         },
         {
           "keyword": "And",
-          "text": "the bot account can't approve pull requests, merge to main or bypass branch protection"
+          "text": "AGENTS.md states the same limits for Cursor, Grok Build and any other agent"
         }
       ],
       "file": "features/gates.feature",
-      "line": 97
+      "line": 100
     },
     {
       "kind": "behavior",
@@ -2377,7 +2393,7 @@
     {
       "kind": "behavior",
       "id": "SHIP-006",
-      "title": "Served at iankaneshiro.github.io",
+      "title": "Served at www.iankaneshiro.dev",
       "area": "SHIP",
       "tags": [
         "@site"
@@ -2386,7 +2402,7 @@
       "steps": [
         {
           "keyword": "Then",
-          "text": "the site is built from the IanKaneshiro.github.io repo and served at https://iankaneshiro.github.io"
+          "text": "the site is built from the IanKaneshiro.github.io repo and served at https://www.iankaneshiro.dev"
         },
         {
           "keyword": "And",
@@ -2395,6 +2411,32 @@
       ],
       "file": "features/ship.feature",
       "line": 37
+    },
+    {
+      "kind": "behavior",
+      "id": "SHIP-008",
+      "title": "Cutover from the old site",
+      "area": "SHIP",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "until the new site ships, the old site keeps serving www.iankaneshiro.dev from the root of main, unchanged"
+        },
+        {
+          "keyword": "And",
+          "text": "the pull request that ships the new site switches GitHub Pages to the Actions deploy and removes the old site's files"
+        },
+        {
+          "keyword": "And",
+          "text": "www.iankaneshiro.dev keeps working through the switch"
+        }
+      ],
+      "file": "features/ship.feature",
+      "line": 42
     },
     {
       "kind": "behavior",
@@ -2420,7 +2462,7 @@
         }
       ],
       "file": "features/ship.feature",
-      "line": 42
+      "line": 48
     },
     {
       "kind": "behavior",
@@ -2644,7 +2686,7 @@
       "steps": [
         {
           "keyword": "Then",
-          "text": "every page has a title, a description, a canonical URL under https://iankaneshiro.github.io, and Open Graph and Twitter card tags with an image"
+          "text": "every page has a title, a description, a canonical URL under https://www.iankaneshiro.dev, and Open Graph and Twitter card tags with an image"
         },
         {
           "keyword": "And",
@@ -2727,6 +2769,32 @@
     },
     {
       "kind": "behavior",
+      "id": "SITE-015",
+      "title": "Resume download",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "a resume PDF is in the content"
+        },
+        {
+          "keyword": "Then",
+          "text": "the about and contact sections link to it, saying it's a PDF and when it was last updated"
+        },
+        {
+          "keyword": "And",
+          "text": "without a resume in the content, no resume link is shown"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 77
+    },
+    {
+      "kind": "behavior",
       "id": "SITE-014",
       "title": "How this site was built",
       "area": "SITE",
@@ -2745,7 +2813,7 @@
         }
       ],
       "file": "features/site.feature",
-      "line": 77
+      "line": 83
     },
     {
       "kind": "behavior",
@@ -3522,6 +3590,13 @@
     {
       "from": "JRN-001",
       "to": "SITE-005",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Gets in touch"
+    },
+    {
+      "from": "JRN-001",
+      "to": "SITE-015",
       "type": "uses",
       "step": 5,
       "stepText": "Gets in touch"
@@ -4346,6 +4421,13 @@
       "stepText": "Merges, and the site and Storybook deploy"
     },
     {
+      "from": "JRN-009",
+      "to": "SHIP-008",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Merges, and the site and Storybook deploy"
+    },
+    {
       "from": "JRN-010",
       "to": "GRAPH-009",
       "type": "uses",
@@ -4546,21 +4628,21 @@
       "to": "GATE-018",
       "type": "uses",
       "step": 3,
-      "stepText": "Opens a pull request that names the behaviors it implements"
+      "stepText": "Opens a pull request with gh that names the behaviors it implements"
     },
     {
       "from": "JRN-014",
       "to": "GATE-011",
       "type": "uses",
       "step": 3,
-      "stepText": "Opens a pull request that names the behaviors it implements"
+      "stepText": "Opens a pull request with gh that names the behaviors it implements"
     },
     {
       "from": "JRN-014",
       "to": "GATE-017",
       "type": "uses",
       "step": 3,
-      "stepText": "Opens a pull request that names the behaviors it implements"
+      "stepText": "Opens a pull request with gh that names the behaviors it implements"
     },
     {
       "from": "JRN-014",
@@ -4651,14 +4733,14 @@
       "to": "GATE-014",
       "type": "uses",
       "step": 7,
-      "stepText": "Is done when the PR is green, and Ian approves and merges"
+      "stepText": "Is done when the PR is green, and Ian merges"
     },
     {
       "from": "JRN-014",
       "to": "GATE-003",
       "type": "uses",
       "step": 7,
-      "stepText": "Is done when the PR is green, and Ian approves and merges"
+      "stepText": "Is done when the PR is green, and Ian merges"
     }
   ]
 }
