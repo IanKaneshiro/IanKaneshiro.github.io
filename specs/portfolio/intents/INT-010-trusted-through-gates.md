@@ -18,9 +18,9 @@ between.
   budgets) is a check that can fail.
 - Failures name the file, the rule and the fix, so an agent can repair its own work.
 - An agent isn't done until its PR is green. It keeps working while any check fails.
-- Only Ian merges. Changes to specs or gate configuration also need Ian's explicit sign-off.
-- Agents use Ian's GitHub identity through gh, so the line between agent and owner is drawn by
-  what the agent's permissions allow and by Ian being the only one who merges.
+- Agents work as their own GitHub identity, ians-agent[bot], with permissions GitHub enforces.
+  Ian approves their pull requests with a review, and a pull request merges only when it's
+  approved and green. Changes to specs or gate configuration are flagged for a close review.
 
 ## Not this
 

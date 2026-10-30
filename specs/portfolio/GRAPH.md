@@ -186,7 +186,7 @@ flowchart LR
 | 2 | The agent reads the current behavior and the intent behind it | [GRAPH-001](features/graph.feature#L8) Three layers in three places<br/>[GRAPH-003](features/graph.feature#L20) Edges live in journeys<br/>[GRAPH-008](features/graph.feature#L50) Trace any node |
 | 3 | The agent proposes changes to intents, journeys and behaviors, and Ian approves them | [GRAPH-002](features/graph.feature#L14) Permanent IDs<br/>[GRAPH-010](features/graph.feature#L61) Retiring instead of deleting |
 | 4 | The spec check catches any gaps in the graph | [GRAPH-004](features/graph.feature#L25) Nothing is orphaned<br/>[GRAPH-005](features/graph.feature#L31) References must resolve<br/>[GRAPH-006](features/graph.feature#L37) Gherkin must parse<br/>[GRAPH-007](features/graph.feature#L43) The graph is generated |
-| 5 | The agent delivers it through the gates (JRN-014) | [GATE-011](features/gates.feature#L64) Pull requests trace to behaviors<br/>[GATE-014](features/gates.feature#L82) Done means green |
+| 5 | The agent delivers it through the gates (JRN-014) | [GATE-011](features/gates.feature#L66) Pull requests trace to behaviors<br/>[GATE-014](features/gates.feature#L84) Done means green |
 
 ### JRN-011 · Someone visits Ian's GitHub profile
 
@@ -222,13 +222,13 @@ flowchart LR
 
 | # | Step | Behaviors |
 |---|---|---|
-| 1 | Plans the feature with Ian, and Ian approves the spec change | [GRAPH-009](features/graph.feature#L56) Find where a request belongs<br/>[GRAPH-008](features/graph.feature#L50) Trace any node<br/>[GATE-010](features/gates.feature#L58) Changes to the specs need Ian's sign-off |
-| 2 | Builds it on a branch, running the gate locally | [GATE-001](features/gates.feature#L8) One gate command<br/>[GATE-013](features/gates.feature#L75) An agent can't stop on red |
-| 3 | Opens a pull request with gh that names the behaviors it implements and explains the work | [GATE-018](features/gates.feature#L100) What agents may not do with gh<br/>[GATE-011](features/gates.feature#L64) Pull requests trace to behaviors<br/>[GATE-017](features/gates.feature#L96) New dependencies are explained<br/>[GATE-019](features/gates.feature#L106) Pull requests explain the work<br/>[GATE-020](features/gates.feature#L111) The facts in a pull request are generated |
-| 4 | CI runs every gate | [GATE-002](features/gates.feature#L14) Every pull request runs the gate<br/>[GATE-004](features/gates.feature#L26) Typecheck<br/>[GATE-005](features/gates.feature#L31) Lint and format<br/>[GATE-006](features/gates.feature#L36) The design rules are lint rules<br/>[GATE-007](features/gates.feature#L42) Behaviors are tests, and coverage never drops<br/>[GATE-016](features/gates.feature#L92) No secrets<br/>[GATE-015](features/gates.feature#L88) The gate is fast |
-| 5 | Reads the failures and fixes them until everything is green | [GATE-012](features/gates.feature#L70) Failures say what to fix<br/>[GATE-013](features/gates.feature#L75) An agent can't stop on red |
-| 6 | Can't loosen a gate to get there | [GATE-008](features/gates.feature#L47) Tests can't be quietly weakened<br/>[GATE-009](features/gates.feature#L52) Changes to the gates need Ian's sign-off<br/>[GATE-003](features/gates.feature#L19) main only changes through a green pull request |
-| 7 | Is done when the PR is green, and Ian merges | [GATE-014](features/gates.feature#L82) Done means green<br/>[GATE-003](features/gates.feature#L19) main only changes through a green pull request |
+| 1 | Plans the feature with Ian, and Ian approves the spec change | [GRAPH-009](features/graph.feature#L56) Find where a request belongs<br/>[GRAPH-008](features/graph.feature#L50) Trace any node<br/>[GATE-010](features/gates.feature#L60) Changes to the specs are flagged for Ian's review |
+| 2 | Builds it on a branch, running the gate locally | [GATE-001](features/gates.feature#L8) One gate command<br/>[GATE-013](features/gates.feature#L77) An agent can't stop on red |
+| 3 | Opens a pull request as ians-agent[bot] that names the behaviors it implements and explains the work | [GATE-018](features/gates.feature#L102) Agents work as their own GitHub identity<br/>[GATE-011](features/gates.feature#L66) Pull requests trace to behaviors<br/>[GATE-017](features/gates.feature#L98) New dependencies are explained<br/>[GATE-019](features/gates.feature#L110) Pull requests explain the work<br/>[GATE-020](features/gates.feature#L115) The facts in a pull request are generated |
+| 4 | CI runs every gate | [GATE-002](features/gates.feature#L14) Every pull request runs the gate<br/>[GATE-004](features/gates.feature#L28) Typecheck<br/>[GATE-005](features/gates.feature#L33) Lint and format<br/>[GATE-006](features/gates.feature#L38) The design rules are lint rules<br/>[GATE-007](features/gates.feature#L44) Behaviors are tests, and coverage never drops<br/>[GATE-016](features/gates.feature#L94) No secrets<br/>[GATE-015](features/gates.feature#L90) The gate is fast |
+| 5 | Reads the failures and fixes them until everything is green | [GATE-012](features/gates.feature#L72) Failures say what to fix<br/>[GATE-013](features/gates.feature#L77) An agent can't stop on red |
+| 6 | Can't loosen a gate to get there | [GATE-008](features/gates.feature#L49) Tests can't be quietly weakened<br/>[GATE-009](features/gates.feature#L54) Changes to the gates are flagged for Ian's review<br/>[GATE-003](features/gates.feature#L19) main only changes through a green, approved pull request |
+| 7 | Is done when the PR is green, and Ian approves and merges | [GATE-014](features/gates.feature#L84) Done means green<br/>[GATE-003](features/gates.feature#L19) main only changes through a green, approved pull request |
 
 ## Behaviors by area
 
@@ -270,24 +270,24 @@ flowchart LR
 |---|---|---|
 | [GATE-001](features/gates.feature#L8) | One gate command | [JRN-009](journeys/JRN-009-ian-ships-a-change.md), [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
 | [GATE-002](features/gates.feature#L14) | Every pull request runs the gate | [JRN-008](journeys/JRN-008-ian-updates-content.md), [JRN-009](journeys/JRN-009-ian-ships-a-change.md), [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-003](features/gates.feature#L19) | main only changes through a green pull request | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-004](features/gates.feature#L26) | Typecheck | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-005](features/gates.feature#L31) | Lint and format | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-006](features/gates.feature#L36) | The design rules are lint rules | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-007](features/gates.feature#L42) | Behaviors are tests, and coverage never drops | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-008](features/gates.feature#L47) | Tests can't be quietly weakened | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-009](features/gates.feature#L52) | Changes to the gates need Ian's sign-off | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-010](features/gates.feature#L58) | Changes to the specs need Ian's sign-off | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-011](features/gates.feature#L64) | Pull requests trace to behaviors | [JRN-010](journeys/JRN-010-agent-adds-a-feature.md), [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-012](features/gates.feature#L70) | Failures say what to fix | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-013](features/gates.feature#L75) | An agent can't stop on red | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-014](features/gates.feature#L82) | Done means green | [JRN-010](journeys/JRN-010-agent-adds-a-feature.md), [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-015](features/gates.feature#L88) | The gate is fast | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-016](features/gates.feature#L92) | No secrets | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-017](features/gates.feature#L96) | New dependencies are explained | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-018](features/gates.feature#L100) | What agents may not do with gh | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-019](features/gates.feature#L106) | Pull requests explain the work | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
-| [GATE-020](features/gates.feature#L111) | The facts in a pull request are generated | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-003](features/gates.feature#L19) | main only changes through a green, approved pull request | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-004](features/gates.feature#L28) | Typecheck | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-005](features/gates.feature#L33) | Lint and format | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-006](features/gates.feature#L38) | The design rules are lint rules | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-007](features/gates.feature#L44) | Behaviors are tests, and coverage never drops | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-008](features/gates.feature#L49) | Tests can't be quietly weakened | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-009](features/gates.feature#L54) | Changes to the gates are flagged for Ian's review | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-010](features/gates.feature#L60) | Changes to the specs are flagged for Ian's review | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-011](features/gates.feature#L66) | Pull requests trace to behaviors | [JRN-010](journeys/JRN-010-agent-adds-a-feature.md), [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-012](features/gates.feature#L72) | Failures say what to fix | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-013](features/gates.feature#L77) | An agent can't stop on red | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-014](features/gates.feature#L84) | Done means green | [JRN-010](journeys/JRN-010-agent-adds-a-feature.md), [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-015](features/gates.feature#L90) | The gate is fast | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-016](features/gates.feature#L94) | No secrets | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-017](features/gates.feature#L98) | New dependencies are explained | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-018](features/gates.feature#L102) | Agents work as their own GitHub identity | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-019](features/gates.feature#L110) | Pull requests explain the work | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
+| [GATE-020](features/gates.feature#L115) | The facts in a pull request are generated | [JRN-014](journeys/JRN-014-agent-delivers-through-the-gates.md) |
 
 ### GRAPH · The spec graph: intents, journeys and behaviors
 
