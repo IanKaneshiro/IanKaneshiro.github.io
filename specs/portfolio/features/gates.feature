@@ -21,7 +21,7 @@ Feature: Gates that keep agents honest
     And a pull request can't merge until every required check passes
     And these rules apply to admins too, so nobody can merge red
     And a pull request can't merge without an approving review, and a push after the approval needs a new one
-    And only admins can skip the approval, on their own pull requests
+    And only admins can skip the approval, and only when merging a pull request
     And "bun run gate:protection" fails if GitHub's branch protection settings don't say so
 
   @GATE-004 @ci

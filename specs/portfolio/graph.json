@@ -681,7 +681,7 @@
         },
         {
           "keyword": "And",
-          "text": "only admins can skip the approval, on their own pull requests"
+          "text": "only admins can skip the approval, and only when merging a pull request"
         },
         {
           "keyword": "And",

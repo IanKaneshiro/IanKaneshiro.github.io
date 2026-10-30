@@ -119,7 +119,7 @@ Confirmed on 2026-10-30.
 | Component prefix `kan-`: tags `kan-*`, classes `Kan*`, events `kan*`, custom properties `--kan-*` | CMP-001, CMP-008, TOK-002 |
 | JetBrains Mono for headings, labels and code; Inter for body text | PRIM-007 |
 | AI crawlers are welcome | AGENT-005 |
-| Agents act as their own GitHub App identity, `ians-agent[bot]`, with no Administration or Workflows permission. Ian approves their pull requests with a review; admins can skip approval only on their own pull requests | GATE-003, GATE-014, GATE-018 |
+| Agents act as their own GitHub App identity, `ians-agent[bot]`, with no Administration or Workflows permission. Ian approves their pull requests with a review; admins can skip approval, only when merging a pull request | GATE-003, GATE-014, GATE-018 |
 | Lint and format with ESLint (with the Stencil plugin), Stylelint and Prettier | GATE-005, GATE-006 |
 | v1 is the home page, "How this site was built" and a resume link. More pages go through the graph later | SITE-* |
 
