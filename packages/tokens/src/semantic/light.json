@@ -1,0 +1,117 @@
+{
+  "color": {
+    "$type": "color",
+    "bg": {
+      "$description": "Backgrounds.",
+      "canvas": {
+        "$value": "{color.neutral.50}"
+      },
+      "surface": {
+        "$value": "{color.white}"
+      },
+      "raised": {
+        "$value": "{color.neutral.100}"
+      },
+      "inset": {
+        "$value": "{color.neutral.200}",
+        "$description": "The background for code and terminal blocks."
+      }
+    },
+    "text": {
+      "default": {
+        "$value": "{color.neutral.900}"
+      },
+      "muted": {
+        "$value": "{color.neutral.700}"
+      },
+      "subtle": {
+        "$value": "{color.neutral.600}"
+      },
+      "inverse": {
+        "$value": "{color.neutral.50}",
+        "$description": "Text on an inverted background, e.g. a tooltip."
+      },
+      "accent": {
+        "$value": "{color.cyan.800}"
+      },
+      "on-accent": {
+        "$value": "{color.white}",
+        "$description": "Text on an accent.default fill."
+      }
+    },
+    "border": {
+      "subtle": {
+        "$value": "{color.neutral.100}"
+      },
+      "default": {
+        "$value": "{color.neutral.200}"
+      },
+      "strong": {
+        "$value": "{color.neutral.500}"
+      },
+      "focus": {
+        "$value": "{color.cyan.700}"
+      }
+    },
+    "accent": {
+      "default": {
+        "$value": "{color.cyan.800}"
+      },
+      "hover": {
+        "$value": "{color.cyan.900}"
+      },
+      "active": {
+        "$value": "{color.cyan.950}"
+      },
+      "subtle": {
+        "$value": "{color.cyan.50}"
+      }
+    },
+    "status": {
+      "success": {
+        "fg": {
+          "$value": "{color.green.800}"
+        },
+        "bg": {
+          "$value": "{color.green.50}"
+        },
+        "border": {
+          "$value": "{color.green.300}"
+        }
+      },
+      "warning": {
+        "fg": {
+          "$value": "{color.amber.800}"
+        },
+        "bg": {
+          "$value": "{color.amber.50}"
+        },
+        "border": {
+          "$value": "{color.amber.300}"
+        }
+      },
+      "danger": {
+        "fg": {
+          "$value": "{color.red.700}"
+        },
+        "bg": {
+          "$value": "{color.red.50}"
+        },
+        "border": {
+          "$value": "{color.red.300}"
+        }
+      },
+      "info": {
+        "fg": {
+          "$value": "{color.cyan.800}"
+        },
+        "bg": {
+          "$value": "{color.cyan.50}"
+        },
+        "border": {
+          "$value": "{color.cyan.300}"
+        }
+      }
+    }
+  }
+}

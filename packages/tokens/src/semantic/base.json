@@ -1,0 +1,167 @@
+{
+  "typography": {
+    "$type": "typography",
+    "$description": "Mono for headings, labels and code; sans for body text.",
+    "heading-1": {
+      "$value": {
+        "fontFamily": "{font.family.mono}",
+        "fontSize": "{font.size.4xl}",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": "{font.line-height.tight}"
+      }
+    },
+    "heading-2": {
+      "$value": {
+        "fontFamily": "{font.family.mono}",
+        "fontSize": "{font.size.2xl}",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": "{font.line-height.tight}"
+      }
+    },
+    "heading-3": {
+      "$value": {
+        "fontFamily": "{font.family.mono}",
+        "fontSize": "{font.size.xl}",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": "{font.line-height.tight}"
+      }
+    },
+    "body-lg": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.lg}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.relaxed}"
+      }
+    },
+    "body-md": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.md}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.normal}"
+      }
+    },
+    "body-sm": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.sm}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.normal}"
+      }
+    },
+    "label": {
+      "$value": {
+        "fontFamily": "{font.family.mono}",
+        "fontSize": "{font.size.xs}",
+        "fontWeight": "{font.weight.medium}",
+        "lineHeight": "{font.line-height.normal}"
+      }
+    },
+    "code": {
+      "$value": {
+        "fontFamily": "{font.family.mono}",
+        "fontSize": "{font.size.sm}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.normal}"
+      }
+    }
+  },
+  "space": {
+    "$type": "dimension",
+    "inset": {
+      "$description": "Padding inside a component.",
+      "sm": {
+        "$value": "{space.2}"
+      },
+      "md": {
+        "$value": "{space.4}"
+      },
+      "lg": {
+        "$value": "{space.6}"
+      }
+    },
+    "stack": {
+      "$description": "Vertical gaps between stacked elements.",
+      "sm": {
+        "$value": "{space.2}"
+      },
+      "md": {
+        "$value": "{space.4}"
+      },
+      "lg": {
+        "$value": "{space.8}"
+      }
+    },
+    "inline": {
+      "$description": "Horizontal gaps between elements in a row.",
+      "sm": {
+        "$value": "{space.1}"
+      },
+      "md": {
+        "$value": "{space.2}"
+      },
+      "lg": {
+        "$value": "{space.4}"
+      }
+    }
+  },
+  "layout": {
+    "$type": "dimension",
+    "gutter": {
+      "$value": "{space.6}"
+    },
+    "section-gap": {
+      "$value": "{space.24}"
+    },
+    "content-max-width": {
+      "$value": "{breakpoint.lg}",
+      "$description": "The widest the main column gets."
+    },
+    "prose-max-width": {
+      "$value": "{breakpoint.sm}",
+      "$description": "About 70 characters of body text."
+    }
+  },
+  "focus": {
+    "ring": {
+      "$description": "One focus ring for every interactive component.",
+      "color": {
+        "$type": "color",
+        "$value": "{color.border.focus}"
+      },
+      "width": {
+        "$type": "dimension",
+        "$value": "{border.width.thick}"
+      },
+      "offset": {
+        "$type": "dimension",
+        "$value": "{space.0-5}"
+      }
+    }
+  },
+  "motion": {
+    "$description": "Durations go to 0ms when the visitor prefers reduced motion.",
+    "duration": {
+      "$type": "duration",
+      "fast": {
+        "$value": "{duration.fast}"
+      },
+      "normal": {
+        "$value": "{duration.normal}"
+      },
+      "slow": {
+        "$value": "{duration.slow}"
+      }
+    },
+    "easing": {
+      "$type": "cubicBezier",
+      "standard": {
+        "$value": "{easing.standard}"
+      },
+      "emphasized": {
+        "$value": "{easing.emphasized}"
+      }
+    }
+  }
+}
