@@ -1,0 +1,83 @@
+# The gate (GATE-002). Every check in tools/gate/checks.ts runs as its own job, and each
+# job's name is a required status check on main. The summary job keeps one comment on
+# the pull request listing every failure (GATE-012).
+name: gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled, ready_for_review]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gate-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: ${{ matrix.check }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+          - format
+          - lint
+          - typecheck
+          - test
+          - specs
+          - behaviors
+          - hygiene
+          - secrets
+          - pr-trace
+          - dependencies
+          - protected-paths
+          - protection
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - name: bun run gate --only ${{ matrix.check }}
+        run: bun run gate --only ${{ matrix.check }} --report-dir gate-reports
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GATE_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gate-report-${{ matrix.check }}
+          path: gate-reports/
+          if-no-files-found: ignore
+
+  summary:
+    if: always() && github.event_name == 'pull_request'
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gate-report-*
+          path: gate-reports
+          merge-multiple: true
+      - run: bun tools/gate/summary.ts gate-reports
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
