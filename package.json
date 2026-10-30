@@ -16,7 +16,11 @@
     "specs:review": "bun tools/specs/review/server.ts",
     "specs:trace": "bun tools/specs/cli.ts trace",
     "specs:find": "bun tools/specs/cli.ts find",
-    "pr:body": "bun tools/gate/pr-body.ts"
+    "pr:body": "bun tools/gate/pr-body.ts",
+    "agent:gh": "bun tools/agent/cli.ts gh",
+    "agent:push": "bun tools/agent/cli.ts push",
+    "agent:token": "bun tools/agent/cli.ts token",
+    "agent:whoami": "bun tools/agent/cli.ts whoami"
   },
   "devDependencies": {
     "@cucumber/gherkin": "^42.0.1",

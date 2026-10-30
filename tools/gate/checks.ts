@@ -5,9 +5,10 @@ import stylelint from "stylelint";
 import { loadGraph, specProblems } from "../specs/graph";
 import { baseReport, compareCoverage, scenarioReport, type Report } from "./behaviors";
 import { addedLines, changedFiles, exec, readAt } from "./git";
+import { appPermissions, evaluateAppPermissions, KEY_FILE } from "../agent/app";
 import { evaluateProtection, type BranchRule, type Ruleset } from "./protection";
 import { checkHygiene } from "./hygiene";
-import { checkDependencies, checkProtected, dependencyNames, prTraceFailures, protectedChanges } from "./pr";
+import { checkDependencies, dependencyNames, prTraceFailures, protectedChanges, protectedNote } from "./pr";
 import { scanSecrets } from "./secrets";
 import { fromFailures, pass, skip, type Check, type Failure } from "./types";
 
@@ -72,7 +73,7 @@ export function addedDependencies(root: string, base: string): { file: string; n
   return added;
 }
 
-/** Files changed since `base` that need Ian's owner-approved label. */
+/** Files changed since `base` that Ian reviews closely (GATE-009, GATE-010). */
 export function protectedFiles(root: string, base: string): string[] {
   const scriptsChanged = (file: string) => {
     const before = JSON.parse(readAt(root, base, file) ?? "{}").scripts ?? {};
@@ -171,7 +172,7 @@ export const CHECKS: Check[] = [
             line: m?.[2] ? Number(m[2]) : undefined,
             rule: outOfDate ? "graph-out-of-date" : "spec-graph",
             message: m ? m[3] : p,
-            fix: outOfDate ? "run bun run specs:graph" : "fix the spec (spec changes need Ian's owner-approved label)",
+            fix: outOfDate ? "run bun run specs:graph" : "fix the spec; spec changes are flagged for Ian's review",
           };
         }),
       );
@@ -232,15 +233,10 @@ export const CHECKS: Check[] = [
   },
   {
     name: "protected-paths",
-    title: "Specs and gates need Ian's sign-off",
-    async run({ root, base, pr }) {
+    title: "Spec and gate changes flagged for review",
+    async run({ root, base }) {
       if (!base) return skip("no base commit to compare with");
-      const files = protectedFiles(root, base);
-      if (!pr)
-        return files.length
-          ? skip(`no pull request yet; ${files.length} protected files will need the owner-approved label`)
-          : pass();
-      return fromFailures(checkProtected(files, pr.labels));
+      return pass(protectedNote(protectedFiles(root, base)));
     },
   },
   {
@@ -260,15 +256,17 @@ export const CHECKS: Check[] = [
         const rs = gh("api", `repos/${repo}/rulesets/${id}`);
         if (rs.code === 0) rulesets.push(JSON.parse(rs.stdout));
       }
-      const canSeeBypass = rulesets.some((r) => Array.isArray(r.bypass_actors));
-      return fromFailures(
-        evaluateProtection(
-          branchRules,
-          rulesets,
-          CHECKS.map((c) => c.name),
-        ),
-        canSeeBypass ? undefined : "bypass list not visible to this token; checked locally by Ian",
+      const failures = evaluateProtection(
+        branchRules,
+        rulesets,
+        CHECKS.map((c) => c.name),
       );
+      const notes: string[] = [];
+      if (!rulesets.some((r) => Array.isArray(r.bypass_actors))) notes.push("bypass lists not visible to this token");
+      // The agent app's permissions can only be read with its key, which never leaves Ian's machine.
+      if (!ci && fs.existsSync(KEY_FILE)) failures.push(...evaluateAppPermissions(await appPermissions()));
+      else notes.push("agent app permissions checked locally");
+      return fromFailures(failures, notes.join("; ") || undefined);
     },
   },
 ];
