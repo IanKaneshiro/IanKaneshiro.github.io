@@ -9,7 +9,23 @@ import path from "node:path";
 
 export type Token = { path: string[]; type: string; value: unknown; description?: string; file: string };
 
-const TYPES = ["color", "dimension", "duration", "fontFamily", "fontWeight", "number", "cubicBezier"] as const;
+const TYPES = [
+  "color",
+  "dimension",
+  "duration",
+  "fontFamily",
+  "fontWeight",
+  "number",
+  "cubicBezier",
+  "typography",
+] as const;
+/** The parts of a typography token, and the type each part has. */
+export const TYPOGRAPHY_PARTS = {
+  fontFamily: "fontFamily",
+  fontSize: "dimension",
+  fontWeight: "fontWeight",
+  lineHeight: "number",
+} as const;
 const RESERVED = new Set(["$value", "$type", "$description", "$extensions", "$deprecated"]);
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
@@ -53,6 +69,16 @@ export function valueProblem(type: string, value: unknown): string | null {
         [value[0], value[2]].every((x) => x >= 0 && x <= 1)
         ? null
         : "a cubicBezier must be four numbers with x1 and x2 from 0 to 1";
+    case "typography": {
+      if (!isObject(value)) return "a typography value must be an object";
+      const missing = Object.keys(TYPOGRAPHY_PARTS).filter((k) => !(k in value));
+      if (missing.length) return `a typography value needs ${missing.join(", ")}`;
+      for (const [part, partType] of Object.entries(TYPOGRAPHY_PARTS)) {
+        const bad = valueProblem(partType, value[part]);
+        if (bad) return `${part}: ${bad}`;
+      }
+      return null;
+    }
     default:
       return `unknown $type "${type}"; use one of ${TYPES.join(", ")}`;
   }
