@@ -10,6 +10,8 @@
   "exports": {
     "./tokens.css": "./dist/tokens.css",
     "./tokens.json": "./dist/tokens.json",
+    "./build": "./build.ts",
+    "./contrast": "./src/contrast.ts",
     ".": "./dist/tokens.ts"
   },
   "devDependencies": {

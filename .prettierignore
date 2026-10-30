@@ -1,6 +1,9 @@
 /node_modules/
 /bun.lock
 /gate-reports/
+# Build output.
+**/dist/
+**/storybook-static/
 # The old site, served as-is until the cutover (SHIP-008).
 /index.html
 /css/
