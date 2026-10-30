@@ -1,0 +1,34 @@
+:host {
+  display: inline;
+}
+
+a {
+  color: var(--kan-color-text-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover,
+a:focus-visible {
+  text-decoration-thickness: 2px;
+}
+
+a:focus-visible {
+  outline: var(--kan-focus-ring-width) solid var(--kan-focus-ring-color);
+  outline-offset: var(--kan-focus-ring-offset);
+}
+
+.external {
+  margin-inline-start: 0.2em;
+  font-size: 0.85em;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

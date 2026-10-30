@@ -1,0 +1,45 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.window {
+  margin: 0;
+  border: 1px solid var(--kan-color-border-default);
+  background: var(--kan-color-bg-inset);
+  color: var(--kan-color-text-default);
+  font-family: var(--kan-typography-code-font-family);
+  font-size: var(--kan-typography-code-font-size);
+  line-height: var(--kan-typography-code-line-height);
+}
+
+.titlebar {
+  display: flex;
+  gap: var(--kan-space-inline-md);
+  align-items: center;
+  padding: var(--kan-space-inline-sm) var(--kan-space-inset-sm);
+  border-bottom: 1px solid var(--kan-color-border-subtle);
+  background: var(--kan-color-bg-raised);
+  color: var(--kan-color-text-muted);
+}
+
+.dots {
+  color: var(--kan-color-border-strong);
+  letter-spacing: -0.1em;
+}
+
+.body {
+  padding: var(--kan-space-inset-sm);
+  overflow-x: auto;
+}
+
+.body:focus-visible {
+  outline: var(--kan-focus-ring-width) solid var(--kan-focus-ring-color);
+  outline-offset: calc(-1 * var(--kan-focus-ring-width));
+}
+
+::slotted(pre) {
+  margin: 0;
+  font: inherit;
+  white-space: pre;
+}

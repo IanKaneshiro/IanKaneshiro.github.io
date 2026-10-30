@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.name {
+  margin: 0;
+  font-family: var(--kan-typography-heading-3-font-family);
+  font-size: var(--kan-typography-body-lg-font-size);
+  font-weight: var(--kan-typography-heading-3-font-weight);
+  line-height: var(--kan-typography-heading-3-line-height);
+}
+
+.summary {
+  margin: 0;
+  color: var(--kan-color-text-muted);
+}
+
+.footer {
+  display: grid;
+  gap: var(--kan-space-stack-sm);
+}
+
+.stack,
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kan-space-inline-sm);
+}
+
+.links {
+  gap: var(--kan-space-inline-lg);
+}

@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+.list {
+  display: grid;
+  gap: var(--kan-space-inline-sm);
+}
