@@ -10,21 +10,47 @@ import { IdGenerator } from "@cucumber/messages";
  * the review UI keeps working while a file is half-edited.
  */
 
-export type Intent = { kind: "intent"; id: string; title: string; status: string; retired: boolean; file: string; body: string };
+export type Intent = {
+  kind: "intent";
+  id: string;
+  title: string;
+  status: string;
+  retired: boolean;
+  file: string;
+  body: string;
+};
 export type JourneyStep = { do: string; behaviors: string[] };
 export type Journey = {
-  kind: "journey"; id: string; title: string; actor: string; status: string; retired: boolean;
-  intents: string[]; steps: JourneyStep[]; file: string; body: string;
+  kind: "journey";
+  id: string;
+  title: string;
+  actor: string;
+  status: string;
+  retired: boolean;
+  intents: string[];
+  steps: JourneyStep[];
+  file: string;
+  body: string;
 };
 export type BehaviorStep = { keyword: string; text: string };
 export type Behavior = {
-  kind: "behavior"; id: string; title: string; area: string; tags: string[]; retired: boolean;
-  steps: BehaviorStep[]; file: string; line: number;
+  kind: "behavior";
+  id: string;
+  title: string;
+  area: string;
+  tags: string[];
+  retired: boolean;
+  steps: BehaviorStep[];
+  file: string;
+  line: number;
 };
 export type Feature = { file: string; area: string; title: string; description: string; behaviors: string[] };
 export type Use = { journey: string; step: number };
 export type Graph = {
-  intents: Intent[]; journeys: Journey[]; features: Feature[]; behaviors: Behavior[];
+  intents: Intent[];
+  journeys: Journey[];
+  features: Feature[];
+  behaviors: Behavior[];
   /** intent id → journey ids that serve it */
   servedBy: Record<string, string[]>;
   /** behavior id → journey steps (1-based) that use it */
@@ -38,14 +64,19 @@ const BEHAVIOR_TAG = /^@([A-Z][A-Z0-9]*)-(\d{3})$/;
 const AREA_TAG = /^@area-([A-Z][A-Z0-9]*)$/;
 
 function listFiles(dir: string, ext: string): string[] {
-  return fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith(ext)).sort() : [];
+  return fs.existsSync(dir)
+    ? fs
+        .readdirSync(dir)
+        .filter((f) => f.endsWith(ext))
+        .sort()
+    : [];
 }
 
-function frontMatter(text: string): { data: Record<string, any>; body: string } | null {
+function frontMatter(text: string): { data: Record<string, unknown>; body: string } | null {
   const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(text);
   if (!m) return null;
   const data = Bun.YAML.parse(m[1]);
-  return data && typeof data === "object" ? { data: data as Record<string, any>, body: m[2].trim() } : null;
+  return data && typeof data === "object" ? { data: data as Record<string, unknown>, body: m[2].trim() } : null;
 }
 
 export function loadGraph(root: string): Graph {
@@ -62,7 +93,10 @@ export function loadGraph(root: string): Graph {
       const file = `${sub}/${f}`;
       try {
         const fm = frontMatter(fs.readFileSync(path.join(root, file), "utf8"));
-        if (!fm) { problems.push(`${file}: no YAML front matter`); return []; }
+        if (!fm) {
+          problems.push(`${file}: no YAML front matter`);
+          return [];
+        }
         return [{ file, ...fm }];
       } catch (e) {
         problems.push(`${file}: ${(e as Error).message}`);
@@ -83,14 +117,23 @@ export function loadGraph(root: string): Graph {
     if (!JOURNEY_ID.test(id)) problems.push(`${file}: journey id "${id}" should look like JRN-001`);
     claim(id, file);
     const status = String(data.status ?? "active");
-    const steps: JourneyStep[] = (Array.isArray(data.steps) ? data.steps : []).map((s: any) => ({
+    const steps: JourneyStep[] = (
+      Array.isArray(data.steps) ? (data.steps as { do?: unknown; behaviors?: unknown }[]) : []
+    ).map((s) => ({
       do: String(s?.do ?? ""),
       behaviors: Array.isArray(s?.behaviors) ? s.behaviors.map(String) : [],
     }));
     return {
-      kind: "journey", id, title: String(data.title ?? ""), actor: String(data.actor ?? ""), status,
-      retired: status === "retired", intents: Array.isArray(data.intents) ? data.intents.map(String) : [],
-      steps, file, body,
+      kind: "journey",
+      id,
+      title: String(data.title ?? ""),
+      actor: String(data.actor ?? ""),
+      status,
+      retired: status === "retired",
+      intents: Array.isArray(data.intents) ? data.intents.map(String) : [],
+      steps,
+      file,
+      body,
     };
   });
 
@@ -100,17 +143,25 @@ export function loadGraph(root: string): Graph {
     const file = `features/${f}`;
     let doc;
     try {
-      doc = new Parser(new AstBuilder(IdGenerator.uuid()), new GherkinClassicTokenMatcher())
-        .parse(fs.readFileSync(path.join(root, file), "utf8"));
+      doc = new Parser(new AstBuilder(IdGenerator.uuid()), new GherkinClassicTokenMatcher()).parse(
+        fs.readFileSync(path.join(root, file), "utf8"),
+      );
     } catch (e) {
       problems.push(`${file}: ${(e as Error).message.replace(/\s+/g, " ")}`);
       continue;
     }
-    if (!doc.feature) { problems.push(`${file}: no Feature`); continue; }
+    if (!doc.feature) {
+      problems.push(`${file}: no Feature`);
+      continue;
+    }
     const area = doc.feature.tags.map((t) => AREA_TAG.exec(t.name)?.[1]).find(Boolean) ?? "";
     if (!area) problems.push(`${file}: feature has no @area- tag`);
     const feature: Feature = {
-      file, area, title: doc.feature.name, description: doc.feature.description.replace(/^\s+/gm, "").trim(), behaviors: [],
+      file,
+      area,
+      title: doc.feature.name,
+      description: doc.feature.description.replace(/^\s+/gm, "").trim(),
+      behaviors: [],
     };
     for (const child of doc.feature.children) {
       const s = child.scenario;
@@ -118,15 +169,23 @@ export function loadGraph(root: string): Graph {
       const at = `${file}:${s.location.line}`;
       const tags = s.tags.map((t) => t.name);
       const idTags = tags.filter((t) => BEHAVIOR_TAG.test(t));
-      if (idTags.length !== 1) { problems.push(`${at}: "${s.name}" needs exactly one @AREA-NNN tag, found ${idTags.length}`); continue; }
+      if (idTags.length !== 1) {
+        problems.push(`${at}: "${s.name}" needs exactly one @AREA-NNN tag, found ${idTags.length}`);
+        continue;
+      }
       const id = idTags[0].slice(1);
       if (area && !id.startsWith(`${area}-`)) problems.push(`${at}: ${id} is not in this feature's area ${area}`);
       claim(id, at);
       behaviors.push({
-        kind: "behavior", id, title: s.name, area, tags: tags.filter((t) => t !== idTags[0]),
+        kind: "behavior",
+        id,
+        title: s.name,
+        area,
+        tags: tags.filter((t) => t !== idTags[0]),
         retired: tags.includes("@retired"),
         steps: s.steps.map((st) => ({ keyword: st.keyword.trim(), text: st.text })),
-        file, line: s.location.line,
+        file,
+        line: s.location.line,
       });
       feature.behaviors.push(id);
     }
@@ -145,7 +204,7 @@ export function loadGraph(root: string): Graph {
       const intent = intentById.get(i);
       if (!intent) problems.push(`${j.file}: intent ${i} doesn't exist`);
       else if (intent.retired) problems.push(`${j.file}: intent ${i} is retired`);
-      else (servedBy[i] ??= []).includes(j.id) || servedBy[i].push(j.id);
+      else if (!(servedBy[i] ??= []).includes(j.id)) servedBy[i].push(j.id);
     }
     if (!j.steps.length) problems.push(`${j.file}: ${j.id} has no steps`);
     j.steps.forEach((s, k) => {
@@ -158,8 +217,10 @@ export function loadGraph(root: string): Graph {
       }
     });
   }
-  for (const i of intents) if (!i.retired && !servedBy[i.id]) problems.push(`${i.file}: ${i.id} is served by no journey`);
-  for (const b of behaviors) if (!b.retired && !usedBy[b.id]) problems.push(`${b.file}:${b.line}: ${b.id} is in no journey`);
+  for (const i of intents)
+    if (!i.retired && !servedBy[i.id]) problems.push(`${i.file}: ${i.id} is served by no journey`);
+  for (const b of behaviors)
+    if (!b.retired && !usedBy[b.id]) problems.push(`${b.file}:${b.line}: ${b.id} is in no journey`);
 
   return { intents, journeys, features, behaviors, servedBy, usedBy, problems };
 }
@@ -209,13 +270,23 @@ export function renderGraphMarkdown(g: Graph): string {
       "",
       "| # | Step | Behaviors |",
       "|---|---|---|",
-      ...j.steps.map((s, k) => `| ${k + 1} | ${s.do} | ${s.behaviors.map((b) => `${link(b)} ${titles.get(b) ?? "?"}`).join("<br/>")} |`),
+      ...j.steps.map(
+        (s, k) =>
+          `| ${k + 1} | ${s.do} | ${s.behaviors.map((b) => `${link(b)} ${titles.get(b) ?? "?"}`).join("<br/>")} |`,
+      ),
       "",
     );
   }
   L.push("## Behaviors by area", "");
   for (const f of g.features) {
-    L.push(`### ${f.area} · ${f.title}`, "", `[${f.file}](${f.file})`, "", "| ID | Behavior | Journeys |", "|---|---|---|");
+    L.push(
+      `### ${f.area} · ${f.title}`,
+      "",
+      `[${f.file}](${f.file})`,
+      "",
+      "| ID | Behavior | Journeys |",
+      "|---|---|---|",
+    );
     for (const id of f.behaviors) {
       const journeys = [...new Set((g.usedBy[id] ?? []).map((u) => u.journey))];
       L.push(`| ${link(id)} | ${titles.get(id)} | ${journeys.map(link).join(", ")} |`);
@@ -227,16 +298,36 @@ export function renderGraphMarkdown(g: Graph): string {
 
 /** graph.json: every node and edge, for agents and for the site's "How this site was built" page. */
 export function renderGraphJson(g: Graph): string {
+  const omit = <T extends object>(o: T, ...keys: (keyof T)[]) =>
+    Object.fromEntries(Object.entries(o).filter(([k]) => !keys.includes(k as keyof T)));
   const nodes = [
-    ...g.intents.map(({ body: _, ...i }) => i),
-    ...g.journeys.map(({ body: _, steps: __, ...j }) => j),
+    ...g.intents.map((i) => omit(i, "body")),
+    ...g.journeys.map((j) => omit(j, "body", "steps")),
     ...g.behaviors,
   ];
   const edges = [
     ...g.journeys.flatMap((j) => j.intents.map((to) => ({ from: j.id, to, type: "serves" }))),
     ...g.journeys.flatMap((j) =>
-      j.steps.flatMap((s, k) => s.behaviors.map((to) => ({ from: j.id, to, type: "uses", step: k + 1, stepText: s.do }))),
+      j.steps.flatMap((s, k) =>
+        s.behaviors.map((to) => ({ from: j.id, to, type: "uses", step: k + 1, stepText: s.do })),
+      ),
     ),
   ];
   return `${JSON.stringify({ nodes, edges }, null, 2)}\n`;
+}
+
+/** Every problem the spec check reports: the graph's own, plus GRAPH.md or graph.json being out of date. */
+export function specProblems(root: string, graph = loadGraph(root)): string[] {
+  const problems = [...graph.problems];
+  const outputs: [string, string][] = [
+    ["GRAPH.md", renderGraphMarkdown(graph)],
+    ["graph.json", renderGraphJson(graph)],
+  ];
+  for (const [name, text] of outputs) {
+    const file = path.join(root, name);
+    if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== text) {
+      problems.push(`${name}: out of date; run "bun run specs:graph"`);
+    }
+  }
+  return problems;
 }

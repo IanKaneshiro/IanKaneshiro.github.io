@@ -1,0 +1,66 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun run gate)",
+      "Bash(bun run gate *)",
+      "Bash(bun test)",
+      "Bash(bun test *)",
+      "Bash(bun run typecheck)",
+      "Bash(bun run lint)",
+      "Bash(bun run lint:fix)",
+      "Bash(bun run format)",
+      "Bash(bun run specs:check)",
+      "Bash(bun run specs:graph)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)"
+    ],
+    "deny": [
+      "Bash(gh pr merge*)",
+      "Bash(gh pr edit*--add-label*)",
+      "Bash(gh pr edit*--remove-label*)",
+      "Bash(gh issue edit*--add-label*)",
+      "Bash(gh issue edit*--remove-label*)",
+      "Bash(gh label*)",
+      "Bash(gh api*labels*)",
+      "Bash(gh api*/merge*)",
+      "Bash(gh api*protection*)",
+      "Bash(gh api*rulesets*)",
+      "Bash(git push*--force*)",
+      "Bash(git push* -f*)",
+      "Bash(git push* +*)",
+      "Bash(git push* main)",
+      "Bash(git push* main *)",
+      "Bash(git push*:main*)",
+      "Bash(git push*:refs/heads/main*)",
+      "Edit(/.claude/**)",
+      "Write(/.claude/**)",
+      "Read(/.env)",
+      "Read(/.env.*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/gate.sh start", "timeout": 10 }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/gate.sh stop",
+            "timeout": 600,
+            "statusMessage": "Running the gate…"
+          }
+        ]
+      }
+    ]
+  }
+}

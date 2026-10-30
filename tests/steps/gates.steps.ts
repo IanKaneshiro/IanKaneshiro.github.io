@@ -1,0 +1,582 @@
+import { expect } from "bun:test";
+import { ESLint } from "eslint";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import stylelint from "stylelint";
+import { compareCoverage } from "../../tools/gate/behaviors";
+import { CHECKS, eslintFailures, stylelintFailures } from "../../tools/gate/checks";
+import { exec } from "../../tools/gate/git";
+import { checkHygiene } from "../../tools/gate/hygiene";
+import { behaviorIds, checkDependencies, checkProtected, checkTrace, protectedChanges } from "../../tools/gate/pr";
+import { evaluateProtection, GITHUB_ACTIONS_APP_ID, type BranchRule } from "../../tools/gate/protection";
+import { runGate, type GateRun } from "../../tools/gate/run";
+import { scanSecrets } from "../../tools/gate/secrets";
+import { MARKER, planUpsert, renderSummary } from "../../tools/gate/summary";
+import type { Check, CheckResult, Context, Failure } from "../../tools/gate/types";
+import { loadGraph } from "../../tools/specs/graph";
+import { featureFiles, loadScenarios } from "../support/gherkin";
+import { status } from "../support/status";
+import { Given, steps, Then, When } from "../support/steps";
+
+// Fixture text is assembled at runtime where it would otherwise trip the gate's own
+// hygiene and secret checks on this file.
+
+const ROOT = path.resolve(import.meta.dir, "../..");
+const read = (file: string) => fs.readFileSync(path.join(ROOT, file), "utf8");
+
+type Job = { "timeout-minutes"?: number; needs?: unknown; strategy?: Record<string, unknown>; steps?: unknown[] };
+type Workflow = { on: { pull_request: { types: string[] } }; jobs: Record<string, Job> };
+const workflow = () => Bun.YAML.parse(read(".github/workflows/gate.yml")) as Workflow;
+const ciChecks = () => (workflow().jobs.check.strategy!.matrix as { check: string[] }).check;
+const agents = () => read("AGENTS.md");
+const settings = () => JSON.parse(read(".claude/settings.json"));
+const ctx = (root = ROOT): Context => ({ root, base: null, pr: null, ci: false });
+const check = (name: string) => CHECKS.find((c) => c.name === name)!;
+const names = CHECKS.map((c) => c.name);
+const rules = (failures: Failure[]) => failures.map((f) => f.rule);
+
+/** A temp dir that can run the repo's tools: node_modules linked in, plus the given files. */
+function sandbox(files: Record<string, string>, copy: string[] = []): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gate-sandbox-"));
+  fs.symlinkSync(path.join(ROOT, "node_modules"), path.join(dir, "node_modules"));
+  for (const f of copy) fs.copyFileSync(path.join(ROOT, f), path.join(dir, f));
+  for (const [f, text] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(path.join(dir, f)), { recursive: true });
+    fs.writeFileSync(path.join(dir, f), text);
+  }
+  return dir;
+}
+
+/** Claude Code's matching for Bash(...) permission rules: `*` matches anything. */
+function denied(command: string): boolean {
+  return (settings().permissions.deny as string[])
+    .map((r) => /^Bash\((.*)\)$/.exec(r)?.[1])
+    .filter((p): p is string => !!p)
+    .some((p) =>
+      new RegExp(
+        `^${p
+          .split("*")
+          .map((s) => s.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
+          .join(".*")}$`,
+      ).test(command),
+    );
+}
+
+const fake = (name: string, failures: Failure[] = []): Check => ({
+  name,
+  title: name,
+  run: async () => ({ status: failures.length ? "fail" : "pass", failures }),
+});
+
+// ── GATE-001 One gate command ───────────────────────────
+
+When('I run "bun run gate"', async (world) => {
+  expect(JSON.parse(read("package.json")).scripts.gate).toBe("bun tools/gate/cli.ts");
+  const failing = new Set(["lint", "secrets"]);
+  world.run = await runGate(
+    CHECKS.map((c) => fake(c.name, failing.has(c.name) ? [{ rule: "r", message: "m", fix: "f" }] : [])),
+    ctx(),
+  );
+});
+
+Then("every check that CI runs, runs locally in the same order", (world) => {
+  expect(ciChecks()).toEqual(names);
+  expect((world.run as GateRun).results.map((r) => r.name)).toEqual(ciChecks());
+});
+
+Then("it exits non-zero, naming each check that failed", (world) => {
+  const run = world.run as GateRun;
+  expect(run.code).not.toBe(0);
+  expect(run.output.trim().split("\n").at(-1)).toBe("✗ 2 checks failed: lint, secrets");
+});
+
+// ── GATE-003 main only changes through a green pull request ─
+
+const goodRules = (): BranchRule[] => [
+  { type: "pull_request" },
+  { type: "non_fast_forward" },
+  { type: "deletion" },
+  {
+    type: "required_status_checks",
+    parameters: {
+      required_status_checks: names.map((context) => ({ context, integration_id: GITHUB_ACTIONS_APP_ID })),
+    },
+  },
+];
+const requiredChecks = (r: BranchRule[]) =>
+  r[3].parameters!.required_status_checks as { context: string; integration_id: number }[];
+
+Then("main rejects direct pushes and force pushes", () => {
+  expect(evaluateProtection(goodRules(), [], names)).toEqual([]);
+  const noPr = goodRules().filter((r) => r.type !== "pull_request");
+  expect(evaluateProtection(noPr, [], names)[0].message).toContain("direct pushes");
+  const noFf = goodRules().filter((r) => r.type !== "non_fast_forward");
+  expect(evaluateProtection(noFf, [], names)[0].message).toContain("force pushes");
+});
+
+Then("a pull request can't merge until every required check passes", () => {
+  const missing = goodRules();
+  missing[3].parameters!.required_status_checks = requiredChecks(missing).filter((c) => c.context !== "lint");
+  const f = evaluateProtection(missing, [], names);
+  expect(rules(f)).toEqual(["required-check"]);
+  expect(f[0].message).toContain("lint");
+
+  const spoofable = goodRules();
+  requiredChecks(spoofable)[0].integration_id = 1;
+  expect(rules(evaluateProtection(spoofable, [], names))).toEqual(["required-check-source"]);
+});
+
+Then("these rules apply to admins too, so nobody can merge red", () => {
+  expect(evaluateProtection(goodRules(), [{ id: 1, enforcement: "active", bypass_actors: [] }], names)).toEqual([]);
+  const bypass = [{ id: 1, enforcement: "active", bypass_actors: [{ actor_type: "RepositoryRole", actor_id: 5 }] }];
+  expect(rules(evaluateProtection(goodRules(), bypass, names))).toEqual(["ruleset-bypass"]);
+  expect(rules(evaluateProtection(goodRules(), [{ id: 1, enforcement: "evaluate" }], names))).toEqual([
+    "ruleset-enforcement",
+  ]);
+});
+
+Then("\"bun run gate:protection\" fails if GitHub's branch protection settings don't say so", async () => {
+  expect(JSON.parse(read("package.json")).scripts["gate:protection"]).toBe("bun tools/gate/cli.ts --only protection");
+  expect(names).toContain("protection");
+  const run = await runGate([fake("protection", evaluateProtection([], [], names))], ctx());
+  expect(run.code).toBe(1);
+});
+
+// ── GATE-004 Typecheck ──────────────────────────────────
+
+Then("every package typechecks in strict mode", async () => {
+  const configs = exec(["git", "ls-files", "--cached", "--others", "--exclude-standard", "*tsconfig*.json"], ROOT)
+    .stdout.split("\n")
+    .filter(Boolean);
+  expect(configs.length).toBeGreaterThan(0);
+  for (const c of configs) expect([c, JSON.parse(read(c)).compilerOptions.strict]).toEqual([c, true]);
+  expect(await check("typecheck").run(ctx())).toMatchObject({ status: "pass" });
+});
+
+Then("each error is reported with its file and line", async () => {
+  const dir = sandbox({
+    "src/bad.ts": "export const n: number = 1;\nexport const s: string = n;\n",
+    "tsconfig.json": JSON.stringify({ compilerOptions: { strict: true, noEmit: true, types: [] }, include: ["src"] }),
+  });
+  const out = await check("typecheck").run(ctx(dir));
+  expect(out.status).toBe("fail");
+  expect(out.failures[0]).toMatchObject({ file: "src/bad.ts", line: 2, rule: "TS2322" });
+});
+
+// ── GATE-005 Lint and format ────────────────────────────
+
+Then("ESLint, Stylelint and Prettier report no errors in any package", async () => {
+  expect(JSON.parse(read("package.json")).scripts.lint).toContain("stylelint");
+  expect((await check("lint").run(ctx())).failures).toEqual([]);
+  expect((await check("format").run(ctx())).failures).toEqual([]);
+});
+
+Then("a file that isn't formatted fails, named", async () => {
+  const dir = sandbox({ "src/ugly.ts": "export const   x = {a:1,\n b :2}\n", "src/fine.ts": "export const y = 1;\n" }, [
+    ".prettierrc.json",
+  ]);
+  const out = await check("format").run(ctx(dir));
+  expect(out.status).toBe("fail");
+  expect(out.failures.map((f) => f.file)).toEqual(["src/ugly.ts"]);
+});
+
+// ── GATE-006 The design rules are lint rules ────────────
+
+async function lintCss(file: string, code: string) {
+  const res = await stylelint.lint({ cwd: ROOT, code, codeFilename: path.join(ROOT, file) });
+  return stylelintFailures(res.results, ROOT);
+}
+async function lintTsx(file: string, code: string) {
+  const res = await new ESLint({ cwd: ROOT }).lintText(code, { filePath: path.join(ROOT, file) });
+  return eslintFailures(res, ROOT);
+}
+const component = (tag: string) =>
+  `import { Component, h } from "@stencil/core";\n\n@Component({ tag: "${tag}", shadow: true })\nexport class Button {\n  render() {\n    return h("button", null);\n  }\n}\n`;
+
+Then(
+  "raw colors, and primitive tokens used outside packages/tokens, fail lint in components and the site",
+  async (world) => {
+    const bad =
+      ".a {\n  color: #fff;\n  border-color: red;\n  background: oklch(80% 0.1 200deg);\n  outline-color: var(--kan-color-cyan-500);\n  margin: var(--kan-space-4);\n}\n";
+    const good = ".a {\n  color: var(--kan-color-text-default);\n  margin: var(--kan-space-inset-md);\n}\n";
+    const failures: Failure[] = [];
+    for (const file of ["packages/components/src/components/button/button.css", "apps/site/src/styles/home.css"]) {
+      const f = await lintCss(file, bad);
+      expect(rules(f).sort()).toEqual([
+        "color-named",
+        "color-no-hex",
+        "function-disallowed-list",
+        "kan/no-primitive-tokens",
+        "kan/no-primitive-tokens",
+      ]);
+      expect(await lintCss(file, good)).toEqual([]);
+      failures.push(...f);
+    }
+    expect(await lintCss("packages/tokens/src/check.css", ".a {\n  color: var(--kan-color-cyan-500);\n}\n")).toEqual(
+      [],
+    );
+    world.failures = failures;
+  },
+);
+
+Then("a component tag without the kan- prefix fails lint", async (world) => {
+  const file = "packages/components/src/components/button/button.tsx";
+  const bad = await lintTsx(file, component("ik-button"));
+  expect(rules(bad)).toEqual(["kan/component-tag-prefix"]);
+  expect(bad[0].message).toContain('"kan-button"');
+  expect(await lintTsx(file, component("kan-button"))).toEqual([]);
+  (world.failures as Failure[]).push(...bad);
+});
+
+Then("each failure names the rule and how to fix it", (world) => {
+  const failures = world.failures as Failure[];
+  expect(failures.length).toBe(11);
+  for (const f of failures) {
+    expect(f.rule && f.file && f.line).toBeTruthy();
+    expect(f.fix).toMatch(/semantic|kan-/);
+  }
+});
+
+// ── GATE-007 Behaviors are tests, and coverage never drops ─
+
+Then("every active behavior runs as a scenario test, and one without step definitions shows as todo", () => {
+  const graph = loadGraph(path.join(ROOT, "specs/portfolio"));
+  for (const b of graph.behaviors.filter((x) => !x.retired))
+    expect([b.id, status[b.id]]).not.toEqual([b.id, undefined]);
+  for (const file of featureFiles(path.join(ROOT, "specs/portfolio/features"))) {
+    for (const s of loadScenarios(file)) {
+      if (s.tags.includes("@retired")) continue;
+      const hasUndefinedStep = s.steps.some((text) => steps.match(text) === null);
+      expect([s.id, status[s.id] === "todo"]).toEqual([s.id, hasUndefinedStep]);
+    }
+  }
+});
+
+Then("a pull request fails if it turns a behavior that passes on main into todo or failing", () => {
+  const main = { "A-001": "pass", "A-002": "pass", "A-003": "pass", "A-004": "todo", "A-005": "pass", "A-006": "pass" };
+  const branch = { "A-001": "todo", "A-002": "fail", "A-003": "pass", "A-004": "pass", "A-005": "retired" };
+  expect(compareCoverage(main, branch).map((x) => x.message)).toEqual([
+    "A-001 passes on main but is todo here",
+    "A-002 passes on main but is fail here",
+    "A-006 passes on main but is missing here",
+  ]);
+  expect(compareCoverage(main, { ...main })).toEqual([]);
+});
+
+// ── GATE-008 Tests can't be quietly weakened ────────────
+
+const SKIP = "." + "skip";
+const ONLY = "." + "only";
+const directive = (s: string) => s.replace("DIS", "dis");
+
+Then("a pull request fails if it adds .skip or .only to a test", () => {
+  const f = checkHygiene([
+    { file: "tests/steps/site.steps.ts", line: 4, text: `test${SKIP}("renders", () => {});` },
+    { file: "packages/components/src/button.spec.tsx", line: 9, text: `  it${ONLY}("clicks", async () => {` },
+    { file: "packages/components/src/button.tsx", line: 2, text: `const x = list${SKIP}(1);` },
+  ]);
+  expect(f.map((x) => [x.file, x.line, x.rule])).toEqual([
+    ["tests/steps/site.steps.ts", 4, "no-skip"],
+    ["packages/components/src/button.spec.tsx", 9, "no-only"],
+  ]);
+});
+
+Then("if it adds a lint-disable, @ts-ignore or @ts-expect-error comment without a reason on the same line", () => {
+  const f = checkHygiene([
+    { file: "a.ts", line: 1, text: directive("// eslint-DISable-next-line no-console") },
+    {
+      file: "a.ts",
+      line: 2,
+      text: directive("// eslint-DISable-next-line no-console -- printing is the point of this CLI"),
+    },
+    { file: "a.ts", line: 3, text: "// @" + "ts-ignore" },
+    { file: "a.ts", line: 4, text: "// @" + "ts-expect-error -- upstream types miss the overload" },
+    { file: "b.css", line: 5, text: directive("/* stylelint-DISable-next-line color-no-hex */") },
+  ]);
+  expect(f.map((x) => [x.line, x.rule])).toEqual([
+    [1, "directive-needs-reason"],
+    [3, "directive-needs-reason"],
+    [5, "directive-needs-reason"],
+  ]);
+});
+
+// ── GATE-009, GATE-010 Protected paths ──────────────────
+
+Given(
+  "a pull request changes workflows, lint or format configs, tsconfig, budgets, thresholds or gate scripts",
+  (world) => {
+    world.expected = [
+      ".github/workflows/gate.yml",
+      "eslint.config.js",
+      "stylelint.config.js",
+      ".prettierrc.json",
+      "tsconfig.json",
+      "apps/site/budgets.json",
+      "lighthouserc.json",
+      "tools/gate/checks.ts",
+      "package.json",
+    ];
+    world.changed = [...(world.expected as string[]), "packages/components/src/x.ts", "apps/site/package.json"];
+    world.scriptsChanged = (f: string) => f === "package.json";
+  },
+);
+
+Given("a pull request changes anything under specs/", (world) => {
+  world.expected = ["specs/portfolio/features/kit.feature", "specs/portfolio/intents/INT-001-know-ian-fast.md"];
+  world.changed = [...(world.expected as string[]), "docs/content-draft.md"];
+  world.scriptsChanged = () => false;
+});
+
+Then("the protected-paths check fails, listing those files", (world) => {
+  const files = protectedChanges(world.changed as string[], world.scriptsChanged as (f: string) => boolean);
+  expect(files).toEqual(world.expected as string[]);
+  const f = checkProtected(files, []);
+  expect(f.map((x) => x.file)).toEqual(world.expected as string[]);
+  expect(new Set(rules(f))).toEqual(new Set(["owner-approval"]));
+  world.files = files;
+});
+
+Then("it passes only once Ian adds the owner-approved label", (world) => {
+  const files = world.files as string[];
+  expect(checkProtected(files, ["chore"]).length).toBe(files.length);
+  expect(checkProtected(files, ["owner-approved"])).toEqual([]);
+  expect(denied("gh pr edit 12 --add-label owner-approved")).toBe(true);
+});
+
+// ── GATE-011 Pull requests trace to behaviors ───────────
+
+const known = () =>
+  new Map(loadGraph(path.join(ROOT, "specs/portfolio")).behaviors.map((b) => [b.id, { retired: b.retired }]));
+
+Then("a pull request names the behavior IDs it implements in its description", () => {
+  expect(read(".github/pull_request_template.md")).toMatch(/^## Behaviors$/m);
+  const body = "## Behaviors\n\n- GATE-008\n- GATE-016: secrets\n\n## Notes\n\nSee SITE-001 later.";
+  expect(behaviorIds(body)).toEqual(["GATE-008", "GATE-016"]);
+});
+
+Then("the gate fails if it names none, unless it is labeled chore, or if a named ID doesn't exist", () => {
+  expect(rules(checkTrace("## Notes\n\nTidy up.", [], known(), {}))).toEqual(["names-behaviors"]);
+  expect(checkTrace("## Notes\n\nTidy up.", ["chore"], known(), {})).toEqual([]);
+  expect(rules(checkTrace("## Behaviors\n\n- GATE-999", [], known(), {}))).toEqual(["unknown-behavior"]);
+  expect(rules(checkTrace("## Behaviors\n\n- SHIP-004", [], known(), {}))).toEqual(["retired-behavior"]);
+});
+
+Then("the gate lists any named behavior whose scenario still doesn't pass", () => {
+  const f = checkTrace("## Behaviors\n\n- GATE-008\n- GATE-002", [], known(), {
+    "GATE-008": "pass",
+    "GATE-002": "todo",
+  });
+  expect(f).toHaveLength(1);
+  expect(f[0]).toMatchObject({ rule: "behavior-not-passing", message: "GATE-002 is named but its scenario is todo" });
+});
+
+// ── GATE-012 Failures say what to fix ───────────────────
+
+Then("each failed check reports the file, line, rule and a one-line fix", async () => {
+  const failure = { file: "src/a.ts", line: 7, rule: "no-only", message: "adds .only", fix: "remove it" };
+  const run = await runGate([fake("hygiene", [failure])], ctx());
+  expect(run.output).toContain("src/a.ts:7  [no-only] adds .only\n    fix: remove it");
+  const real = [
+    ...checkHygiene([{ file: "t/a.test.ts", line: 3, text: `it${ONLY}("x")` }]),
+    ...scanSecrets([{ file: "src/b.ts", line: 9, text: `const k = "AK${"IA"}${"A".repeat(16)}";` }]),
+  ];
+  expect(real).toHaveLength(2);
+  for (const f of real) {
+    expect(f.file && f.line && f.rule && f.fix).toBeTruthy();
+    expect(f.fix).not.toContain("\n");
+  }
+});
+
+Then("the pull request has one summary comment listing every failure, updated on every push", () => {
+  const results: CheckResult[] = CHECKS.map((c) => ({
+    name: c.name,
+    title: c.title,
+    status: c.name === "lint" ? "fail" : "pass",
+    ms: 1,
+    failures:
+      c.name === "lint"
+        ? [{ file: "x.css", line: 2, rule: "color-no-hex", message: "Unexpected hex color", fix: "use a token" }]
+        : [],
+  }));
+  const body = renderSummary(results, "abcdef1234");
+  expect(body.startsWith(MARKER)).toBe(true);
+  expect(body).toContain("`x.css:2` **color-no-hex**: Unexpected hex color. Fix: use a token");
+  expect(body).toContain(`1 of ${CHECKS.length} checks failed`);
+  const bot = { login: "github-actions[bot]" };
+  const ian = { login: "IanKaneshiro" };
+  expect(
+    planUpsert([
+      { id: 1, body: "hi", user: ian },
+      { id: 2, body: `${MARKER}\nold`, user: bot },
+    ]),
+  ).toEqual({
+    action: "update",
+    id: 2,
+  });
+  expect(planUpsert([{ id: 1, body: `${MARKER} faked`, user: ian }])).toEqual({ action: "create" });
+  const wf = workflow();
+  expect(wf.on.pull_request.types).toContain("synchronize");
+  expect(JSON.stringify(wf.jobs.summary.steps)).toContain("tools/gate/summary.ts");
+});
+
+// ── GATE-013 An agent can't stop on red ─────────────────
+
+type HookRun = { code: number; stdout: string; stderr: string };
+
+Given("a Claude Code session that changed code", (world) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gate-hook-"));
+  const git = (...a: string[]) => exec(["git", "-c", "user.name=t", "-c", "user.email=t@t", ...a], dir);
+  git("init", "-q");
+  fs.writeFileSync(path.join(dir, "a.ts"), "export {};\n");
+  git("add", ".");
+  git("commit", "-q", "-m", "init");
+  const hook = (arg: string, env: Record<string, string> = {}): HookRun => {
+    const p = Bun.spawnSync([path.join(ROOT, ".claude/hooks/gate.sh"), arg], {
+      cwd: dir,
+      env: { ...process.env, CLAUDE_PROJECT_DIR: dir, ...env },
+      stdin: Buffer.from(JSON.stringify({ session_id: "s1" })),
+    });
+    return { code: p.exitCode ?? 1, stdout: p.stdout.toString(), stderr: p.stderr.toString() };
+  };
+  hook("start");
+  fs.writeFileSync(path.join(dir, "a.ts"), "export const changed = true;\n");
+  world.hook = hook;
+});
+
+When('the agent tries to finish while "bun run gate" fails', (world) => {
+  const failingGate = "echo '✗ lint'; echo '  a.ts:1  [no-only] adds .only'; echo '✗ 1 check failed: lint'; exit 1";
+  const hook = world.hook as (a: string, e: Record<string, string>) => HookRun;
+  world.attempts = [1, 2, 3, 4].map(() => hook("stop", { GATE_CMD: failingGate }));
+});
+
+Then("a Stop hook keeps it working, up to 3 attempts, and then hands over to Ian with the failures listed", (world) => {
+  const attempts = world.attempts as HookRun[];
+  expect(attempts.map((a) => a.code)).toEqual([2, 2, 2, 0]);
+  expect(attempts[0].stderr).toContain("attempt 1 of 3");
+  const handover = JSON.parse(attempts[3].stdout).systemMessage as string;
+  expect(handover).toContain("handing over to Ian");
+  expect(handover).toContain("a.ts:1  [no-only] adds .only");
+  expect(settings().hooks.Stop[0].hooks[0].command).toContain(".claude/hooks/gate.sh stop");
+});
+
+Then("AGENTS.md states the same rule for Cursor, Grok Build and any other agent", () => {
+  const text = agents();
+  expect(text).toContain("**Don't stop while the gate fails.** This applies to every agent.");
+  expect(text).toContain("in Cursor, Grok Build or anything else");
+  expect(text).toContain("After 3 attempts that don't get it green, stop and hand over to Ian");
+});
+
+// ── GATE-014 Done means green ───────────────────────────
+
+Then("an agent's work is done only when its pull request passes every required check", () => {
+  expect(agents()).toContain("You're done only when the pull request passes every required check.");
+});
+
+Then("the agent reports the pull request link and its check status", () => {
+  expect(agents()).toContain("Report the pull request link and its check status.");
+});
+
+Then("only Ian merges, and the merge is the approval", () => {
+  expect(agents()).toContain("Only Ian merges, and the merge is the approval.");
+  expect(denied("gh pr merge 12 --squash")).toBe(true);
+  expect(denied("gh api -X PUT repos/IanKaneshiro/IanKaneshiro.github.io/pulls/12/merge")).toBe(true);
+});
+
+// ── GATE-015 The gate is fast ───────────────────────────
+
+Then("the full CI gate finishes in under 10 minutes", () => {
+  const job = workflow().jobs.check;
+  expect(job["timeout-minutes"]).toBeLessThanOrEqual(10);
+  expect(job.needs).toBeUndefined();
+  expect(job.strategy!["fail-fast"]).toBe(false);
+});
+
+// ── GATE-016 No secrets ─────────────────────────────────
+
+Then("a pull request that adds a secret, key or token fails the secret scan, naming the file and line", () => {
+  const fakes = [
+    `token: "gh${"p"}_${"a".repeat(36)}"`,
+    `ANTHROPIC_API_KEY=sk-${"ant"}-api03-${"b".repeat(40)}`,
+    `-----BEGIN ${"OPENSSH"} PRIVATE KEY-----`,
+    `const aws = "AK${"IA"}${"C".repeat(16)}";`,
+    `apiKey: "${"d".repeat(24)}"`,
+  ];
+  const f = scanSecrets(
+    [
+      ...fakes.map((text, i) => ({ file: "src/config.ts", line: i + 10, text })),
+      { file: "src/ok.ts", line: 1, text: "const token = process.env.API_TOKEN;" },
+    ],
+    [".env", ".env.example", "src/config.ts"],
+  );
+  expect(f.filter((x) => x.rule === "secret").map((x) => [x.file, x.line])).toEqual(
+    fakes.map((_, i) => ["src/config.ts", i + 10]),
+  );
+  expect(f.filter((x) => x.rule === "secret-file").map((x) => x.file)).toEqual([".env"]);
+});
+
+// ── GATE-017 New dependencies are explained ─────────────
+
+Then("a pull request that adds a dependency fails unless its description gives a reason for each one", () => {
+  const added = [
+    { file: "package.json", name: "left-pad" },
+    { file: "packages/components/package.json", name: "@stencil/core" },
+  ];
+  const one = "## Dependencies\n\n- `left-pad`: pads the table columns\n- `@stencil/core`\n";
+  expect(checkDependencies(added, one).map((f) => f.message)).toEqual([
+    "adds the dependency @stencil/core without a reason",
+  ]);
+  const both =
+    "## Dependencies\n\n- `left-pad`: pads the table columns\n- `@stencil/core`: the component compiler (CMP-001)\n";
+  expect(checkDependencies(added, both)).toEqual([]);
+  expect(checkDependencies(added, "## Notes\n\nleft-pad: pads things")).toHaveLength(2);
+});
+
+// ── GATE-018 What agents may not do with gh ─────────────
+
+Given("agents push branches and open pull requests with the gh CLI, as Ian", () => {
+  expect(agents()).toContain("You act on GitHub through the `gh` CLI as Ian");
+  expect(denied("gh pr create --fill")).toBe(false);
+  expect(denied("git push -u origin gates/setup")).toBe(false);
+});
+
+Then(
+  "Claude Code permission rules deny them merging pull requests, adding or removing labels, pushing to main, force pushing, and changing branch protection or rulesets",
+  () => {
+    for (const cmd of [
+      "gh pr merge 3 --squash --auto",
+      "gh pr edit 3 --add-label owner-approved",
+      "gh pr edit --remove-label chore",
+      "gh label create owner-approved",
+      "gh api repos/o/r/issues/3/labels -f labels[]=chore",
+      "git push origin main",
+      "git push origin HEAD:main",
+      "git push --force origin gates/setup",
+      "git push -f",
+      "git push origin +gates/setup",
+      "gh api -X PUT repos/o/r/branches/main/protection",
+      "gh api -X DELETE repos/o/r/rulesets/7",
+    ]) {
+      expect([cmd, denied(cmd)]).toEqual([cmd, true]);
+    }
+    for (const cmd of ["git push -u origin fix-footer", "git push origin maintenance-page", "gh pr view 3"]) {
+      expect([cmd, denied(cmd)]).toEqual([cmd, false]);
+    }
+    expect(settings().permissions.deny).toContain("Edit(/.claude/**)");
+  },
+);
+
+Then("AGENTS.md states the same limits for Cursor, Grok Build and any other agent", () => {
+  const text = agents();
+  expect(text).toContain("Instructions for every coding agent (Claude Code, Cursor, Grok Build and any other)");
+  const limits = text.slice(text.indexOf("## Limits"), text.indexOf("## Commands"));
+  for (const s of [
+    "**merge**",
+    "**add or remove labels**",
+    "**push to `main`**",
+    "**force push**",
+    "**change branch protection or rulesets**",
+  ]) {
+    expect(limits).toContain(s);
+  }
+});

@@ -1,0 +1,13 @@
+/node_modules/
+/bun.lock
+/gate-reports/
+# The old site, served as-is until the cutover (SHIP-008).
+/index.html
+/css/
+/js/
+/assets/
+/CNAME
+/.nojekyll
+# Specs are Ian's; GRAPH.md and graph.json are generated.
+/specs/
+**/*.md
