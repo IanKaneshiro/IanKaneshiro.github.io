@@ -40,9 +40,9 @@ Feature: Building, deploying and the profile README
 
   @SHIP-008 @ci
   Scenario: Cutover from the old site
-    Then until the new site ships, the old site keeps serving www.iankaneshiro.dev from the root of main, unchanged
-    And the pull request that ships the new site switches GitHub Pages to the Actions deploy and removes the old site's files
-    And www.iankaneshiro.dev keeps working through the switch
+    Then until the new site ships, the deploy publishes the old site's files unchanged at the root of www.iankaneshiro.dev
+    And the pull request that ships the new site replaces them with the new site and removes the old files
+    And www.iankaneshiro.dev keeps working through each switch
 
   @SHIP-007 @profile
   Scenario: The profile README points to the site

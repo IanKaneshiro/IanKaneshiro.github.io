@@ -2488,15 +2488,15 @@
       "steps": [
         {
           "keyword": "Then",
-          "text": "until the new site ships, the old site keeps serving www.iankaneshiro.dev from the root of main, unchanged"
+          "text": "until the new site ships, the deploy publishes the old site's files unchanged at the root of www.iankaneshiro.dev"
         },
         {
           "keyword": "And",
-          "text": "the pull request that ships the new site switches GitHub Pages to the Actions deploy and removes the old site's files"
+          "text": "the pull request that ships the new site replaces them with the new site and removes the old files"
         },
         {
           "keyword": "And",
-          "text": "www.iankaneshiro.dev keeps working through the switch"
+          "text": "www.iankaneshiro.dev keeps working through each switch"
         }
       ],
       "file": "features/ship.feature",
