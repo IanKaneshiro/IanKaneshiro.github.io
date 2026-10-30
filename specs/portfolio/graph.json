@@ -1040,6 +1040,54 @@
     },
     {
       "kind": "behavior",
+      "id": "GATE-019",
+      "title": "Pull requests explain the work",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the pull request template has sections for the summary, behaviors, spec trace, what changed, verification, decisions, protected changes, dependencies, risks and follow-ups, and a review guide"
+        },
+        {
+          "keyword": "And",
+          "text": "the pr-trace check fails if the summary, verification or review guide is empty, naming each one"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 106
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-020",
+      "title": "The facts in a pull request are generated",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "an agent runs \"bun run pr:body\""
+        },
+        {
+          "keyword": "Then",
+          "text": "it drafts the description with the behaviors that now pass, the intents and journeys they serve, the files changed by area, the protected files, the added dependencies and each check's result"
+        },
+        {
+          "keyword": "And",
+          "text": "it leaves the summary, decisions, risks and review guide for the agent to write"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 111
+    },
+    {
+      "kind": "behavior",
       "id": "GRAPH-001",
       "title": "Three layers in three places",
       "area": "GRAPH",
@@ -4628,21 +4676,35 @@
       "to": "GATE-018",
       "type": "uses",
       "step": 3,
-      "stepText": "Opens a pull request with gh that names the behaviors it implements"
+      "stepText": "Opens a pull request with gh that names the behaviors it implements and explains the work"
     },
     {
       "from": "JRN-014",
       "to": "GATE-011",
       "type": "uses",
       "step": 3,
-      "stepText": "Opens a pull request with gh that names the behaviors it implements"
+      "stepText": "Opens a pull request with gh that names the behaviors it implements and explains the work"
     },
     {
       "from": "JRN-014",
       "to": "GATE-017",
       "type": "uses",
       "step": 3,
-      "stepText": "Opens a pull request with gh that names the behaviors it implements"
+      "stepText": "Opens a pull request with gh that names the behaviors it implements and explains the work"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-019",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Opens a pull request with gh that names the behaviors it implements and explains the work"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-020",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Opens a pull request with gh that names the behaviors it implements and explains the work"
     },
     {
       "from": "JRN-014",

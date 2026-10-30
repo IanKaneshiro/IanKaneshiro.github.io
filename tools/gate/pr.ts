@@ -4,16 +4,41 @@ import type { Failure } from "./types";
 
 const ID = /\b[A-Z][A-Z0-9]*-\d{3}\b/g;
 
-/** The text under a "## <title>" heading, up to the next "## " heading. */
+/** The text under a "## <title>" heading, up to the next "## " heading, without HTML comments. */
 export function section(body: string, title: string): string {
-  const lines = body.replace(/\r/g, "").split("\n");
+  const lines = body
+    .replace(/\r/g, "")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .split("\n");
   const start = lines.findIndex((l) => new RegExp(`^##\\s+${title}\\s*$`, "i").test(l.trim()));
   if (start < 0) return "";
   const end = lines.findIndex((l, i) => i > start && /^##\s/.test(l.trim()));
-  return lines
-    .slice(start + 1, end < 0 ? undefined : end)
-    .filter((l) => !/^\s*<!--.*-->\s*$/.test(l))
-    .join("\n");
+  return lines.slice(start + 1, end < 0 ? undefined : end).join("\n");
+}
+
+/** The pull request description's sections, in order (GATE-019). */
+export const PR_SECTIONS = [
+  "Summary",
+  "Behaviors",
+  "Spec trace",
+  "What changed",
+  "How it was verified",
+  "Decisions",
+  "Protected changes",
+  "Dependencies",
+  "Risks and follow-ups",
+  "Review guide",
+];
+/** Sections that need words from whoever opened the pull request. */
+export const REQUIRED_SECTIONS = ["Summary", "How it was verified", "Review guide"];
+
+/** GATE-019: the summary, verification and review guide can't be left empty. */
+export function checkSections(body: string): Failure[] {
+  return REQUIRED_SECTIONS.filter((title) => !section(body, title).trim()).map((title) => ({
+    rule: "explain-the-work",
+    message: `the ## ${title} section is missing or empty`,
+    fix: `write the ## ${title} section of the pull request description (bun run pr:body drafts the rest)`,
+  }));
 }
 
 export const behaviorIds = (body: string) => [...new Set(section(body, "Behaviors").match(ID) ?? [])];
@@ -61,6 +86,16 @@ export function checkTrace(
     }
   }
   return failures;
+}
+
+/** Everything the pr-trace check enforces: behaviors named (GATE-011) and the work explained (GATE-019). */
+export function prTraceFailures(
+  body: string,
+  labels: string[],
+  known: Map<string, { retired: boolean }>,
+  status: Record<string, string>,
+): Failure[] {
+  return [...checkTrace(body, labels, known, status), ...checkSections(body)];
 }
 
 type PackageJson = Record<string, Record<string, string> | unknown>;
