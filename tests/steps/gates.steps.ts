@@ -29,7 +29,7 @@ import {
   type Ruleset,
 } from "../../tools/gate/protection";
 import { APP, botEmail, botName, evaluateAppPermissions, installationToken } from "../../tools/agent/app";
-import { refuseGh, refusePush } from "../../tools/agent/guard";
+import { parsePrEdit, refuseGh, refusePush } from "../../tools/agent/guard";
 import { runGate, type GateRun } from "../../tools/gate/run";
 import { scanSecrets } from "../../tools/gate/secrets";
 import { MARKER, planUpsert, renderSummary } from "../../tools/gate/summary";
@@ -687,6 +687,8 @@ Then(
     expect(refusePush("feature/x", ["--force"])).toContain("no options");
     expect(refusePush("+feature/x")).not.toBeNull();
     expect(refusePush("agent/identity")).toBeNull();
+    expect(parsePrEdit(["pr", "edit", "5", "--body-file", "pr.md"])).toEqual({ number: 5, bodyFile: "pr.md" });
+    expect(parsePrEdit(["pr", "edit", "5", "--add-label", "chore"])).toBeNull();
     for (const cmd of [
       "git push -u origin agent/identity",
       "git push --force",
