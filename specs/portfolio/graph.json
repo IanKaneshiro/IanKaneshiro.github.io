@@ -1,0 +1,4664 @@
+{
+  "nodes": [
+    {
+      "kind": "intent",
+      "id": "INT-001",
+      "title": "A visitor knows who Ian is and what Ian builds within seconds, and can get in touch",
+      "status": "active",
+      "retired": false,
+      "file": "intents/INT-001-know-ian-fast.md"
+    },
+    {
+      "kind": "intent",
+      "id": "INT-002",
+      "title": "The site has a recognizable agentic identity that is the same everywhere",
+      "status": "active",
+      "retired": false,
+      "file": "intents/INT-002-recognizable-identity.md"
+    },
+    {
+      "kind": "intent",
+      "id": "INT-003",
+      "title": "How the site is built is itself proof of Ian's skill",
+      "status": "active",
+      "retired": false,
+      "file": "intents/INT-003-system-is-proof.md"
+    },
+    {
+      "kind": "intent",
+      "id": "INT-004",
+      "title": "The site is comfortable for everyone, on any device and in either theme",
+      "status": "active",
+      "retired": false,
+      "file": "intents/INT-004-comfortable-for-everyone.md"
+    },
+    {
+      "kind": "intent",
+      "id": "INT-005",
+      "title": "The site is fast and private",
+      "status": "active",
+      "retired": false,
+      "file": "intents/INT-005-fast-and-private.md"
+    },
+    {
+      "kind": "intent",
+      "id": "INT-006",
+      "title": "Changing the look is an edit in one place, and mistakes are caught",
+      "status": "active",
+      "retired": false,
+      "file": "intents/INT-006-restyle-in-one-place.md"
+    },
+    {
+      "kind": "intent",
+      "id": "INT-007",
+      "title": "Keeping the site current is cheap",
+      "status": "active",
+      "retired": false,
+      "file": "intents/INT-007-cheap-to-keep-current.md"
+    },
+    {
+      "kind": "intent",
+      "id": "INT-008",
+      "title": "Features are added by talking to an agent, guided by the spec graph",
+      "status": "active",
+      "retired": false,
+      "file": "intents/INT-008-features-by-conversation.md"
+    },
+    {
+      "kind": "intent",
+      "id": "INT-009",
+      "title": "Agents can read the site as well as people can",
+      "status": "active",
+      "retired": false,
+      "file": "intents/INT-009-readable-by-agents.md"
+    },
+    {
+      "kind": "intent",
+      "id": "INT-010",
+      "title": "Agent output is trusted because gates enforce the rules",
+      "status": "active",
+      "retired": false,
+      "file": "intents/INT-010-trusted-through-gates.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-001",
+      "title": "A recruiter scans the home page and reaches out",
+      "actor": "A recruiter or hiring manager on a phone, with a minute to spare",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-001",
+        "INT-004"
+      ],
+      "file": "journeys/JRN-001-recruiter-scans-and-reaches-out.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-002",
+      "title": "An engineer digs into the work",
+      "actor": "A frontend or design-systems engineer, often an interviewer",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-003",
+        "INT-002"
+      ],
+      "file": "journeys/JRN-002-engineer-digs-in.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-003",
+      "title": "A visitor reads in their preferred theme",
+      "actor": "Any visitor",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-004",
+        "INT-002"
+      ],
+      "file": "journeys/JRN-003-reads-in-preferred-theme.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-004",
+      "title": "A visitor uses a keyboard, a screen reader, reduced motion or no JavaScript",
+      "actor": "A visitor who relies on assistive tech or has strict browser settings",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-004"
+      ],
+      "file": "journeys/JRN-004-assistive-tech-and-preferences.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-005",
+      "title": "A visitor arrives from a shared link or a search",
+      "actor": "Someone who saw the link on LinkedIn, in a chat, or in search results",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-001",
+        "INT-005"
+      ],
+      "file": "journeys/JRN-005-arrives-from-a-shared-link.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-006",
+      "title": "Ian restyles the identity",
+      "actor": "Ian, changing the accent color, type scale or spacing",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-006",
+        "INT-002"
+      ],
+      "file": "journeys/JRN-006-ian-restyles-the-identity.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-007",
+      "title": "Ian builds a new component",
+      "actor": "Ian, or an agent working for Ian",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-003",
+        "INT-006"
+      ],
+      "file": "journeys/JRN-007-ian-builds-a-component.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-008",
+      "title": "Ian adds a project or updates the content",
+      "actor": "Ian",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-007",
+        "INT-001"
+      ],
+      "file": "journeys/JRN-008-ian-updates-content.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-009",
+      "title": "Ian ships a change",
+      "actor": "Ian, or an agent working for Ian",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-007",
+        "INT-005"
+      ],
+      "file": "journeys/JRN-009-ian-ships-a-change.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-010",
+      "title": "Ian asks an agent to add a feature",
+      "actor": "Ian, talking to a coding agent (Claude Code, Cursor, Grok Build)",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-008"
+      ],
+      "file": "journeys/JRN-010-agent-adds-a-feature.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-011",
+      "title": "Someone visits Ian's GitHub profile",
+      "actor": "Anyone who lands on github.com/IanKaneshiro",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-001",
+        "INT-002"
+      ],
+      "file": "journeys/JRN-011-github-profile-visit.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-012",
+      "title": "A visitor's AI assistant researches Ian",
+      "actor": "An AI agent asked by a recruiter or engineer, \"What has Ian Kaneshiro built?\"",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-009",
+        "INT-001"
+      ],
+      "file": "journeys/JRN-012-assistant-researches-ian.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-013",
+      "title": "An engineer sees how the site was built",
+      "actor": "An engineer curious about spec-driven, agent-assisted development",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-003",
+        "INT-008"
+      ],
+      "file": "journeys/JRN-013-engineer-sees-how-it-was-built.md"
+    },
+    {
+      "kind": "journey",
+      "id": "JRN-014",
+      "title": "An agent delivers a feature through the gates",
+      "actor": "A coding agent (Claude Code, Cursor, Grok Build) working for Ian",
+      "status": "active",
+      "retired": false,
+      "intents": [
+        "INT-010",
+        "INT-008"
+      ],
+      "file": "journeys/JRN-014-agent-delivers-through-the-gates.md"
+    },
+    {
+      "kind": "behavior",
+      "id": "AGENT-001",
+      "title": "llms.txt",
+      "area": "AGENT",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "/llms.txt follows the llms.txt convention"
+        },
+        {
+          "keyword": "And",
+          "text": "summarizes who Ian is and links to the Markdown version of every page"
+        }
+      ],
+      "file": "features/agents.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "AGENT-002",
+      "title": "A Markdown version of every page",
+      "area": "AGENT",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every page has a Markdown version at the same path ending in .md"
+        },
+        {
+          "keyword": "And",
+          "text": "it's generated from the same content collections as the page"
+        }
+      ],
+      "file": "features/agents.feature",
+      "line": 13
+    },
+    {
+      "kind": "behavior",
+      "id": "AGENT-003",
+      "title": "Structured data",
+      "area": "AGENT",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the home page has JSON-LD for Ian as a Person, with job title and profile links"
+        },
+        {
+          "keyword": "And",
+          "text": "each featured project as a SoftwareSourceCode entry with its repository and demo links"
+        }
+      ],
+      "file": "features/agents.feature",
+      "line": 18
+    },
+    {
+      "kind": "behavior",
+      "id": "AGENT-004",
+      "title": "Agents read what people see",
+      "area": "AGENT",
+      "tags": [
+        "@site",
+        "@security"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "no page contains text that is hidden from people but readable by agents"
+        },
+        {
+          "keyword": "And",
+          "text": "every sentence in a page's Markdown version also appears on the page"
+        }
+      ],
+      "file": "features/agents.feature",
+      "line": 23
+    },
+    {
+      "kind": "behavior",
+      "id": "AGENT-005",
+      "title": "AI crawlers are welcome",
+      "area": "AGENT",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "/robots.txt allows every crawler, AI crawlers included, and lists the sitemap"
+        }
+      ],
+      "file": "features/agents.feature",
+      "line": 28
+    },
+    {
+      "kind": "behavior",
+      "id": "CMP-001",
+      "title": "One prefix",
+      "area": "CMP",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every component's tag starts with kan- and its class name starts with Kan"
+        }
+      ],
+      "file": "features/components.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "CMP-002",
+      "title": "Styled only with semantic tokens",
+      "area": "CMP",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "component stylesheets contain no raw color values and no primitive token properties"
+        },
+        {
+          "keyword": "And",
+          "text": "lint fails on either, naming the file and line"
+        }
+      ],
+      "file": "features/components.feature",
+      "line": 12
+    },
+    {
+      "kind": "behavior",
+      "id": "CMP-003",
+      "title": "Shadow DOM with styling hooks",
+      "area": "CMP",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every component renders into a shadow root"
+        },
+        {
+          "keyword": "And",
+          "text": "exposes its main elements as named CSS parts listed in its docs"
+        }
+      ],
+      "file": "features/components.feature",
+      "line": 17
+    },
+    {
+      "kind": "behavior",
+      "id": "CMP-004",
+      "title": "Works in plain HTML",
+      "area": "CMP",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "a plain HTML page that loads the component bundle with one script tag"
+        },
+        {
+          "keyword": "Then",
+          "text": "every component renders and works on that page"
+        }
+      ],
+      "file": "features/components.feature",
+      "line": 22
+    },
+    {
+      "kind": "behavior",
+      "id": "CMP-005",
+      "title": "Pages download only what they use",
+      "area": "CMP",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "a page that uses two components loads code for those two and the runtime, and no others"
+        }
+      ],
+      "file": "features/components.feature",
+      "line": 27
+    },
+    {
+      "kind": "behavior",
+      "id": "CMP-006",
+      "title": "Content lives in the page",
+      "area": "CMP",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "text a component shows is passed in through slots or attributes"
+        },
+        {
+          "keyword": "And",
+          "text": "that text is in the page HTML before JavaScript runs"
+        }
+      ],
+      "file": "features/components.feature",
+      "line": 31
+    },
+    {
+      "kind": "behavior",
+      "id": "CMP-007",
+      "title": "A typed, documented API",
+      "area": "CMP",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every prop, event, slot, CSS part and custom property has a type and a description"
+        },
+        {
+          "keyword": "And",
+          "text": "the generated docs JSON lists all of them"
+        }
+      ],
+      "file": "features/components.feature",
+      "line": 36
+    },
+    {
+      "kind": "behavior",
+      "id": "CMP-008",
+      "title": "Events are namespaced and cross the shadow boundary",
+      "area": "CMP",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "custom events are named kan followed by the action, like kanChange"
+        },
+        {
+          "keyword": "And",
+          "text": "they bubble and are composed"
+        }
+      ],
+      "file": "features/components.feature",
+      "line": 41
+    },
+    {
+      "kind": "behavior",
+      "id": "CMP-009",
+      "title": "Keyboard and focus",
+      "area": "CMP",
+      "tags": [
+        "@component",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every interactive component is reachable by Tab"
+        },
+        {
+          "keyword": "And",
+          "text": "shows the focus.ring on :focus-visible only"
+        },
+        {
+          "keyword": "And",
+          "text": "responds to Enter and Space the way its native equivalent does"
+        }
+      ],
+      "file": "features/components.feature",
+      "line": 46
+    },
+    {
+      "kind": "behavior",
+      "id": "CMP-010",
+      "title": "No accessibility violations",
+      "area": "CMP",
+      "tags": [
+        "@component",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every story of every component passes axe with no violations in light and in dark"
+        }
+      ],
+      "file": "features/components.feature",
+      "line": 52
+    },
+    {
+      "kind": "behavior",
+      "id": "CMP-011",
+      "title": "Reduced motion",
+      "area": "CMP",
+      "tags": [
+        "@component",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "a visitor prefers reduced motion"
+        },
+        {
+          "keyword": "Then",
+          "text": "no component animates"
+        }
+      ],
+      "file": "features/components.feature",
+      "line": 56
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-001",
+      "title": "One gate command",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "I run \"bun run gate\""
+        },
+        {
+          "keyword": "Then",
+          "text": "every check that CI runs, runs locally in the same order"
+        },
+        {
+          "keyword": "And",
+          "text": "it exits non-zero, naming each check that failed"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-002",
+      "title": "Every pull request runs the gate",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "a pull request is opened or updated"
+        },
+        {
+          "keyword": "Then",
+          "text": "GitHub Actions runs each check as its own required status check: typecheck, lint, format, unit and scenario tests, spec check, build, Storybook tests, end-to-end and accessibility tests, budgets and the secret scan"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 14
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-003",
+      "title": "main only changes through a green, approved pull request",
+      "area": "GATE",
+      "tags": [
+        "@ci",
+        "@security"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "main rejects direct pushes and force pushes"
+        },
+        {
+          "keyword": "And",
+          "text": "a pull request can't merge until every required check passes and Ian has approved it"
+        },
+        {
+          "keyword": "And",
+          "text": "\"bun run gate:protection\" fails if GitHub's branch protection settings don't say so"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 19
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-004",
+      "title": "Typecheck",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every package typechecks in strict mode"
+        },
+        {
+          "keyword": "And",
+          "text": "each error is reported with its file and line"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 25
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-005",
+      "title": "Lint and format",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "ESLint, Stylelint and Prettier report no errors in any package"
+        },
+        {
+          "keyword": "And",
+          "text": "a file that isn't formatted fails, named"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 30
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-006",
+      "title": "The design rules are lint rules",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "raw colors, and primitive tokens used outside packages/tokens, fail lint in components and the site"
+        },
+        {
+          "keyword": "And",
+          "text": "a component tag without the kan- prefix fails lint"
+        },
+        {
+          "keyword": "And",
+          "text": "each failure names the rule and how to fix it"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 35
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-007",
+      "title": "Behaviors are tests, and coverage never drops",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every active behavior runs as a scenario test, and one without step definitions shows as todo"
+        },
+        {
+          "keyword": "And",
+          "text": "a pull request fails if it turns a behavior that passes on main into todo or failing"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 41
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-008",
+      "title": "Tests can't be quietly weakened",
+      "area": "GATE",
+      "tags": [
+        "@ci",
+        "@security"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "a pull request fails if it adds .skip or .only to a test"
+        },
+        {
+          "keyword": "And",
+          "text": "if it adds a lint-disable, @ts-ignore or @ts-expect-error comment without a reason on the same line"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 46
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-009",
+      "title": "The gates themselves are owner-protected",
+      "area": "GATE",
+      "tags": [
+        "@ci",
+        "@security"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "changes to workflows, lint and format configs, tsconfig, budgets, thresholds or gate scripts need Ian's review"
+        },
+        {
+          "keyword": "And",
+          "text": "CODEOWNERS enforces this"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 51
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-010",
+      "title": "Specs are owner-protected",
+      "area": "GATE",
+      "tags": [
+        "@ci",
+        "@security"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "changes under specs/ need Ian's review"
+        },
+        {
+          "keyword": "And",
+          "text": "CODEOWNERS enforces this"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 56
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-011",
+      "title": "Pull requests trace to behaviors",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "a pull request names the behavior IDs it implements in its description"
+        },
+        {
+          "keyword": "And",
+          "text": "the gate fails if it names none, unless it is labeled chore, or if a named ID doesn't exist"
+        },
+        {
+          "keyword": "And",
+          "text": "the gate lists any named behavior whose scenario still doesn't pass"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 61
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-012",
+      "title": "Failures say what to fix",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "each failed check reports the file, line, rule and a one-line fix"
+        },
+        {
+          "keyword": "And",
+          "text": "the pull request has one summary comment listing every failure, updated on every push"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 67
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-013",
+      "title": "An agent can't stop on red",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "a Claude Code session that changed code"
+        },
+        {
+          "keyword": "When",
+          "text": "the agent tries to finish while \"bun run gate\" fails"
+        },
+        {
+          "keyword": "Then",
+          "text": "a Stop hook keeps it working, up to 3 attempts, and then hands over to Ian with the failures listed"
+        },
+        {
+          "keyword": "And",
+          "text": "AGENTS.md states the same rule for Cursor, Grok Build and any other agent"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 72
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-014",
+      "title": "Done means green",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "an agent's work is done only when its pull request passes every required check"
+        },
+        {
+          "keyword": "And",
+          "text": "the agent reports the pull request link and its check status"
+        },
+        {
+          "keyword": "And",
+          "text": "Ian approves and merges"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 79
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-015",
+      "title": "The gate is fast",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the full CI gate finishes in under 10 minutes"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 85
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-016",
+      "title": "No secrets",
+      "area": "GATE",
+      "tags": [
+        "@ci",
+        "@security"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "a pull request that adds a secret, key or token fails the secret scan, naming the file and line"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 89
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-017",
+      "title": "New dependencies are explained",
+      "area": "GATE",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "a pull request that adds a dependency fails unless its description gives a reason for each one"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 93
+    },
+    {
+      "kind": "behavior",
+      "id": "GATE-018",
+      "title": "Agents work as their own GitHub identity",
+      "area": "GATE",
+      "tags": [
+        "@ci",
+        "@security"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "agents push and open pull requests as a separate bot account with write access"
+        },
+        {
+          "keyword": "And",
+          "text": "the bot account can't approve pull requests, merge to main or bypass branch protection"
+        }
+      ],
+      "file": "features/gates.feature",
+      "line": 97
+    },
+    {
+      "kind": "behavior",
+      "id": "GRAPH-001",
+      "title": "Three layers in three places",
+      "area": "GRAPH",
+      "tags": [
+        "@specs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "intents live in specs/portfolio/intents, one Markdown file each with YAML front matter"
+        },
+        {
+          "keyword": "And",
+          "text": "journeys live in specs/portfolio/journeys, one Markdown file each with YAML front matter"
+        },
+        {
+          "keyword": "And",
+          "text": "behaviors are Gherkin scenarios in specs/portfolio/features"
+        }
+      ],
+      "file": "features/graph.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "GRAPH-002",
+      "title": "Permanent IDs",
+      "area": "GRAPH",
+      "tags": [
+        "@specs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "intents are INT-NNN, journeys are JRN-NNN and behaviors are AREA-NNN"
+        },
+        {
+          "keyword": "And",
+          "text": "every ID is unique across the whole graph"
+        },
+        {
+          "keyword": "And",
+          "text": "each behavior has exactly one ID tag, whose area matches its feature's @area- tag"
+        }
+      ],
+      "file": "features/graph.feature",
+      "line": 14
+    },
+    {
+      "kind": "behavior",
+      "id": "GRAPH-003",
+      "title": "Edges live in journeys",
+      "area": "GRAPH",
+      "tags": [
+        "@specs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "each journey lists the intents it serves and each of its steps lists the behaviors it relies on"
+        },
+        {
+          "keyword": "And",
+          "text": "intents and behaviors don't list their own edges, so there is one source of truth"
+        }
+      ],
+      "file": "features/graph.feature",
+      "line": 20
+    },
+    {
+      "kind": "behavior",
+      "id": "GRAPH-004",
+      "title": "Nothing is orphaned",
+      "area": "GRAPH",
+      "tags": [
+        "@specs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every active intent is served by at least one active journey"
+        },
+        {
+          "keyword": "And",
+          "text": "every active journey serves at least one intent and every step names at least one behavior"
+        },
+        {
+          "keyword": "And",
+          "text": "every active behavior is named by at least one journey step"
+        }
+      ],
+      "file": "features/graph.feature",
+      "line": 25
+    },
+    {
+      "kind": "behavior",
+      "id": "GRAPH-005",
+      "title": "References must resolve",
+      "area": "GRAPH",
+      "tags": [
+        "@specs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "a journey names an intent or behavior ID that doesn't exist or is retired"
+        },
+        {
+          "keyword": "When",
+          "text": "the specs are checked"
+        },
+        {
+          "keyword": "Then",
+          "text": "the check fails, naming the journey file and the bad ID"
+        }
+      ],
+      "file": "features/graph.feature",
+      "line": 31
+    },
+    {
+      "kind": "behavior",
+      "id": "GRAPH-006",
+      "title": "Gherkin must parse",
+      "area": "GRAPH",
+      "tags": [
+        "@specs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "a feature file with invalid Gherkin"
+        },
+        {
+          "keyword": "When",
+          "text": "the specs are checked"
+        },
+        {
+          "keyword": "Then",
+          "text": "the check fails, naming the file and line"
+        }
+      ],
+      "file": "features/graph.feature",
+      "line": 37
+    },
+    {
+      "kind": "behavior",
+      "id": "GRAPH-007",
+      "title": "The graph is generated",
+      "area": "GRAPH",
+      "tags": [
+        "@specs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "I run \"bun run specs:graph\""
+        },
+        {
+          "keyword": "Then",
+          "text": "GRAPH.md is written with a Mermaid diagram of intents and journeys and, per journey, its steps and behaviors"
+        },
+        {
+          "keyword": "And",
+          "text": "graph.json is written with every node and edge for agents to read"
+        },
+        {
+          "keyword": "And",
+          "text": "the spec check fails when either is out of date"
+        }
+      ],
+      "file": "features/graph.feature",
+      "line": 43
+    },
+    {
+      "kind": "behavior",
+      "id": "GRAPH-008",
+      "title": "Trace any node",
+      "area": "GRAPH",
+      "tags": [
+        "@specs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "I run \"bun run specs:trace\" with an intent, journey or behavior ID"
+        },
+        {
+          "keyword": "Then",
+          "text": "it prints the intents above it and the journeys and behaviors around it, each with its title and file location"
+        },
+        {
+          "keyword": "And",
+          "text": "for a behavior, the other behaviors that share its journey steps"
+        }
+      ],
+      "file": "features/graph.feature",
+      "line": 50
+    },
+    {
+      "kind": "behavior",
+      "id": "GRAPH-009",
+      "title": "Find where a request belongs",
+      "area": "GRAPH",
+      "tags": [
+        "@specs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "I run \"bun run specs:find\" with a few words"
+        },
+        {
+          "keyword": "Then",
+          "text": "it lists the intents, journeys and behaviors whose text matches, best match first, with their IDs"
+        }
+      ],
+      "file": "features/graph.feature",
+      "line": 56
+    },
+    {
+      "kind": "behavior",
+      "id": "GRAPH-010",
+      "title": "Retiring instead of deleting",
+      "area": "GRAPH",
+      "tags": [
+        "@specs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "a dropped intent or journey is marked status: retired and a dropped behavior is tagged @retired"
+        },
+        {
+          "keyword": "And",
+          "text": "retired nodes stay in the files, keep their IDs, and are left out of the coverage checks"
+        },
+        {
+          "keyword": "And",
+          "text": "no ID is ever reused"
+        }
+      ],
+      "file": "features/graph.feature",
+      "line": 61
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-001",
+      "title": "kan-button",
+      "area": "KIT",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it has primary, secondary and ghost variants and sm and md sizes"
+        },
+        {
+          "keyword": "And",
+          "text": "renders a native button, or a native link when href is set"
+        },
+        {
+          "keyword": "And",
+          "text": "a disabled button can't be activated and says so to assistive tech"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-002",
+      "title": "kan-link",
+      "area": "KIT",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it renders a native link in text.accent, underlined on hover and focus"
+        },
+        {
+          "keyword": "And",
+          "text": "when it opens a new tab it adds rel=\"noopener noreferrer\", an external icon and an accessible \"opens in a new tab\" hint"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 14
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-003",
+      "title": "kan-tag",
+      "area": "KIT",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it shows a short mono label, like a technology name, with an optional leading icon"
+        },
+        {
+          "keyword": "And",
+          "text": "it isn't interactive"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 19
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-004",
+      "title": "kan-card",
+      "area": "KIT",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it is a bg.surface container with optional header and footer slots"
+        },
+        {
+          "keyword": "And",
+          "text": "when href is set the whole card is clickable through a single link, never nested links"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 24
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-005",
+      "title": "kan-project-card",
+      "area": "KIT",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it shows a project's name, one-line summary and stack tags"
+        },
+        {
+          "keyword": "And",
+          "text": "links to its source, and to its live demo when there is one"
+        },
+        {
+          "keyword": "And",
+          "text": "it is built from kan-card, kan-tag and kan-link"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 29
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-006",
+      "title": "kan-section-heading",
+      "area": "KIT",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it shows a terminal-style rule with the label inside, like \"── projects ──\""
+        },
+        {
+          "keyword": "And",
+          "text": "it is a real heading, h2 unless a level is given"
+        },
+        {
+          "keyword": "And",
+          "text": "the rule characters are hidden from screen readers"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 35
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-007",
+      "title": "kan-prompt",
+      "area": "KIT",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it shows a prompt glyph, the slotted text and a blinking cursor"
+        },
+        {
+          "keyword": "And",
+          "text": "the text is in the page from the start, never typed in by script"
+        },
+        {
+          "keyword": "And",
+          "text": "the cursor doesn't blink when the visitor prefers reduced motion"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 41
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-008",
+      "title": "kan-terminal",
+      "area": "KIT",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it is a framed window on bg.inset with a title bar and a title"
+        },
+        {
+          "keyword": "And",
+          "text": "shows slotted commands and output in the mono family"
+        },
+        {
+          "keyword": "And",
+          "text": "long lines scroll inside the window instead of widening the page"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 47
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-009",
+      "title": "kan-theme-toggle",
+      "area": "KIT",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it implements THEME-002, THEME-003 and THEME-006"
+        },
+        {
+          "keyword": "And",
+          "text": "it emits kanThemeChange with the chosen theme"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 53
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-010",
+      "title": "kan-site-header",
+      "area": "KIT",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it shows Ian's name, the navigation links and the theme toggle"
+        },
+        {
+          "keyword": "And",
+          "text": "below the md breakpoint the links move into a menu button that opens and closes with the keyboard"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 58
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-011",
+      "title": "kan-site-footer",
+      "area": "KIT",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it shows Ian's contact links and links to the site's source, the Storybook and \"How this site was built\""
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 63
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-012",
+      "title": "kan-icon",
+      "area": "KIT",
+      "tags": [
+        "@component",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it draws icons from one SVG set: github, linkedin, mail, external, sun, moon, monitor, terminal, menu and close"
+        },
+        {
+          "keyword": "And",
+          "text": "an icon is hidden from assistive tech unless it is given a label"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 67
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-013",
+      "title": "kan-tool-call",
+      "area": "KIT",
+      "tags": [
+        "@component",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it shows a tool call the way an agent session does: a status glyph, the tool name, a short argument and a one-line result"
+        },
+        {
+          "keyword": "And",
+          "text": "its details expand and collapse with the keyboard"
+        },
+        {
+          "keyword": "And",
+          "text": "pending, success and error states use the status tokens and a glyph, never color alone"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 72
+    },
+    {
+      "kind": "behavior",
+      "id": "KIT-014",
+      "title": "kan-plan",
+      "area": "KIT",
+      "tags": [
+        "@component",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "it shows an ordered checklist of steps, each done, in progress or pending"
+        },
+        {
+          "keyword": "And",
+          "text": "each step's state is shown by a glyph and announced as text, never by color alone"
+        }
+      ],
+      "file": "features/kit.feature",
+      "line": 78
+    },
+    {
+      "kind": "behavior",
+      "id": "PRIM-001",
+      "title": "Tokens are written in DTCG format",
+      "area": "PRIM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every file under packages/tokens/src/primitive is valid W3C DTCG JSON"
+        },
+        {
+          "keyword": "And",
+          "text": "every token has a $value and a $type, on itself or inherited from its group"
+        }
+      ],
+      "file": "features/primitives.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "PRIM-002",
+      "title": "Colors are authored in OKLCH",
+      "area": "PRIM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every primitive color is authored in the OKLCH color space"
+        },
+        {
+          "keyword": "And",
+          "text": "is output as an oklch() CSS value"
+        }
+      ],
+      "file": "features/primitives.feature",
+      "line": 13
+    },
+    {
+      "kind": "behavior",
+      "id": "PRIM-003",
+      "title": "The electric cyan brand ramp",
+      "area": "PRIM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "color.cyan has 11 steps: 50, 100, 200, 300, 400, 500, 600, 700, 800, 900 and 950"
+        },
+        {
+          "keyword": "And",
+          "text": "each step is darker than the one before it"
+        },
+        {
+          "keyword": "And",
+          "text": "500 is the reference electric cyan the identity is built on"
+        }
+      ],
+      "file": "features/primitives.feature",
+      "line": 18
+    },
+    {
+      "kind": "behavior",
+      "id": "PRIM-004",
+      "title": "A neutral ramp tinted toward the brand",
+      "area": "PRIM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "color.neutral has the same 11 steps as color.cyan, each darker than the one before"
+        },
+        {
+          "keyword": "And",
+          "text": "its hue leans toward cyan with low chroma, so grays read as cool rather than flat"
+        },
+        {
+          "keyword": "And",
+          "text": "color.white and color.black exist on their own"
+        }
+      ],
+      "file": "features/primitives.feature",
+      "line": 24
+    },
+    {
+      "kind": "behavior",
+      "id": "PRIM-005",
+      "title": "Status ramps that can't be mistaken for the accent",
+      "area": "PRIM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "color.green, color.amber and color.red each have the same 11 steps"
+        },
+        {
+          "keyword": "And",
+          "text": "each of their 500 steps is at least 30 degrees of hue away from cyan 500"
+        }
+      ],
+      "file": "features/primitives.feature",
+      "line": 30
+    },
+    {
+      "kind": "behavior",
+      "id": "PRIM-006",
+      "title": "A 4px spacing scale",
+      "area": "PRIM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "space has steps 0, 0.5, 1, 2, 3, 4, 6, 8, 12, 16 and 24"
+        },
+        {
+          "keyword": "And",
+          "text": "each step is that many multiples of 4px"
+        }
+      ],
+      "file": "features/primitives.feature",
+      "line": 35
+    },
+    {
+      "kind": "behavior",
+      "id": "PRIM-007",
+      "title": "Two font families",
+      "area": "PRIM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "font.family.mono is JetBrains Mono and font.family.sans is Inter"
+        },
+        {
+          "keyword": "And",
+          "text": "each ends with a system fallback stack of the same kind"
+        }
+      ],
+      "file": "features/primitives.feature",
+      "line": 40
+    },
+    {
+      "kind": "behavior",
+      "id": "PRIM-008",
+      "title": "A modular type scale",
+      "area": "PRIM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "font.size has steps xs, sm, md, lg, xl, 2xl, 3xl, 4xl and 5xl"
+        },
+        {
+          "keyword": "And",
+          "text": "md is 16px and the steps from md upward follow a 1.25 ratio, rounded to whole pixels"
+        },
+        {
+          "keyword": "And",
+          "text": "font.weight has regular 400, medium 500 and bold 700"
+        },
+        {
+          "keyword": "And",
+          "text": "font.line-height has tight 1.15, normal 1.5 and relaxed 1.7"
+        }
+      ],
+      "file": "features/primitives.feature",
+      "line": 45
+    },
+    {
+      "kind": "behavior",
+      "id": "PRIM-009",
+      "title": "Shape: small radii and thin borders",
+      "area": "PRIM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "radius has none 0, sm 2px, md 4px, lg 8px and full 9999px"
+        },
+        {
+          "keyword": "And",
+          "text": "border.width has thin 1px and thick 2px"
+        }
+      ],
+      "file": "features/primitives.feature",
+      "line": 52
+    },
+    {
+      "kind": "behavior",
+      "id": "PRIM-010",
+      "title": "Motion",
+      "area": "PRIM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "duration has fast 120ms, normal 200ms and slow 320ms"
+        },
+        {
+          "keyword": "And",
+          "text": "easing has standard and emphasized cubic-bezier curves"
+        }
+      ],
+      "file": "features/primitives.feature",
+      "line": 57
+    },
+    {
+      "kind": "behavior",
+      "id": "PRIM-011",
+      "title": "Breakpoints",
+      "area": "PRIM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "breakpoint has sm 640px, md 768px, lg 1024px and xl 1280px"
+        }
+      ],
+      "file": "features/primitives.feature",
+      "line": 62
+    },
+    {
+      "kind": "behavior",
+      "id": "QUAL-001",
+      "title": "Lighthouse",
+      "area": "QUAL",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the home page scores at least 95 in performance, accessibility, best practices and SEO on Lighthouse mobile"
+        },
+        {
+          "keyword": "And",
+          "text": "CI fails a pull request that drops any score below that"
+        }
+      ],
+      "file": "features/quality.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "QUAL-002",
+      "title": "JavaScript budget",
+      "area": "QUAL",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the home page loads at most 50 KB of JavaScript, gzipped"
+        },
+        {
+          "keyword": "And",
+          "text": "CI fails a pull request over budget, naming the size and the budget"
+        }
+      ],
+      "file": "features/quality.feature",
+      "line": 13
+    },
+    {
+      "kind": "behavior",
+      "id": "QUAL-003",
+      "title": "Fonts",
+      "area": "QUAL",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "fonts are self-hosted, subset to Latin, and only the weights in use are shipped"
+        },
+        {
+          "keyword": "And",
+          "text": "text shows in the fallback font while they load"
+        }
+      ],
+      "file": "features/quality.feature",
+      "line": 18
+    },
+    {
+      "kind": "behavior",
+      "id": "QUAL-004",
+      "title": "No third-party requests",
+      "area": "QUAL",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "loading any page makes no requests to another origin: no trackers, external fonts or CDNs"
+        }
+      ],
+      "file": "features/quality.feature",
+      "line": 23
+    },
+    {
+      "kind": "behavior",
+      "id": "QUAL-005",
+      "title": "Every page passes axe",
+      "area": "QUAL",
+      "tags": [
+        "@site",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every page passes axe with no violations in light and in dark"
+        }
+      ],
+      "file": "features/quality.feature",
+      "line": 27
+    },
+    {
+      "kind": "behavior",
+      "id": "QUAL-006",
+      "title": "Works across browser engines",
+      "area": "QUAL",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the end-to-end tests pass in Chromium, Firefox and WebKit"
+        }
+      ],
+      "file": "features/quality.feature",
+      "line": 31
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-001",
+      "title": "Semantic tokens only reference primitives",
+      "area": "SEM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every semantic token's $value is a reference to a primitive token"
+        },
+        {
+          "keyword": "And",
+          "text": "no semantic token holds a raw value"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-002",
+      "title": "Light and dark define the same tokens",
+      "area": "SEM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "the semantic color tokens live in semantic/light.json and semantic/dark.json"
+        },
+        {
+          "keyword": "Then",
+          "text": "both files define exactly the same token names"
+        },
+        {
+          "keyword": "And",
+          "text": "the build fails naming any token that is in one but not the other"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 13
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-003",
+      "title": "Background roles",
+      "area": "SEM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "color.bg has canvas, surface, raised and inset"
+        },
+        {
+          "keyword": "And",
+          "text": "inset is the background for code and terminal blocks"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 19
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-004",
+      "title": "Text roles",
+      "area": "SEM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "color.text has default, muted, subtle, inverse, accent and on-accent"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 24
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-005",
+      "title": "Border roles",
+      "area": "SEM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "color.border has subtle, default, strong and focus"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 28
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-006",
+      "title": "Accent and status roles",
+      "area": "SEM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "color.accent has default, hover, active and subtle"
+        },
+        {
+          "keyword": "And",
+          "text": "color.status has success, warning, danger and info, each with fg, bg and border"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 32
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-007",
+      "title": "Text meets WCAG AA contrast in both modes",
+      "area": "SEM",
+      "tags": [
+        "@tokens",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "in light and in dark, every color.text token except inverse and on-accent reaches 4.5:1 against bg.canvas, bg.surface and bg.raised"
+        },
+        {
+          "keyword": "And",
+          "text": "text.on-accent reaches 4.5:1 against accent.default"
+        },
+        {
+          "keyword": "And",
+          "text": "each status fg reaches 4.5:1 against its status bg"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 37
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-008",
+      "title": "UI elements meet non-text contrast in both modes",
+      "area": "SEM",
+      "tags": [
+        "@tokens",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "in light and in dark, border.strong, border.focus and accent.default reach 3:1 against bg.canvas and bg.surface"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 43
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-009",
+      "title": "Typography roles",
+      "area": "SEM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "typography has heading-1, heading-2 and heading-3 in the mono family"
+        },
+        {
+          "keyword": "And",
+          "text": "body-lg, body-md and body-sm in the sans family"
+        },
+        {
+          "keyword": "And",
+          "text": "label and code in the mono family"
+        },
+        {
+          "keyword": "And",
+          "text": "each sets family, size, weight and line height from primitives"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 47
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-010",
+      "title": "Spacing and layout roles",
+      "area": "SEM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "space has inset sm, md and lg, stack sm, md and lg, and inline sm, md and lg"
+        },
+        {
+          "keyword": "And",
+          "text": "layout has gutter, section-gap, content-max-width and prose-max-width"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 54
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-011",
+      "title": "One focus ring for everything",
+      "area": "SEM",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "focus.ring sets the color from border.focus, a width and an offset"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 59
+    },
+    {
+      "kind": "behavior",
+      "id": "SEM-012",
+      "title": "Motion turns off for reduced motion",
+      "area": "SEM",
+      "tags": [
+        "@tokens",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "a visitor prefers reduced motion"
+        },
+        {
+          "keyword": "Then",
+          "text": "every semantic motion duration resolves to 0ms"
+        }
+      ],
+      "file": "features/semantics.feature",
+      "line": 63
+    },
+    {
+      "kind": "behavior",
+      "id": "SHIP-001",
+      "title": "One install, one build",
+      "area": "SHIP",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "I run \"bun install\" and then \"bun run build\" at the repo root"
+        },
+        {
+          "keyword": "Then",
+          "text": "tokens, components, Storybook and the site build in that order"
+        }
+      ],
+      "file": "features/ship.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "SHIP-002",
+      "title": "Local development",
+      "area": "SHIP",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "I run \"bun run dev\""
+        },
+        {
+          "keyword": "Then",
+          "text": "the site is served locally and reloads when a token, component or page changes"
+        },
+        {
+          "keyword": "And",
+          "text": "\"bun run storybook\" does the same for Storybook"
+        }
+      ],
+      "file": "features/ship.feature",
+      "line": 13
+    },
+    {
+      "kind": "behavior",
+      "id": "SHIP-003",
+      "title": "Bun version is pinned",
+      "area": "SHIP",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the repo pins one Bun version"
+        },
+        {
+          "keyword": "And",
+          "text": "CI uses that same version"
+        }
+      ],
+      "file": "features/ship.feature",
+      "line": 19
+    },
+    {
+      "kind": "behavior",
+      "id": "SHIP-004",
+      "title": "The pull request gate",
+      "area": "SHIP",
+      "tags": [
+        "@ci",
+        "@retired"
+      ],
+      "retired": true,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "a pull request is opened or updated"
+        },
+        {
+          "keyword": "Then",
+          "text": "CI runs typecheck, lint, unit tests, spec checks, Storybook tests, end-to-end tests and the budgets"
+        },
+        {
+          "keyword": "And",
+          "text": "the pull request can't be merged while any of them fail"
+        }
+      ],
+      "file": "features/ship.feature",
+      "line": 25
+    },
+    {
+      "kind": "behavior",
+      "id": "SHIP-005",
+      "title": "Deploy on merge",
+      "area": "SHIP",
+      "tags": [
+        "@ci"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "a change is merged to main"
+        },
+        {
+          "keyword": "Then",
+          "text": "GitHub Actions deploys the site, with Storybook under /storybook, to GitHub Pages"
+        },
+        {
+          "keyword": "And",
+          "text": "a failed build leaves the live site unchanged"
+        }
+      ],
+      "file": "features/ship.feature",
+      "line": 31
+    },
+    {
+      "kind": "behavior",
+      "id": "SHIP-006",
+      "title": "Served at iankaneshiro.github.io",
+      "area": "SHIP",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the site is built from the IanKaneshiro.github.io repo and served at https://iankaneshiro.github.io"
+        },
+        {
+          "keyword": "And",
+          "text": "every link and asset works there and in a local preview"
+        }
+      ],
+      "file": "features/ship.feature",
+      "line": 37
+    },
+    {
+      "kind": "behavior",
+      "id": "SHIP-007",
+      "title": "The profile README points to the site",
+      "area": "SHIP",
+      "tags": [
+        "@profile"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the IanKaneshiro profile README shows Ian's name, one-line focus and current stack"
+        },
+        {
+          "keyword": "And",
+          "text": "links to the site, the Storybook, LinkedIn and email"
+        },
+        {
+          "keyword": "And",
+          "text": "all its badges use one style"
+        }
+      ],
+      "file": "features/ship.feature",
+      "line": 42
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-001",
+      "title": "The first screen says who and what",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "I open the home page at 375px or 1280px wide"
+        },
+        {
+          "keyword": "Then",
+          "text": "my first screen shows Ian's name, role, a one-line focus, and links to GitHub, LinkedIn and email"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-002",
+      "title": "Featured projects",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "each featured project shows its name, a one-line summary and its stack"
+        },
+        {
+          "keyword": "And",
+          "text": "links to its source, and to its live demo when there is one"
+        },
+        {
+          "keyword": "And",
+          "text": "projects appear in the order set in the content"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 13
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-003",
+      "title": "The tech stack, grouped",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the stack section shows the current stack in the groups set in the content"
+        },
+        {
+          "keyword": "And",
+          "text": "each item is an kan-tag"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 19
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-004",
+      "title": "About",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "an about section gives a short bio"
+        },
+        {
+          "keyword": "And",
+          "text": "what Ian is working on now, shown as an kan-plan"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 24
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-005",
+      "title": "Contact without a backend",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "contact is a mailto link plus LinkedIn and GitHub"
+        },
+        {
+          "keyword": "And",
+          "text": "there is no form"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 29
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-006",
+      "title": "Content is data",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "projects, the stack, the bio and links come from Astro content collections with a schema"
+        },
+        {
+          "keyword": "And",
+          "text": "an entry missing a required field fails the build, naming the file and the field"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 34
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-007",
+      "title": "Built only from the design system",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "pages are composed from kan- components and semantic tokens"
+        },
+        {
+          "keyword": "And",
+          "text": "site styles contain no raw color values and no primitive token properties"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 39
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-008",
+      "title": "Readable without JavaScript",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "JavaScript is disabled"
+        },
+        {
+          "keyword": "Then",
+          "text": "every page's text, project details and links are present and work"
+        },
+        {
+          "keyword": "And",
+          "text": "only the theme toggle and animations are missing"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 44
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-009",
+      "title": "A 404 in the terminal voice",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "I open a path that doesn't exist"
+        },
+        {
+          "keyword": "Then",
+          "text": "I see a \"command not found\" page with a link home"
+        },
+        {
+          "keyword": "And",
+          "text": "the response status is 404"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 50
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-010",
+      "title": "Shares well",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every page has a title, a description, a canonical URL under https://iankaneshiro.github.io, and Open Graph and Twitter card tags with an image"
+        },
+        {
+          "keyword": "And",
+          "text": "the favicon uses the brand mark"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 56
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-011",
+      "title": "Landmarks, headings and a skip link",
+      "area": "SITE",
+      "tags": [
+        "@site",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the first focusable element skips to the main content"
+        },
+        {
+          "keyword": "And",
+          "text": "each page has header, main and footer landmarks"
+        },
+        {
+          "keyword": "And",
+          "text": "exactly one h1, with no skipped heading levels"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 61
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-012",
+      "title": "Responsive from phone to wide desktop",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "no page scrolls sideways at any width from 320px to 1920px"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 67
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-013",
+      "title": "The home page reads like an agent session",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the hero is a prompt asking who Ian is, answered by a few tool calls and a short summary"
+        },
+        {
+          "keyword": "And",
+          "text": "every word of it is in the page HTML from the start"
+        },
+        {
+          "keyword": "And",
+          "text": "any reveal animation is skipped when the visitor prefers reduced motion"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 71
+    },
+    {
+      "kind": "behavior",
+      "id": "SITE-014",
+      "title": "How this site was built",
+      "area": "SITE",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "a page shows the spec graph: the intents, the journeys that serve them and the behaviors behind each step"
+        },
+        {
+          "keyword": "And",
+          "text": "it is generated from graph.json at build time, with links to each spec file in the source repo"
+        }
+      ],
+      "file": "features/site.feature",
+      "line": 77
+    },
+    {
+      "kind": "behavior",
+      "id": "DOCS-001",
+      "title": "Every variant and state has a story",
+      "area": "DOCS",
+      "tags": [
+        "@docs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every component has a story for each variant, size and state it supports"
+        }
+      ],
+      "file": "features/storybook.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "DOCS-002",
+      "title": "Theme switch in the toolbar",
+      "area": "DOCS",
+      "tags": [
+        "@docs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the toolbar switches every story between light and dark"
+        },
+        {
+          "keyword": "And",
+          "text": "the switch sets data-theme exactly the way the site does"
+        }
+      ],
+      "file": "features/storybook.feature",
+      "line": 12
+    },
+    {
+      "kind": "behavior",
+      "id": "DOCS-003",
+      "title": "Component docs come from the source",
+      "area": "DOCS",
+      "tags": [
+        "@docs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "each component's docs page lists its props, events, slots, CSS parts and custom properties"
+        },
+        {
+          "keyword": "And",
+          "text": "the lists are generated from the Stencil docs JSON, not written by hand"
+        }
+      ],
+      "file": "features/storybook.feature",
+      "line": 17
+    },
+    {
+      "kind": "behavior",
+      "id": "DOCS-004",
+      "title": "Foundations pages show the tokens",
+      "area": "DOCS",
+      "tags": [
+        "@docs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "a Foundations section shows each primitive ramp as named swatches with their values"
+        },
+        {
+          "keyword": "And",
+          "text": "every semantic token with its light and dark values and the primitives they reference"
+        },
+        {
+          "keyword": "And",
+          "text": "both pages are generated from the token build's JSON"
+        }
+      ],
+      "file": "features/storybook.feature",
+      "line": 22
+    },
+    {
+      "kind": "behavior",
+      "id": "DOCS-005",
+      "title": "Contrast is visible",
+      "area": "DOCS",
+      "tags": [
+        "@docs",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the semantic color page shows the contrast ratio of each text and background pair in each mode"
+        }
+      ],
+      "file": "features/storybook.feature",
+      "line": 28
+    },
+    {
+      "kind": "behavior",
+      "id": "DOCS-006",
+      "title": "An introduction to the system",
+      "area": "DOCS",
+      "tags": [
+        "@docs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the first page explains the primitive → semantic → component layers"
+        },
+        {
+          "keyword": "And",
+          "text": "shows how to use the library on a plain HTML page"
+        }
+      ],
+      "file": "features/storybook.feature",
+      "line": 32
+    },
+    {
+      "kind": "behavior",
+      "id": "DOCS-007",
+      "title": "Stories are tested",
+      "area": "DOCS",
+      "tags": [
+        "@docs"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "story interaction tests and the axe checks run headless in CI"
+        },
+        {
+          "keyword": "And",
+          "text": "any failure fails the pull request"
+        }
+      ],
+      "file": "features/storybook.feature",
+      "line": 37
+    },
+    {
+      "kind": "behavior",
+      "id": "THEME-001",
+      "title": "Follows the system by default",
+      "area": "THEME",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "I have never chosen a theme"
+        },
+        {
+          "keyword": "Then",
+          "text": "the site uses dark when my system prefers dark and light otherwise"
+        }
+      ],
+      "file": "features/theme.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "THEME-002",
+      "title": "The toggle switches and remembers",
+      "area": "THEME",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "I choose dark with the theme toggle"
+        },
+        {
+          "keyword": "Then",
+          "text": "the page turns dark right away"
+        },
+        {
+          "keyword": "And",
+          "text": "the next page I open and my next visit are dark too"
+        }
+      ],
+      "file": "features/theme.feature",
+      "line": 13
+    },
+    {
+      "kind": "behavior",
+      "id": "THEME-003",
+      "title": "Going back to the system setting",
+      "area": "THEME",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the toggle offers light, dark and system"
+        },
+        {
+          "keyword": "And",
+          "text": "choosing system clears my saved choice"
+        }
+      ],
+      "file": "features/theme.feature",
+      "line": 19
+    },
+    {
+      "kind": "behavior",
+      "id": "THEME-004",
+      "title": "No flash of the wrong theme",
+      "area": "THEME",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "I saved dark and my system prefers light"
+        },
+        {
+          "keyword": "When",
+          "text": "I load any page"
+        },
+        {
+          "keyword": "Then",
+          "text": "the first frame painted is already dark"
+        }
+      ],
+      "file": "features/theme.feature",
+      "line": 24
+    },
+    {
+      "kind": "behavior",
+      "id": "THEME-005",
+      "title": "System changes apply live",
+      "area": "THEME",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "I am on system"
+        },
+        {
+          "keyword": "When",
+          "text": "my system switches between light and dark"
+        },
+        {
+          "keyword": "Then",
+          "text": "the page follows without a reload"
+        }
+      ],
+      "file": "features/theme.feature",
+      "line": 30
+    },
+    {
+      "kind": "behavior",
+      "id": "THEME-006",
+      "title": "The toggle is accessible",
+      "area": "THEME",
+      "tags": [
+        "@site",
+        "@a11y"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the toggle is reachable and operable by keyboard alone"
+        },
+        {
+          "keyword": "And",
+          "text": "its accessible name says the current theme"
+        },
+        {
+          "keyword": "And",
+          "text": "a screen reader announces the new theme when it changes"
+        }
+      ],
+      "file": "features/theme.feature",
+      "line": 36
+    },
+    {
+      "kind": "behavior",
+      "id": "THEME-007",
+      "title": "Without JavaScript",
+      "area": "THEME",
+      "tags": [
+        "@site"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "JavaScript is disabled"
+        },
+        {
+          "keyword": "Then",
+          "text": "the site follows my system theme"
+        },
+        {
+          "keyword": "And",
+          "text": "the toggle is not shown"
+        }
+      ],
+      "file": "features/theme.feature",
+      "line": 42
+    },
+    {
+      "kind": "behavior",
+      "id": "THEME-008",
+      "title": "Components follow the theme",
+      "area": "THEME",
+      "tags": [
+        "@component"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "the theme changes"
+        },
+        {
+          "keyword": "Then",
+          "text": "every kan- component, including what's inside its shadow root, changes with the page"
+        }
+      ],
+      "file": "features/theme.feature",
+      "line": 48
+    },
+    {
+      "kind": "behavior",
+      "id": "TOK-001",
+      "title": "One build makes every output",
+      "area": "TOK",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "I run \"bun run build\" in packages/tokens"
+        },
+        {
+          "keyword": "Then",
+          "text": "it writes a CSS file of custom properties, a typed TypeScript module and a JSON file for the docs"
+        }
+      ],
+      "file": "features/token-build.feature",
+      "line": 8
+    },
+    {
+      "kind": "behavior",
+      "id": "TOK-002",
+      "title": "Every custom property is prefixed",
+      "area": "TOK",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "every CSS custom property the build writes starts with --kan-"
+        }
+      ],
+      "file": "features/token-build.feature",
+      "line": 13
+    },
+    {
+      "kind": "behavior",
+      "id": "TOK-003",
+      "title": "Modes in CSS",
+      "area": "TOK",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "light semantic values are set on :root"
+        },
+        {
+          "keyword": "And",
+          "text": "dark values are set under [data-theme=\"dark\"]"
+        },
+        {
+          "keyword": "And",
+          "text": "dark values also apply under prefers-color-scheme: dark unless data-theme=\"light\" is set"
+        }
+      ],
+      "file": "features/token-build.feature",
+      "line": 17
+    },
+    {
+      "kind": "behavior",
+      "id": "TOK-004",
+      "title": "Semantic properties point at primitives",
+      "area": "TOK",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "each semantic custom property is written as var() of its primitive's custom property, so devtools show which primitive a role uses"
+        }
+      ],
+      "file": "features/token-build.feature",
+      "line": 23
+    },
+    {
+      "kind": "behavior",
+      "id": "TOK-005",
+      "title": "Typed token names",
+      "area": "TOK",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Then",
+          "text": "the TypeScript module exports every token name as a string literal type"
+        },
+        {
+          "keyword": "And",
+          "text": "using a name that doesn't exist is a type error"
+        }
+      ],
+      "file": "features/token-build.feature",
+      "line": 27
+    },
+    {
+      "kind": "behavior",
+      "id": "TOK-006",
+      "title": "Broken references fail the build",
+      "area": "TOK",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "a semantic token references a primitive that doesn't exist"
+        },
+        {
+          "keyword": "When",
+          "text": "the tokens are built"
+        },
+        {
+          "keyword": "Then",
+          "text": "the build fails and names both the semantic token and the missing reference"
+        }
+      ],
+      "file": "features/token-build.feature",
+      "line": 32
+    },
+    {
+      "kind": "behavior",
+      "id": "TOK-007",
+      "title": "Contrast is checked on every build",
+      "area": "TOK",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "the tokens are built"
+        },
+        {
+          "keyword": "Then",
+          "text": "the contrast rules in SEM-007 and SEM-008 are checked"
+        },
+        {
+          "keyword": "And",
+          "text": "a failing pair fails the build, naming both tokens, the mode and the ratio"
+        }
+      ],
+      "file": "features/token-build.feature",
+      "line": 38
+    },
+    {
+      "kind": "behavior",
+      "id": "TOK-008",
+      "title": "The build is repeatable",
+      "area": "TOK",
+      "tags": [
+        "@tokens"
+      ],
+      "retired": false,
+      "steps": [
+        {
+          "keyword": "When",
+          "text": "the tokens are built twice from the same source"
+        },
+        {
+          "keyword": "Then",
+          "text": "the outputs are byte-for-byte identical"
+        }
+      ],
+      "file": "features/token-build.feature",
+      "line": 44
+    }
+  ],
+  "edges": [
+    {
+      "from": "JRN-001",
+      "to": "INT-001",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-001",
+      "to": "INT-004",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-002",
+      "to": "INT-003",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-002",
+      "to": "INT-002",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-003",
+      "to": "INT-004",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-003",
+      "to": "INT-002",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-004",
+      "to": "INT-004",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-005",
+      "to": "INT-001",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-005",
+      "to": "INT-005",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-006",
+      "to": "INT-006",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-006",
+      "to": "INT-002",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-007",
+      "to": "INT-003",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-007",
+      "to": "INT-006",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-008",
+      "to": "INT-007",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-008",
+      "to": "INT-001",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-009",
+      "to": "INT-007",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-009",
+      "to": "INT-005",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-010",
+      "to": "INT-008",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-011",
+      "to": "INT-001",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-011",
+      "to": "INT-002",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-012",
+      "to": "INT-009",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-012",
+      "to": "INT-001",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-013",
+      "to": "INT-003",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-013",
+      "to": "INT-008",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-014",
+      "to": "INT-010",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-014",
+      "to": "INT-008",
+      "type": "serves"
+    },
+    {
+      "from": "JRN-001",
+      "to": "SITE-001",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Opens the home page from a link"
+    },
+    {
+      "from": "JRN-001",
+      "to": "SITE-013",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Opens the home page from a link"
+    },
+    {
+      "from": "JRN-001",
+      "to": "SITE-012",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Opens the home page from a link"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-010",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Opens the home page from a link"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-007",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Opens the home page from a link"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-013",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Opens the home page from a link"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-012",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Opens the home page from a link"
+    },
+    {
+      "from": "JRN-001",
+      "to": "SITE-003",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Scans the tech stack"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-003",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Scans the tech stack"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-006",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Scans the tech stack"
+    },
+    {
+      "from": "JRN-001",
+      "to": "SITE-002",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Skims the featured projects"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-005",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Skims the featured projects"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-004",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Skims the featured projects"
+    },
+    {
+      "from": "JRN-001",
+      "to": "SITE-004",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Reads a little about Ian"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-008",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Reads a little about Ian"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-014",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Reads a little about Ian"
+    },
+    {
+      "from": "JRN-001",
+      "to": "SITE-005",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Gets in touch"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-011",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Gets in touch"
+    },
+    {
+      "from": "JRN-001",
+      "to": "KIT-002",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Gets in touch"
+    },
+    {
+      "from": "JRN-002",
+      "to": "SITE-002",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Opens a project's source or live demo"
+    },
+    {
+      "from": "JRN-002",
+      "to": "KIT-002",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Opens a project's source or live demo"
+    },
+    {
+      "from": "JRN-002",
+      "to": "KIT-011",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Follows the footer link to the Storybook"
+    },
+    {
+      "from": "JRN-002",
+      "to": "SHIP-005",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Follows the footer link to the Storybook"
+    },
+    {
+      "from": "JRN-002",
+      "to": "DOCS-006",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Follows the footer link to the Storybook"
+    },
+    {
+      "from": "JRN-002",
+      "to": "DOCS-001",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Browses components in light and dark"
+    },
+    {
+      "from": "JRN-002",
+      "to": "DOCS-002",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Browses components in light and dark"
+    },
+    {
+      "from": "JRN-002",
+      "to": "DOCS-003",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Browses components in light and dark"
+    },
+    {
+      "from": "JRN-002",
+      "to": "KIT-001",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Browses components in light and dark"
+    },
+    {
+      "from": "JRN-002",
+      "to": "DOCS-004",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Inspects the tokens and their contrast"
+    },
+    {
+      "from": "JRN-002",
+      "to": "DOCS-005",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Inspects the tokens and their contrast"
+    },
+    {
+      "from": "JRN-002",
+      "to": "PRIM-003",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Inspects the tokens and their contrast"
+    },
+    {
+      "from": "JRN-002",
+      "to": "SEM-007",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Inspects the tokens and their contrast"
+    },
+    {
+      "from": "JRN-002",
+      "to": "CMP-004",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Tries the library on a plain HTML page"
+    },
+    {
+      "from": "JRN-002",
+      "to": "CMP-001",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Tries the library on a plain HTML page"
+    },
+    {
+      "from": "JRN-002",
+      "to": "CMP-003",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Tries the library on a plain HTML page"
+    },
+    {
+      "from": "JRN-002",
+      "to": "CMP-007",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Tries the library on a plain HTML page"
+    },
+    {
+      "from": "JRN-002",
+      "to": "CMP-008",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Tries the library on a plain HTML page"
+    },
+    {
+      "from": "JRN-003",
+      "to": "THEME-001",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Arrives with a system light or dark setting"
+    },
+    {
+      "from": "JRN-003",
+      "to": "THEME-004",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Arrives with a system light or dark setting"
+    },
+    {
+      "from": "JRN-003",
+      "to": "TOK-003",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Arrives with a system light or dark setting"
+    },
+    {
+      "from": "JRN-003",
+      "to": "THEME-002",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Switches the theme, and the choice is remembered"
+    },
+    {
+      "from": "JRN-003",
+      "to": "THEME-003",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Switches the theme, and the choice is remembered"
+    },
+    {
+      "from": "JRN-003",
+      "to": "KIT-009",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Switches the theme, and the choice is remembered"
+    },
+    {
+      "from": "JRN-003",
+      "to": "THEME-008",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Switches the theme, and the choice is remembered"
+    },
+    {
+      "from": "JRN-003",
+      "to": "THEME-005",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Their system switches theme while they read"
+    },
+    {
+      "from": "JRN-004",
+      "to": "SITE-011",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Skips to the content and moves around by keyboard"
+    },
+    {
+      "from": "JRN-004",
+      "to": "CMP-009",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Skips to the content and moves around by keyboard"
+    },
+    {
+      "from": "JRN-004",
+      "to": "SEM-011",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Skips to the content and moves around by keyboard"
+    },
+    {
+      "from": "JRN-004",
+      "to": "KIT-010",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Skips to the content and moves around by keyboard"
+    },
+    {
+      "from": "JRN-004",
+      "to": "KIT-006",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Listens with a screen reader"
+    },
+    {
+      "from": "JRN-004",
+      "to": "KIT-012",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Listens with a screen reader"
+    },
+    {
+      "from": "JRN-004",
+      "to": "KIT-001",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Listens with a screen reader"
+    },
+    {
+      "from": "JRN-004",
+      "to": "KIT-013",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Listens with a screen reader"
+    },
+    {
+      "from": "JRN-004",
+      "to": "KIT-014",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Listens with a screen reader"
+    },
+    {
+      "from": "JRN-004",
+      "to": "THEME-006",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Listens with a screen reader"
+    },
+    {
+      "from": "JRN-004",
+      "to": "CMP-006",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Listens with a screen reader"
+    },
+    {
+      "from": "JRN-004",
+      "to": "SEM-012",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Prefers reduced motion"
+    },
+    {
+      "from": "JRN-004",
+      "to": "CMP-011",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Prefers reduced motion"
+    },
+    {
+      "from": "JRN-004",
+      "to": "KIT-007",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Prefers reduced motion"
+    },
+    {
+      "from": "JRN-004",
+      "to": "SEM-007",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Reads with low vision"
+    },
+    {
+      "from": "JRN-004",
+      "to": "SEM-008",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Reads with low vision"
+    },
+    {
+      "from": "JRN-004",
+      "to": "QUAL-005",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Reads with low vision"
+    },
+    {
+      "from": "JRN-004",
+      "to": "CMP-010",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Reads with low vision"
+    },
+    {
+      "from": "JRN-004",
+      "to": "SITE-008",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Browses with JavaScript turned off"
+    },
+    {
+      "from": "JRN-004",
+      "to": "THEME-007",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Browses with JavaScript turned off"
+    },
+    {
+      "from": "JRN-005",
+      "to": "SITE-010",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Sees a rich preview where the link was shared"
+    },
+    {
+      "from": "JRN-005",
+      "to": "QUAL-001",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The page loads fast and nothing tracks them"
+    },
+    {
+      "from": "JRN-005",
+      "to": "QUAL-002",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The page loads fast and nothing tracks them"
+    },
+    {
+      "from": "JRN-005",
+      "to": "QUAL-003",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The page loads fast and nothing tracks them"
+    },
+    {
+      "from": "JRN-005",
+      "to": "QUAL-004",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The page loads fast and nothing tracks them"
+    },
+    {
+      "from": "JRN-005",
+      "to": "CMP-005",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The page loads fast and nothing tracks them"
+    },
+    {
+      "from": "JRN-005",
+      "to": "QUAL-006",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Uses whatever browser they have"
+    },
+    {
+      "from": "JRN-005",
+      "to": "SITE-009",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Follows an old or mistyped link"
+    },
+    {
+      "from": "JRN-006",
+      "to": "PRIM-001",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Edits the primitive tokens"
+    },
+    {
+      "from": "JRN-006",
+      "to": "PRIM-002",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Edits the primitive tokens"
+    },
+    {
+      "from": "JRN-006",
+      "to": "PRIM-003",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Edits the primitive tokens"
+    },
+    {
+      "from": "JRN-006",
+      "to": "PRIM-004",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Edits the primitive tokens"
+    },
+    {
+      "from": "JRN-006",
+      "to": "PRIM-005",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Edits the primitive tokens"
+    },
+    {
+      "from": "JRN-006",
+      "to": "PRIM-006",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Edits the primitive tokens"
+    },
+    {
+      "from": "JRN-006",
+      "to": "PRIM-007",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Edits the primitive tokens"
+    },
+    {
+      "from": "JRN-006",
+      "to": "PRIM-008",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Edits the primitive tokens"
+    },
+    {
+      "from": "JRN-006",
+      "to": "PRIM-009",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Edits the primitive tokens"
+    },
+    {
+      "from": "JRN-006",
+      "to": "PRIM-010",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Edits the primitive tokens"
+    },
+    {
+      "from": "JRN-006",
+      "to": "PRIM-011",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Edits the primitive tokens"
+    },
+    {
+      "from": "JRN-006",
+      "to": "SEM-001",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The semantic roles pick up the change"
+    },
+    {
+      "from": "JRN-006",
+      "to": "SEM-002",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The semantic roles pick up the change"
+    },
+    {
+      "from": "JRN-006",
+      "to": "SEM-003",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The semantic roles pick up the change"
+    },
+    {
+      "from": "JRN-006",
+      "to": "SEM-004",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The semantic roles pick up the change"
+    },
+    {
+      "from": "JRN-006",
+      "to": "SEM-005",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The semantic roles pick up the change"
+    },
+    {
+      "from": "JRN-006",
+      "to": "SEM-006",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The semantic roles pick up the change"
+    },
+    {
+      "from": "JRN-006",
+      "to": "SEM-009",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The semantic roles pick up the change"
+    },
+    {
+      "from": "JRN-006",
+      "to": "SEM-010",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The semantic roles pick up the change"
+    },
+    {
+      "from": "JRN-006",
+      "to": "TOK-001",
+      "type": "uses",
+      "step": 3,
+      "stepText": "One build regenerates every output"
+    },
+    {
+      "from": "JRN-006",
+      "to": "TOK-002",
+      "type": "uses",
+      "step": 3,
+      "stepText": "One build regenerates every output"
+    },
+    {
+      "from": "JRN-006",
+      "to": "TOK-004",
+      "type": "uses",
+      "step": 3,
+      "stepText": "One build regenerates every output"
+    },
+    {
+      "from": "JRN-006",
+      "to": "TOK-005",
+      "type": "uses",
+      "step": 3,
+      "stepText": "One build regenerates every output"
+    },
+    {
+      "from": "JRN-006",
+      "to": "TOK-008",
+      "type": "uses",
+      "step": 3,
+      "stepText": "One build regenerates every output"
+    },
+    {
+      "from": "JRN-006",
+      "to": "TOK-006",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Mistakes are caught before they ship"
+    },
+    {
+      "from": "JRN-006",
+      "to": "TOK-007",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Mistakes are caught before they ship"
+    },
+    {
+      "from": "JRN-006",
+      "to": "CMP-002",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Mistakes are caught before they ship"
+    },
+    {
+      "from": "JRN-006",
+      "to": "SITE-007",
+      "type": "uses",
+      "step": 4,
+      "stepText": "Mistakes are caught before they ship"
+    },
+    {
+      "from": "JRN-006",
+      "to": "DOCS-004",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Reviews the result in Storybook"
+    },
+    {
+      "from": "JRN-006",
+      "to": "DOCS-005",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Reviews the result in Storybook"
+    },
+    {
+      "from": "JRN-006",
+      "to": "DOCS-002",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Reviews the result in Storybook"
+    },
+    {
+      "from": "JRN-007",
+      "to": "CMP-001",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Creates it following the library's conventions"
+    },
+    {
+      "from": "JRN-007",
+      "to": "CMP-002",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Creates it following the library's conventions"
+    },
+    {
+      "from": "JRN-007",
+      "to": "CMP-003",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Creates it following the library's conventions"
+    },
+    {
+      "from": "JRN-007",
+      "to": "CMP-006",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Creates it following the library's conventions"
+    },
+    {
+      "from": "JRN-007",
+      "to": "CMP-007",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Creates it following the library's conventions"
+    },
+    {
+      "from": "JRN-007",
+      "to": "CMP-008",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Creates it following the library's conventions"
+    },
+    {
+      "from": "JRN-007",
+      "to": "TOK-005",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Creates it following the library's conventions"
+    },
+    {
+      "from": "JRN-007",
+      "to": "DOCS-001",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Documents and tests it in Storybook"
+    },
+    {
+      "from": "JRN-007",
+      "to": "DOCS-003",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Documents and tests it in Storybook"
+    },
+    {
+      "from": "JRN-007",
+      "to": "DOCS-007",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Documents and tests it in Storybook"
+    },
+    {
+      "from": "JRN-007",
+      "to": "CMP-010",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Documents and tests it in Storybook"
+    },
+    {
+      "from": "JRN-007",
+      "to": "SITE-007",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Uses it on a page"
+    },
+    {
+      "from": "JRN-007",
+      "to": "CMP-005",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Uses it on a page"
+    },
+    {
+      "from": "JRN-008",
+      "to": "SITE-006",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Adds or edits a content entry"
+    },
+    {
+      "from": "JRN-008",
+      "to": "SITE-002",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Adds or edits a content entry"
+    },
+    {
+      "from": "JRN-008",
+      "to": "SITE-003",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Adds or edits a content entry"
+    },
+    {
+      "from": "JRN-008",
+      "to": "SHIP-002",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Previews it locally"
+    },
+    {
+      "from": "JRN-008",
+      "to": "GATE-002",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Merges, and the site deploys"
+    },
+    {
+      "from": "JRN-008",
+      "to": "SHIP-005",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Merges, and the site deploys"
+    },
+    {
+      "from": "JRN-009",
+      "to": "SHIP-001",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Builds everything from a clean checkout"
+    },
+    {
+      "from": "JRN-009",
+      "to": "SHIP-003",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Builds everything from a clean checkout"
+    },
+    {
+      "from": "JRN-009",
+      "to": "GATE-001",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Opens a pull request and the gate runs"
+    },
+    {
+      "from": "JRN-009",
+      "to": "GATE-002",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Opens a pull request and the gate runs"
+    },
+    {
+      "from": "JRN-009",
+      "to": "QUAL-001",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Opens a pull request and the gate runs"
+    },
+    {
+      "from": "JRN-009",
+      "to": "QUAL-002",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Opens a pull request and the gate runs"
+    },
+    {
+      "from": "JRN-009",
+      "to": "QUAL-006",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Opens a pull request and the gate runs"
+    },
+    {
+      "from": "JRN-009",
+      "to": "DOCS-007",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Opens a pull request and the gate runs"
+    },
+    {
+      "from": "JRN-009",
+      "to": "GRAPH-006",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Opens a pull request and the gate runs"
+    },
+    {
+      "from": "JRN-009",
+      "to": "SHIP-005",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Merges, and the site and Storybook deploy"
+    },
+    {
+      "from": "JRN-009",
+      "to": "SHIP-006",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Merges, and the site and Storybook deploy"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GRAPH-009",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Ian describes the feature in plain words"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GRAPH-001",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The agent reads the current behavior and the intent behind it"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GRAPH-003",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The agent reads the current behavior and the intent behind it"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GRAPH-008",
+      "type": "uses",
+      "step": 2,
+      "stepText": "The agent reads the current behavior and the intent behind it"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GRAPH-002",
+      "type": "uses",
+      "step": 3,
+      "stepText": "The agent proposes changes to intents, journeys and behaviors, and Ian approves them"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GRAPH-010",
+      "type": "uses",
+      "step": 3,
+      "stepText": "The agent proposes changes to intents, journeys and behaviors, and Ian approves them"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GRAPH-004",
+      "type": "uses",
+      "step": 4,
+      "stepText": "The spec check catches any gaps in the graph"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GRAPH-005",
+      "type": "uses",
+      "step": 4,
+      "stepText": "The spec check catches any gaps in the graph"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GRAPH-006",
+      "type": "uses",
+      "step": 4,
+      "stepText": "The spec check catches any gaps in the graph"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GRAPH-007",
+      "type": "uses",
+      "step": 4,
+      "stepText": "The spec check catches any gaps in the graph"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GATE-011",
+      "type": "uses",
+      "step": 5,
+      "stepText": "The agent delivers it through the gates (JRN-014)"
+    },
+    {
+      "from": "JRN-010",
+      "to": "GATE-014",
+      "type": "uses",
+      "step": 5,
+      "stepText": "The agent delivers it through the gates (JRN-014)"
+    },
+    {
+      "from": "JRN-011",
+      "to": "SHIP-007",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Reads a slim profile README that points to the site"
+    },
+    {
+      "from": "JRN-012",
+      "to": "AGENT-005",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Is allowed in, and finds /llms.txt"
+    },
+    {
+      "from": "JRN-012",
+      "to": "AGENT-001",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Is allowed in, and finds /llms.txt"
+    },
+    {
+      "from": "JRN-012",
+      "to": "AGENT-002",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Reads the pages as Markdown"
+    },
+    {
+      "from": "JRN-012",
+      "to": "AGENT-004",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Reads the pages as Markdown"
+    },
+    {
+      "from": "JRN-012",
+      "to": "AGENT-003",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Pulls out facts about Ian and the projects"
+    },
+    {
+      "from": "JRN-013",
+      "to": "KIT-011",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Opens \"How this site was built\" from the footer"
+    },
+    {
+      "from": "JRN-013",
+      "to": "SITE-014",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Opens \"How this site was built\" from the footer"
+    },
+    {
+      "from": "JRN-013",
+      "to": "SITE-014",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Follows an intent down to its journeys and behaviors"
+    },
+    {
+      "from": "JRN-013",
+      "to": "GRAPH-007",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Follows an intent down to its journeys and behaviors"
+    },
+    {
+      "from": "JRN-013",
+      "to": "GRAPH-001",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Opens a behavior's Gherkin in the source repo"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GRAPH-009",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Plans the feature with Ian, and Ian approves the spec change"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GRAPH-008",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Plans the feature with Ian, and Ian approves the spec change"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-010",
+      "type": "uses",
+      "step": 1,
+      "stepText": "Plans the feature with Ian, and Ian approves the spec change"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-001",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Builds it on a branch, running the gate locally"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-013",
+      "type": "uses",
+      "step": 2,
+      "stepText": "Builds it on a branch, running the gate locally"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-018",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Opens a pull request that names the behaviors it implements"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-011",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Opens a pull request that names the behaviors it implements"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-017",
+      "type": "uses",
+      "step": 3,
+      "stepText": "Opens a pull request that names the behaviors it implements"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-002",
+      "type": "uses",
+      "step": 4,
+      "stepText": "CI runs every gate"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-004",
+      "type": "uses",
+      "step": 4,
+      "stepText": "CI runs every gate"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-005",
+      "type": "uses",
+      "step": 4,
+      "stepText": "CI runs every gate"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-006",
+      "type": "uses",
+      "step": 4,
+      "stepText": "CI runs every gate"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-007",
+      "type": "uses",
+      "step": 4,
+      "stepText": "CI runs every gate"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-016",
+      "type": "uses",
+      "step": 4,
+      "stepText": "CI runs every gate"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-015",
+      "type": "uses",
+      "step": 4,
+      "stepText": "CI runs every gate"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-012",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Reads the failures and fixes them until everything is green"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-013",
+      "type": "uses",
+      "step": 5,
+      "stepText": "Reads the failures and fixes them until everything is green"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-008",
+      "type": "uses",
+      "step": 6,
+      "stepText": "Can't loosen a gate to get there"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-009",
+      "type": "uses",
+      "step": 6,
+      "stepText": "Can't loosen a gate to get there"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-003",
+      "type": "uses",
+      "step": 6,
+      "stepText": "Can't loosen a gate to get there"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-014",
+      "type": "uses",
+      "step": 7,
+      "stepText": "Is done when the PR is green, and Ian approves and merges"
+    },
+    {
+      "from": "JRN-014",
+      "to": "GATE-003",
+      "type": "uses",
+      "step": 7,
+      "stepText": "Is done when the PR is green, and Ian approves and merges"
+    }
+  ]
+}

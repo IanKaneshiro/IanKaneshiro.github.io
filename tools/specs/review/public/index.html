@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>spec review · iankaneshiro.github.io</title>
+    <script>
+      try {
+        const saved = localStorage.getItem("review-theme");
+        document.documentElement.dataset.theme = saved || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      } catch {}
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <div class="brand"><span class="prompt">&gt;</span> spec-review<span class="cursor" aria-hidden="true">▌</span></div>
+      <nav class="views" aria-label="Views">
+        <button data-view="graph">graph <kbd>1</kbd></button>
+        <button data-view="review">review <kbd>2</kbd></button>
+        <button data-view="overview">readme <kbd>3</kbd></button>
+      </nav>
+      <div class="search">
+        <input id="q" type="search" placeholder="search intents, journeys, behaviors" autocomplete="off" spellcheck="false" aria-label="Search" />
+        <kbd class="search-key">/</kbd>
+        <div id="results" class="results" hidden></div>
+      </div>
+      <div class="meta">
+        <span id="progress" class="progress"></span>
+        <button id="problems" class="pill"></button>
+        <button id="theme" class="icon-btn" aria-label="Toggle light and dark" title="Toggle theme (t)">◐</button>
+      </div>
+    </header>
+    <main class="layout">
+      <section id="main" class="main" aria-label="Spec view"></section>
+      <aside id="detail" class="detail" aria-label="Details"></aside>
+    </main>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <script src="app.js"></script>
+  </body>
+</html>
