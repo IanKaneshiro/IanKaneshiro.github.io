@@ -1,6 +1,7 @@
 /node_modules/
 /bun.lock
 /gate-reports/
+/_site/
 # Build output.
 **/dist/
 **/storybook-static/
