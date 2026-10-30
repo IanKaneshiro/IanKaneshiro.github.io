@@ -1,48 +1,28 @@
 <!--
-Agents: draft this with `bun run pr:body > pr.md`, which fills in every section it can from the code.
-Write the sections it leaves as prompts, then open it as the agent: `bun run agent:gh -- pr create --body-file pr.md`.
-The pr-trace check fails until Summary, How it was verified and Review guide have content (GATE-019).
+Agents: draft this with `bun run pr:body --out pr.md`, write the prompts it leaves, then open it with
+`bun run agent:gh -- pr create --body-file pr.md`. Summary, Review guide and Verification can't be empty (GATE-019).
 -->
 
 ## Summary
 
-<!-- What this does and why, in 2 to 4 sentences. Name the intent it serves. -->
+<!-- What this does and why, in 2 or 3 sentences. -->
 
 ## Behaviors
 
-<!-- The behavior IDs this implements, with their status before and after (GATE-011). Each one's scenario must pass. -->
-
-| ID | Behavior | Before → after |
-|---|---|---|
-
-## Spec trace
-
-<!-- The intents and journeys these behaviors serve (bun run specs:trace <ID>). -->
-
-## What changed
-
-<!-- Files by area, with a line per area on what changed and why. -->
-
-## How it was verified
-
-<!-- The gate's results (bun run gate), behavior coverage before and after, and anything else you checked. -->
-
-## Decisions
-
-<!-- Choices you made and the alternatives you rejected. Delete this section if there were none. -->
-
-## Protected changes
-
-<!-- Changes to specs, gates or agent rules, and why each had to change. Ian reviews these closely. "None." if there are none. -->
-
-## Dependencies
-
-<!-- Every dependency this adds, with why it's needed (GATE-017). "None." if there are none. -->
-
-## Risks and follow-ups
-
-<!-- What could break, what's deferred, open spec questions. Delete this section if there are none. -->
+<!-- One line per behavior this adds or changes: ID, title, (new) or (changed). Then "Serves" the intents and journey steps. -->
 
 ## Review guide
 
-<!-- Where to start reading and in what order. Point at the riskiest change first. -->
+<!-- Where to start and what deserves the closest look, riskiest first. List spec, gate or agent-rule changes to review closely. -->
+
+## Verification
+
+<!-- The gate result and behavior coverage before → after, plus anything beyond the gate. -->
+
+## Notes
+
+<!-- Decisions, risks and follow-ups worth Ian's attention. Delete this section if none. -->
+
+## Dependencies
+
+<!-- Only if this adds dependencies: one line each, with why it's needed (GATE-017). Otherwise delete this section. -->
