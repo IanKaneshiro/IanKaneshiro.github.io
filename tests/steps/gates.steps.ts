@@ -410,7 +410,8 @@ const known = () =>
 
 Then("a pull request names the behavior IDs it implements in its description", () => {
   expect(read(".github/pull_request_template.md")).toMatch(/^## Behaviors$/m);
-  const body = "## Behaviors\n\n- GATE-008\n- GATE-016: secrets\n\n## Notes\n\nSee SITE-001 later.";
+  const body =
+    "## Behaviors\n\n- GATE-008\n- GATE-016: secrets\n\nServes INT-010 Trust · JRN-014 step 3\n\n## Notes\n\nSee SITE-001 later.";
   expect(behaviorIds(body)).toEqual(["GATE-008", "GATE-016"]);
 });
 
@@ -832,6 +833,12 @@ Then(
     expect(section(clean, "Verification")).toContain("Gate ✓ 2 checks pass, 1 run only on the pull request");
     expect(headings(clean)).not.toContain("Dependencies");
     expect(body.split("\n").length).toBeLessThan(35);
+    // What pr:body generates must pass pr-trace once the prompts are written.
+    const written = body
+      .replace("<!-- What this does and why, in 2 or 3 sentences. -->", "Does the thing.")
+      .replace("<!-- Where to start and what deserves the closest look, riskiest first. -->", "Start with pr.ts.");
+    const after = { "GATE-001": "pass", "GATE-003": "pass", "GATE-019": "pass", "GATE-020": "todo" };
+    expect(prTraceFailures(written, [], known(), after)).toEqual([]);
   },
 );
 

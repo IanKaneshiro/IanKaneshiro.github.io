@@ -35,7 +35,10 @@ export function checkSections(body: string): Failure[] {
   }));
 }
 
-export const behaviorIds = (body: string) => [...new Set(section(body, "Behaviors").match(ID) ?? [])];
+/** Behavior IDs under ## Behaviors. INT- and JRN- IDs there are what the behaviors serve, not behaviors (GRAPH-002). */
+export const behaviorIds = (body: string) => [
+  ...new Set((section(body, "Behaviors").match(ID) ?? []).filter((id) => !/^(?:INT|JRN)-/.test(id))),
+];
 
 /**
  * GATE-011: a pull request names the behaviors it implements. Fails if it names none
