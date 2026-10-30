@@ -54,16 +54,17 @@ End the description with the attribution line from your system prompt, if there 
 ## 4. Open it and get it green
 
 ```bash
-gh pr create --base main --title "<behavior IDs or area>: <what it does>" --body-file /tmp/pr-body.md
+bun run agent:push
+bun run agent:gh -- pr create --base main --title "<behavior IDs or area>: <what it does>" --body-file /tmp/pr-body.md
 gh pr checks <number> --watch
 ```
 
-If a check fails, read the gate's summary comment on the pull request, fix the code, push, and
-update the description if the facts changed (`bun run pr:body` again, then
-`gh pr edit <number> --body-file ...`). Never loosen a gate, and never add labels or merge.
-Only Ian does that.
+If a check fails, read the gate's summary comment on the pull request, fix the code,
+`bun run agent:push`, and update the description if the facts changed (`bun run pr:body` again,
+then `bun run agent:gh -- pr edit <number> --body-file ...`). Never loosen a gate, and never add
+labels or merge. Ian approves and merges.
 
 ## 5. Report
 
-Give Ian the pull request link, each check's status, and anything waiting on Ian (usually the
-`owner-approved` label for protected changes).
+Give Ian the pull request link, each check's status, and what's waiting on Ian: the approval,
+plus any protected changes to review closely.

@@ -132,11 +132,12 @@ export function checkDependencies(added: { file: string; name: string }[], body:
     }));
 }
 
-/** GATE-009, GATE-010: paths only Ian may change. */
+/** GATE-009, GATE-010: paths whose changes Ian reviews closely: the specs, the gates and the agent's own rules. */
 export const PROTECTED: [label: string, re: RegExp][] = [
   ["specs", /^specs\//],
   ["workflows", /^\.github\//],
   ["gate scripts", /^tools\/gate\//],
+  ["agent tools", /^tools\/agent\//],
   ["agent rules", /^(?:\.claude\/|AGENTS\.md$|CLAUDE\.md$)/],
   [
     "lint and format configs",
@@ -156,12 +157,12 @@ export function protectedChanges(changed: string[], scriptsChanged: (file: strin
   );
 }
 
-export function checkProtected(files: string[], labels: string[]): Failure[] {
-  if (!files.length || labels.includes("owner-approved")) return [];
-  return files.map((file) => ({
-    file,
-    rule: "owner-approval",
-    message: `changes a protected path (${PROTECTED.find(([, re]) => re.test(file))?.[0] ?? "gate scripts in package.json"})`,
-    fix: "Ian reviews this change and adds the owner-approved label; agents must not add it",
-  }));
+export const protectedKind = (file: string) =>
+  PROTECTED.find(([, re]) => re.test(file))?.[0] ?? "gate scripts in package.json";
+
+/** The protected-paths result: the files for a close review. Every pull request needs Ian's approval anyway (GATE-003). */
+export function protectedNote(files: string[]): string | undefined {
+  if (!files.length) return undefined;
+  const list = files.map((f) => `${f} (${protectedKind(f)})`);
+  return `review closely: ${list.slice(0, 15).join(", ")}${list.length > 15 ? `, and ${list.length - 15} more` : ""}`;
 }

@@ -53,8 +53,8 @@ Review notes from the UI are saved to `review-notes.json` in this folder, keyed 
 5. **The build is part of the portfolio.** The Storybook and this graph are public on purpose.
 6. **Content is data.** Projects, stack and bio live in content files, never in components.
 7. **Trust comes from gates.** Every rule here is a check that runs on every pull request. Agents
-   aren't done until the gates are green, they can't change the gates or the specs without Ian's
-   sign-off, and only Ian merges.
+   aren't done until the gates are green, they work as their own identity with permissions GitHub
+   enforces, and nothing merges without Ian's approval.
 
 ## Areas
 
@@ -98,14 +98,15 @@ This is JRN-010. When Ian asks for a feature:
 5. **Approve.** Ian approves the spec change, and it's committed on its own.
 6. **Build.** This is JRN-014. Work on a branch, one behavior at a time, with each commit message
    starting with the behavior ID. Run `bun run gate` before pushing.
-7. **Open a pull request** that names the behavior IDs it implements (GATE-011) and explains any
-   new dependency (GATE-017).
+7. **Open a pull request** as `ians-agent[bot]` (`bun run agent:gh -- pr create`), drafted with
+   `bun run pr:body`. It names the behaviors it implements (GATE-011), explains the work
+   (GATE-019) and any new dependency (GATE-017).
 8. **Fix until green.** Read the failures (`gh pr checks`, and the summary comment from GATE-012),
-   fix them, and push again. Never loosen a gate, skip a test or edit specs to get to green: those
-   changes need Ian's owner-approved label (GATE-008 to GATE-010). If a gate seems wrong, say so in
-   the pull request.
-9. **Done** means every required check passes. Report the pull request link and its status. Never
-   merge or label: only Ian merges (GATE-014, GATE-018).
+   fix them, and push again (`bun run agent:push`). Never loosen a gate, skip a test or edit specs to
+   get to green (GATE-008). Spec and gate changes are flagged for Ian's close review (GATE-009,
+   GATE-010). If a gate seems wrong, say so in the pull request.
+9. **Done** means every required check passes. Report the pull request link and its status. Ian
+   approves and merges; agents never merge or label (GATE-014, GATE-018).
 
 ## Decisions
 
@@ -118,7 +119,7 @@ Confirmed on 2026-10-30.
 | Component prefix `kan-`: tags `kan-*`, classes `Kan*`, events `kan*`, custom properties `--kan-*` | CMP-001, CMP-008, TOK-002 |
 | JetBrains Mono for headings, labels and code; Inter for body text | PRIM-007 |
 | AI crawlers are welcome | AGENT-005 |
-| Agents open pull requests with the gh CLI as Ian. They can't merge, label, push to main or change protection. Only Ian merges, and the merge is the approval | GATE-003, GATE-014, GATE-018 |
+| Agents act as their own GitHub App identity, `ians-agent[bot]`, with no Administration or Workflows permission. Ian approves their pull requests with a review; admins can skip approval, only when merging a pull request | GATE-003, GATE-014, GATE-018 |
 | Lint and format with ESLint (with the Stencil plugin), Stylelint and Prettier | GATE-005, GATE-006 |
 | v1 is the home page, "How this site was built" and a resume link. More pages go through the graph later | SITE-* |
 

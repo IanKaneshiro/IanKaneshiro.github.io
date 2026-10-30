@@ -1,5 +1,6 @@
 import { expect } from "bun:test";
 import { ESLint } from "eslint";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -11,16 +12,24 @@ import { checkHygiene } from "../../tools/gate/hygiene";
 import {
   behaviorIds,
   checkDependencies,
-  checkProtected,
   checkSections,
   checkTrace,
   PR_SECTIONS,
   protectedChanges,
+  protectedNote,
   prTraceFailures,
   section,
 } from "../../tools/gate/pr";
 import { fileChanges, renderBody } from "../../tools/gate/pr-body";
-import { evaluateProtection, GITHUB_ACTIONS_APP_ID, type BranchRule } from "../../tools/gate/protection";
+import {
+  ADMIN_ROLE_ID,
+  evaluateProtection,
+  GITHUB_ACTIONS_APP_ID,
+  type BranchRule,
+  type Ruleset,
+} from "../../tools/gate/protection";
+import { APP, botEmail, botName, evaluateAppPermissions, installationToken } from "../../tools/agent/app";
+import { refuseGh, refusePush } from "../../tools/agent/guard";
 import { runGate, type GateRun } from "../../tools/gate/run";
 import { scanSecrets } from "../../tools/gate/secrets";
 import { MARKER, planUpsert, renderSummary } from "../../tools/gate/summary";
@@ -102,49 +111,89 @@ Then("it exits non-zero, naming each check that failed", (world) => {
   expect(run.output.trim().split("\n").at(-1)).toBe("✗ 2 checks failed: lint, secrets");
 });
 
-// ── GATE-003 main only changes through a green pull request ─
+// ── GATE-003 main only changes through a green, approved pull request ─
 
+const ADMIN_PR_BYPASS = { actor_type: "RepositoryRole", actor_id: ADMIN_ROLE_ID, bypass_mode: "pull_request" };
+const goodRulesets = (): Ruleset[] => [
+  { id: 1, enforcement: "active", bypass_actors: [] },
+  { id: 2, enforcement: "active", bypass_actors: [{ ...ADMIN_PR_BYPASS }] },
+];
 const goodRules = (): BranchRule[] => [
-  { type: "pull_request" },
-  { type: "non_fast_forward" },
-  { type: "deletion" },
+  { type: "pull_request", ruleset_id: 1, parameters: { required_approving_review_count: 0 } },
+  { type: "non_fast_forward", ruleset_id: 1 },
+  { type: "deletion", ruleset_id: 1 },
   {
     type: "required_status_checks",
+    ruleset_id: 1,
     parameters: {
       required_status_checks: names.map((context) => ({ context, integration_id: GITHUB_ACTIONS_APP_ID })),
     },
   },
+  {
+    type: "pull_request",
+    ruleset_id: 2,
+    parameters: { required_approving_review_count: 1, require_last_push_approval: true },
+  },
 ];
 const requiredChecks = (r: BranchRule[]) =>
-  r[3].parameters!.required_status_checks as { context: string; integration_id: number }[];
+  r.find((x) => x.type === "required_status_checks")!.parameters!.required_status_checks as {
+    context: string;
+    integration_id: number;
+  }[];
+const protection = (r = goodRules(), rs = goodRulesets()) => evaluateProtection(r, rs, names);
 
 Then("main rejects direct pushes and force pushes", () => {
-  expect(evaluateProtection(goodRules(), [], names)).toEqual([]);
+  expect(protection()).toEqual([]);
   const noPr = goodRules().filter((r) => r.type !== "pull_request");
-  expect(evaluateProtection(noPr, [], names)[0].message).toContain("direct pushes");
+  expect(protection(noPr)[0].message).toContain("direct pushes");
   const noFf = goodRules().filter((r) => r.type !== "non_fast_forward");
-  expect(evaluateProtection(noFf, [], names)[0].message).toContain("force pushes");
+  expect(protection(noFf)[0].message).toContain("force pushes");
 });
 
 Then("a pull request can't merge until every required check passes", () => {
   const missing = goodRules();
-  missing[3].parameters!.required_status_checks = requiredChecks(missing).filter((c) => c.context !== "lint");
-  const f = evaluateProtection(missing, [], names);
+  const checks = missing.find((x) => x.type === "required_status_checks")!;
+  checks.parameters!.required_status_checks = requiredChecks(missing).filter((c) => c.context !== "lint");
+  const f = protection(missing);
   expect(rules(f)).toEqual(["required-check"]);
   expect(f[0].message).toContain("lint");
 
   const spoofable = goodRules();
   requiredChecks(spoofable)[0].integration_id = 1;
-  expect(rules(evaluateProtection(spoofable, [], names))).toEqual(["required-check-source"]);
+  expect(rules(protection(spoofable))).toEqual(["required-check-source"]);
 });
 
 Then("these rules apply to admins too, so nobody can merge red", () => {
-  expect(evaluateProtection(goodRules(), [{ id: 1, enforcement: "active", bypass_actors: [] }], names)).toEqual([]);
-  const bypass = [{ id: 1, enforcement: "active", bypass_actors: [{ actor_type: "RepositoryRole", actor_id: 5 }] }];
-  expect(rules(evaluateProtection(goodRules(), bypass, names))).toEqual(["ruleset-bypass"]);
-  expect(rules(evaluateProtection(goodRules(), [{ id: 1, enforcement: "evaluate" }], names))).toEqual([
-    "ruleset-enforcement",
+  const bypassable = goodRulesets();
+  bypassable[0].bypass_actors = [{ ...ADMIN_PR_BYPASS }];
+  const f = protection(goodRules(), bypassable);
+  expect(new Set(rules(f))).toEqual(new Set(["ruleset-bypass"]));
+  expect(f.map((x) => x.message)).toContain("admins can merge without the lint check, so they could merge red");
+  expect(
+    rules(protection(goodRules(), [{ id: 1, enforcement: "evaluate", bypass_actors: [] }, goodRulesets()[1]])),
+  ).toEqual(["ruleset-enforcement"]);
+});
+
+Then("a pull request can't merge without an approving review, and a push after the approval needs a new one", () => {
+  const noApproval = goodRules().filter((r) => r.ruleset_id !== 2);
+  expect(protection(noApproval).map((f) => f.message)).toEqual([
+    "a pull request can merge without an approving review",
   ]);
+  const stale = goodRules();
+  stale[4].parameters = { required_approving_review_count: 1, require_last_push_approval: false };
+  expect(protection(stale).map((f) => f.message)).toEqual(["a push after the approval doesn't need a new approval"]);
+});
+
+Then("only admins can skip the approval, and only when merging a pull request", () => {
+  const always = goodRulesets();
+  always[1].bypass_actors = [{ ...ADMIN_PR_BYPASS, bypass_mode: "always" }];
+  expect(rules(protection(goodRules(), always))).toEqual(["approval-bypass"]);
+  const agent = goodRulesets();
+  agent[1].bypass_actors = [
+    { ...ADMIN_PR_BYPASS },
+    { actor_type: "Integration", actor_id: APP.appId, bypass_mode: "pull_request" },
+  ];
+  expect(rules(protection(goodRules(), agent))).toEqual(["approval-bypass"]);
 });
 
 Then("\"bun run gate:protection\" fails if GitHub's branch protection settings don't say so", async () => {
@@ -339,20 +388,19 @@ Given("a pull request changes anything under specs/", (world) => {
   world.scriptsChanged = () => false;
 });
 
-Then("the protected-paths check fails, listing those files", (world) => {
+Then("the protected-paths check lists those files for a close review", (world) => {
   const files = protectedChanges(world.changed as string[], world.scriptsChanged as (f: string) => boolean);
   expect(files).toEqual(world.expected as string[]);
-  const f = checkProtected(files, []);
-  expect(f.map((x) => x.file)).toEqual(world.expected as string[]);
-  expect(new Set(rules(f))).toEqual(new Set(["owner-approval"]));
-  world.files = files;
+  const note = protectedNote(files)!;
+  expect(note.startsWith("review closely: ")).toBe(true);
+  for (const f of files) expect(note).toContain(f);
+  expect(protectedNote([])).toBeUndefined();
 });
 
-Then("it passes only once Ian adds the owner-approved label", (world) => {
-  const files = world.files as string[];
-  expect(checkProtected(files, ["chore"]).length).toBe(files.length);
-  expect(checkProtected(files, ["owner-approved"])).toEqual([]);
-  expect(denied("gh pr edit 12 --add-label owner-approved")).toBe(true);
+Then("the pull request can't merge without Ian's approval", () => {
+  expect(protection()).toEqual([]);
+  expect(rules(protection(goodRules().filter((r) => r.ruleset_id !== 2)))).toEqual(["required-approval"]);
+  expect(refuseGh(["pr", "review", "3", "--approve"])).not.toBeNull();
 });
 
 // ── GATE-011 Pull requests trace to behaviors ───────────
@@ -488,8 +536,9 @@ Then("the agent reports the pull request link and its check status", () => {
   expect(agents()).toContain("Report the pull request link and its check status.");
 });
 
-Then("only Ian merges, and the merge is the approval", () => {
-  expect(agents()).toContain("Only Ian merges, and the merge is the approval.");
+Then("Ian approves and merges, and agents never merge", () => {
+  expect(agents()).toContain("Ian approves and merges; agents never merge.");
+  expect(refuseGh(["pr", "merge", "12", "--squash"])).toContain("never merge");
   expect(denied("gh pr merge 12 --squash")).toBe(true);
   expect(denied("gh api -X PUT repos/IanKaneshiro/IanKaneshiro.github.io/pulls/12/merge")).toBe(true);
 });
@@ -543,37 +592,124 @@ Then("a pull request that adds a dependency fails unless its description gives a
   expect(checkDependencies(added, "## Notes\n\nleft-pad: pads things")).toHaveLength(2);
 });
 
-// ── GATE-018 What agents may not do with gh ─────────────
+// ── GATE-018 Agents work as their own GitHub identity ───
 
-Given("agents push branches and open pull requests with the gh CLI, as Ian", () => {
-  expect(agents()).toContain("You act on GitHub through the `gh` CLI as Ian");
-  expect(denied("gh pr create --fill")).toBe(false);
-  expect(denied("git push -u origin gates/setup")).toBe(false);
+Given("agents push branches, commit and open pull requests through the agent commands", () => {
+  const scripts = JSON.parse(read("package.json")).scripts;
+  expect(scripts["agent:push"]).toBe("bun tools/agent/cli.ts push");
+  expect(scripts["agent:gh"]).toBe("bun tools/agent/cli.ts gh");
+  const env = settings().env;
+  expect([env.GIT_AUTHOR_NAME, env.GIT_COMMITTER_NAME]).toEqual(["ians-agent[bot]", "ians-agent[bot]"]);
+  expect([env.GIT_AUTHOR_EMAIL, env.GIT_COMMITTER_EMAIL]).toEqual([botEmail(), botEmail()]);
+  expect(agents()).toContain("`bun run agent:push`");
+});
+
+Then("they act as ians-agent[bot], with a token that expires within an hour", async () => {
+  expect(botName()).toBe("ians-agent[bot]");
+  const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });
+  const key = privateKey.export({ type: "pkcs1", format: "pem" }).toString();
+  const now = Date.parse("2026-10-30T20:00:00Z");
+  const calls: { url: string; method: string; auth: string; body?: string }[] = [];
+  const fakeFetch = async (url: string, init: RequestInit = {}) => {
+    calls.push({
+      url,
+      method: init.method ?? "GET",
+      auth: new Headers(init.headers).get("authorization")!,
+      body: init.body as string,
+    });
+    const json = url.endsWith("/installation") ? { id: 42 } : { token: "ghs_test", expires_at: "2026-10-30T21:00:00Z" };
+    return new Response(JSON.stringify(json), { status: 200 });
+  };
+  const cacheFile = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "agent-token-")), "token.json");
+  const opts = { key, fetch: fakeFetch, now: () => now, cacheFile };
+  expect(await installationToken(opts)).toEqual({ token: "ghs_test", expiresAt: "2026-10-30T21:00:00Z" });
+  expect(calls.map((c) => [c.method, c.url])).toEqual([
+    ["GET", `https://api.github.com/repos/${APP.repo}/installation`],
+    ["POST", "https://api.github.com/app/installations/42/access_tokens"],
+  ]);
+  expect(JSON.parse(calls[1].body!)).toEqual({ repositories: ["IanKaneshiro.github.io"] });
+  const [head, body, sig] = calls[0].auth.replace("Bearer ", "").split(".");
+  const claims = JSON.parse(Buffer.from(body, "base64url").toString());
+  expect(claims.iss).toBe(String(APP.appId));
+  expect(claims.exp - claims.iat).toBeLessThanOrEqual(600);
+  expect(crypto.verify("RSA-SHA256", Buffer.from(`${head}.${body}`), publicKey, Buffer.from(sig, "base64url"))).toBe(
+    true,
+  );
+  expect((fs.statSync(cacheFile).mode & 0o777).toString(8)).toBe("600");
+  // Reused while it has more than 5 minutes left; refreshed after that.
+  await installationToken({ ...opts, now: () => now + 50 * 60_000 });
+  expect(calls).toHaveLength(2);
+  await installationToken({ ...opts, now: () => now + 56 * 60_000 });
+  expect(calls).toHaveLength(4);
 });
 
 Then(
-  "Claude Code permission rules deny them merging pull requests, adding or removing labels, pushing to main, force pushing, and changing branch protection or rulesets",
+  "the app has no Administration or Workflows permission, so it can't change rulesets, branch protection or CI",
   () => {
+    const granted = { actions: "read", checks: "read", contents: "write", metadata: "read", pull_requests: "write" };
+    expect(evaluateAppPermissions(granted)).toEqual([]);
+    expect(evaluateAppPermissions({ ...granted, administration: "write" }).map((f) => f.message)).toEqual([
+      "the agent app has administration: write",
+    ]);
+    expect(evaluateAppPermissions({ ...granted, workflows: "write" }).map((f) => f.message)).toEqual([
+      "the agent app has workflows: write",
+    ]);
+    expect(evaluateAppPermissions({ ...granted, contents: "read" }).map((f) => f.message)).toEqual([
+      "the agent app needs contents: write",
+    ]);
+  },
+);
+
+Then(
+  "the agent commands refuse to merge, label, push to main or force push, and Claude Code permission rules make agents use them",
+  () => {
+    for (const args of [
+      ["pr", "merge", "3", "--squash"],
+      ["pr", "edit", "3", "--add-label", "chore"],
+      ["pr", "edit", "3", "--remove-label=chore"],
+      ["label", "create", "x"],
+      ["api", "-X", "PUT", "repos/o/r/branches/main/protection"],
+      ["api", "repos/o/r/issues/3/labels", "-f", "labels[]=chore"],
+      ["ruleset", "list"],
+      ["auth", "token"],
+    ]) {
+      expect([args.join(" "), refuseGh(args) !== null]).toEqual([args.join(" "), true]);
+    }
+    for (const args of [
+      ["pr", "create", "--title", "x", "--body-file", "pr.md"],
+      ["pr", "view", "3"],
+      ["api", "repos/o/r/pulls/3"],
+    ]) {
+      expect([args.join(" "), refuseGh(args)]).toEqual([args.join(" "), null]);
+    }
+    expect(refusePush("main")).toContain("never push to main");
+    expect(refusePush("feature/x", ["--force"])).toContain("no options");
+    expect(refusePush("+feature/x")).not.toBeNull();
+    expect(refusePush("agent/identity")).toBeNull();
     for (const cmd of [
-      "gh pr merge 3 --squash --auto",
-      "gh pr edit 3 --add-label owner-approved",
-      "gh pr edit --remove-label chore",
-      "gh label create owner-approved",
-      "gh api repos/o/r/issues/3/labels -f labels[]=chore",
-      "git push origin main",
-      "git push origin HEAD:main",
-      "git push --force origin gates/setup",
-      "git push -f",
-      "git push origin +gates/setup",
+      "git push -u origin agent/identity",
+      "git push --force",
+      "gh pr create --fill",
+      "gh pr edit 3 --add-label chore",
+      "gh pr merge 3",
       "gh api -X PUT repos/o/r/branches/main/protection",
-      "gh api -X DELETE repos/o/r/rulesets/7",
+      "GH_TOKEN=x gh pr create",
+      "bun run agent:token",
+      "cat ~/.config/ian-agent/private-key.pem",
     ]) {
       expect([cmd, denied(cmd)]).toEqual([cmd, true]);
     }
-    for (const cmd of ["git push -u origin fix-footer", "git push origin maintenance-page", "gh pr view 3"]) {
+    for (const cmd of [
+      "bun run agent:push",
+      "bun run agent:gh -- pr create --fill",
+      "gh pr view 3",
+      "gh pr checks 3",
+    ]) {
       expect([cmd, denied(cmd)]).toEqual([cmd, false]);
     }
-    expect(settings().permissions.deny).toContain("Edit(/.claude/**)");
+    expect(settings().permissions.deny).toEqual(
+      expect.arrayContaining(["Edit(/.claude/**)", "Read(~/.config/ian-agent/**)"]),
+    );
   },
 );
 

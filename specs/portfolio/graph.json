@@ -655,7 +655,7 @@
     {
       "kind": "behavior",
       "id": "GATE-003",
-      "title": "main only changes through a green pull request",
+      "title": "main only changes through a green, approved pull request",
       "area": "GATE",
       "tags": [
         "@ci",
@@ -674,6 +674,14 @@
         {
           "keyword": "And",
           "text": "these rules apply to admins too, so nobody can merge red"
+        },
+        {
+          "keyword": "And",
+          "text": "a pull request can't merge without an approving review, and a push after the approval needs a new one"
+        },
+        {
+          "keyword": "And",
+          "text": "only admins can skip the approval, and only when merging a pull request"
         },
         {
           "keyword": "And",
@@ -703,7 +711,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 26
+      "line": 28
     },
     {
       "kind": "behavior",
@@ -725,7 +733,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 31
+      "line": 33
     },
     {
       "kind": "behavior",
@@ -751,7 +759,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 36
+      "line": 38
     },
     {
       "kind": "behavior",
@@ -773,7 +781,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 42
+      "line": 44
     },
     {
       "kind": "behavior",
@@ -796,12 +804,12 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 47
+      "line": 49
     },
     {
       "kind": "behavior",
       "id": "GATE-009",
-      "title": "Changes to the gates need Ian's sign-off",
+      "title": "Changes to the gates are flagged for Ian's review",
       "area": "GATE",
       "tags": [
         "@ci",
@@ -815,20 +823,20 @@
         },
         {
           "keyword": "Then",
-          "text": "the protected-paths check fails, listing those files"
+          "text": "the protected-paths check lists those files for a close review"
         },
         {
           "keyword": "And",
-          "text": "it passes only once Ian adds the owner-approved label"
+          "text": "the pull request can't merge without Ian's approval"
         }
       ],
       "file": "features/gates.feature",
-      "line": 52
+      "line": 54
     },
     {
       "kind": "behavior",
       "id": "GATE-010",
-      "title": "Changes to the specs need Ian's sign-off",
+      "title": "Changes to the specs are flagged for Ian's review",
       "area": "GATE",
       "tags": [
         "@ci",
@@ -842,15 +850,15 @@
         },
         {
           "keyword": "Then",
-          "text": "the protected-paths check fails, listing those files"
+          "text": "the protected-paths check lists those files for a close review"
         },
         {
           "keyword": "And",
-          "text": "it passes only once Ian adds the owner-approved label"
+          "text": "the pull request can't merge without Ian's approval"
         }
       ],
       "file": "features/gates.feature",
-      "line": 58
+      "line": 60
     },
     {
       "kind": "behavior",
@@ -876,7 +884,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 64
+      "line": 66
     },
     {
       "kind": "behavior",
@@ -898,7 +906,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 70
+      "line": 72
     },
     {
       "kind": "behavior",
@@ -928,7 +936,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 75
+      "line": 77
     },
     {
       "kind": "behavior",
@@ -950,11 +958,11 @@
         },
         {
           "keyword": "And",
-          "text": "only Ian merges, and the merge is the approval"
+          "text": "Ian approves and merges, and agents never merge"
         }
       ],
       "file": "features/gates.feature",
-      "line": 82
+      "line": 84
     },
     {
       "kind": "behavior",
@@ -972,7 +980,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 88
+      "line": 90
     },
     {
       "kind": "behavior",
@@ -991,7 +999,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 92
+      "line": 94
     },
     {
       "kind": "behavior",
@@ -1009,12 +1017,12 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 96
+      "line": 98
     },
     {
       "kind": "behavior",
       "id": "GATE-018",
-      "title": "What agents may not do with gh",
+      "title": "Agents work as their own GitHub identity",
       "area": "GATE",
       "tags": [
         "@ci",
@@ -1024,11 +1032,19 @@
       "steps": [
         {
           "keyword": "Given",
-          "text": "agents push branches and open pull requests with the gh CLI, as Ian"
+          "text": "agents push branches, commit and open pull requests through the agent commands"
         },
         {
           "keyword": "Then",
-          "text": "Claude Code permission rules deny them merging pull requests, adding or removing labels, pushing to main, force pushing, and changing branch protection or rulesets"
+          "text": "they act as ians-agent[bot], with a token that expires within an hour"
+        },
+        {
+          "keyword": "And",
+          "text": "the app has no Administration or Workflows permission, so it can't change rulesets, branch protection or CI"
+        },
+        {
+          "keyword": "And",
+          "text": "the agent commands refuse to merge, label, push to main or force push, and Claude Code permission rules make agents use them"
         },
         {
           "keyword": "And",
@@ -1036,7 +1052,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 100
+      "line": 102
     },
     {
       "kind": "behavior",
@@ -1058,7 +1074,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 106
+      "line": 110
     },
     {
       "kind": "behavior",
@@ -1084,7 +1100,7 @@
         }
       ],
       "file": "features/gates.feature",
-      "line": 111
+      "line": 115
     },
     {
       "kind": "behavior",
@@ -4676,35 +4692,35 @@
       "to": "GATE-018",
       "type": "uses",
       "step": 3,
-      "stepText": "Opens a pull request with gh that names the behaviors it implements and explains the work"
+      "stepText": "Opens a pull request as ians-agent[bot] that names the behaviors it implements and explains the work"
     },
     {
       "from": "JRN-014",
       "to": "GATE-011",
       "type": "uses",
       "step": 3,
-      "stepText": "Opens a pull request with gh that names the behaviors it implements and explains the work"
+      "stepText": "Opens a pull request as ians-agent[bot] that names the behaviors it implements and explains the work"
     },
     {
       "from": "JRN-014",
       "to": "GATE-017",
       "type": "uses",
       "step": 3,
-      "stepText": "Opens a pull request with gh that names the behaviors it implements and explains the work"
+      "stepText": "Opens a pull request as ians-agent[bot] that names the behaviors it implements and explains the work"
     },
     {
       "from": "JRN-014",
       "to": "GATE-019",
       "type": "uses",
       "step": 3,
-      "stepText": "Opens a pull request with gh that names the behaviors it implements and explains the work"
+      "stepText": "Opens a pull request as ians-agent[bot] that names the behaviors it implements and explains the work"
     },
     {
       "from": "JRN-014",
       "to": "GATE-020",
       "type": "uses",
       "step": 3,
-      "stepText": "Opens a pull request with gh that names the behaviors it implements and explains the work"
+      "stepText": "Opens a pull request as ians-agent[bot] that names the behaviors it implements and explains the work"
     },
     {
       "from": "JRN-014",
@@ -4795,14 +4811,14 @@
       "to": "GATE-014",
       "type": "uses",
       "step": 7,
-      "stepText": "Is done when the PR is green, and Ian merges"
+      "stepText": "Is done when the PR is green, and Ian approves and merges"
     },
     {
       "from": "JRN-014",
       "to": "GATE-003",
       "type": "uses",
       "step": 7,
-      "stepText": "Is done when the PR is green, and Ian merges"
+      "stepText": "Is done when the PR is green, and Ian approves and merges"
     }
   ]
 }

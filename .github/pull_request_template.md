@@ -1,6 +1,6 @@
 <!--
 Agents: draft this with `bun run pr:body > pr.md`, which fills in every section it can from the code.
-Write the sections it leaves as prompts, then open the pull request with `gh pr create --body-file pr.md`.
+Write the sections it leaves as prompts, then open it as the agent: `bun run agent:gh -- pr create --body-file pr.md`.
 The pr-trace check fails until Summary, How it was verified and Review guide have content (GATE-019).
 -->
 
@@ -33,7 +33,7 @@ The pr-trace check fails until Summary, How it was verified and Review guide hav
 
 ## Protected changes
 
-<!-- Files that need Ian's owner-approved label, and why each had to change. "None." if there are none. -->
+<!-- Changes to specs, gates or agent rules, and why each had to change. Ian reviews these closely. "None." if there are none. -->
 
 ## Dependencies
 

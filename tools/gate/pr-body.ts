@@ -32,6 +32,7 @@ export type Facts = {
 const AREAS: [string, RegExp][] = [
   ["Specs", /^specs\//],
   ["Gate", /^tools\/gate\//],
+  ["Agent tools", /^tools\/agent\//],
   ["Spec tooling", /^tools\/specs\//],
   ["Tests", /^tests\//],
   ["CI", /^\.github\//],
@@ -140,7 +141,7 @@ export function renderBody(f: Facts): string {
 
   h("Protected changes");
   if (f.protectedFiles.length) {
-    out.push("These need Ian's `owner-approved` label:", "");
+    out.push("These change specs, gates or agent rules. Review them closely:", "");
     for (const file of f.protectedFiles) {
       const kind = PROTECTED.find(([, re]) => re.test(file))?.[0] ?? "gate scripts in package.json";
       out.push(`- \`${file}\` (${kind}): ${prompt("why it had to change")}`);

@@ -17,20 +17,21 @@ because someone read every line.
    what's around it (`bun run specs:trace <ID>`): the intent's *Why* and *Not this*, the journey's
    steps, the behaviors already there. Then propose the spec change: new or changed behaviors,
    journey steps, or intents. Ian approves it before you build.
-2. **Branch.** Never work on `main`. One branch per feature.
+2. **Branch.** Never work on `main`. One branch per feature. Commit as the agent (see *Agent identity*).
 3. **Build one behavior at a time.** Write step definitions for its scenario in
    `tests/steps/<area>.steps.ts`, see it fail for the right reason, then write the smallest code
    that makes it pass. Each commit message starts with the behavior ID, e.g. `GATE-008: ...`.
 4. **Run the gate:** `bun run gate`. Fix everything it reports.
-5. **Open a pull request** with `gh pr create`. Draft the description with
+5. **Push and open a pull request as the agent:** `bun run agent:push`, then
+   `bun run agent:gh -- pr create --title "..." --body-file pr.md`. Draft the description with
    `bun run pr:body --out pr.md`, which fills in the behaviors, spec trace, changes, verification,
    protected files and dependencies from the code. Then write the parts it leaves as prompts:
    Summary, Decisions, Risks and follow-ups, Review guide, and a reason for each protected file and
    dependency. In Claude Code, the `pr` skill does all of this.
 6. **Fix until green.** Read the failures (`gh pr checks`, and the gate summary comment on the
-   pull request), fix them, push again. Repeat.
+   pull request), fix them, `bun run agent:push` again. Repeat.
 7. **Done means green.** You're done only when the pull request passes every required check.
-   Report the pull request link and its check status. Only Ian merges, and the merge is the approval.
+   Report the pull request link and its check status. Ian approves and merges; agents never merge.
 
 **Don't stop while the gate fails.** This applies to every agent. In Claude Code a Stop hook
 enforces it; in Cursor, Grok Build or anything else, follow it yourself: if `bun run gate` fails,
@@ -39,20 +40,37 @@ listed.
 
 ## Limits
 
-You act on GitHub through the `gh` CLI as Ian, so these limits are what separates you from Ian.
-Never:
+You act on GitHub as `ians-agent[bot]`, through the agent commands. The app has no Administration
+or Workflows permission, so GitHub itself stops it from changing rulesets, branch protection or CI.
+The agent commands refuse the rest. Never:
 
 - **merge** a pull request (`gh pr merge` or the API),
-- **add or remove labels**, including `owner-approved` and `chore`; only Ian adds them,
+- **add or remove labels**, including `chore`; only Ian adds them,
+- **act as Ian**: no plain `git push` or `gh pr create`/`edit`/`comment`, and no reading the app's key,
 - **push to `main`** or **force push** anything,
 - **change branch protection or rulesets**,
 - loosen a gate to get to green: no `.skip` or `.only`, no lint-disable, `@ts-ignore` or
   `@ts-expect-error` without a reason (` -- why`), no edits to lint, format, tsconfig, budget or
   gate config, workflows or `.claude/` unless Ian asked for that change.
 
-Changes to `specs/` or to the gates are allowed when they're part of an approved plan. The
-`protected-paths` check fails until Ian reviews them and adds the `owner-approved` label.
+Changes to `specs/`, the gates or the agent's own rules are allowed when they're part of an
+approved plan. The `protected-paths` check lists them so Ian reviews them closely, and nothing
+merges without Ian's approval.
 If a gate looks wrong, say so in the pull request instead of working around it.
+
+## Agent identity
+
+Agents act as the GitHub App **ians-agent** (`ians-agent[bot]`). Its settings are in
+`tools/agent/app.json`. Its private key stays on Ian's machine at `~/.config/ian-agent/private-key.pem`
+and never goes in the repo. Tokens last an hour and are limited to this repository.
+
+- **Commits:** author them as `ians-agent[bot] <350450150+ians-agent[bot]@users.noreply.github.com>`.
+  Claude Code sets this for you. Other agents set `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`,
+  `GIT_COMMITTER_NAME` and `GIT_COMMITTER_EMAIL` to those values.
+- **Push:** `bun run agent:push` pushes the current branch. It refuses `main` and any options, so no
+  force pushes or deletes.
+- **GitHub:** `bun run agent:gh -- <gh args>` runs `gh` as the agent. It refuses merging, labels,
+  reviews and write calls through `gh api`.
 
 ## Commands
 
@@ -68,6 +86,8 @@ bun run specs:check          # the spec graph is consistent and GRAPH.md is curr
 bun run specs:graph          # regenerate GRAPH.md and graph.json after a spec change
 bun run specs:review         # the spec review UI on http://localhost:4400
 bun run pr:body --out pr.md   # draft a pull request description from the code
+bun run agent:push           # push the current branch as ians-agent[bot]
+bun run agent:gh -- pr create --title "..." --body-file pr.md   # gh as ians-agent[bot]
 ```
 
 ## Layout
@@ -76,6 +96,7 @@ bun run pr:body --out pr.md   # draft a pull request description from the code
 specs/portfolio/   intents/, journeys/, features/ (Gherkin), README.md, GRAPH.md (generated)
 tests/             scenarios.test.ts runs every behavior; steps/ holds step definitions
 tools/gate/        the gate: checks.ts lists every check; cli.ts runs them
+tools/agent/       the agent's identity: token minting, agent:gh, agent:push and their guards
 tools/specs/       spec graph loader, checker and review UI
 docs/              drafts (content-draft.md)
 index.html css/ js/ assets/ CNAME   the old site, served until the new one ships (SHIP-008)
