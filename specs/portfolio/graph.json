@@ -2076,7 +2076,7 @@
       "steps": [
         {
           "keyword": "Then",
-          "text": "every semantic token's $value is a reference to a primitive token"
+          "text": "every semantic token's $value is a reference that resolves to a primitive token"
         },
         {
           "keyword": "And",

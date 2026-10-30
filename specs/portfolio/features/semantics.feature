@@ -6,7 +6,7 @@ Feature: Semantic tokens: names that say what a value is for
 
   @SEM-001 @tokens
   Scenario: Semantic tokens only reference primitives
-    Then every semantic token's $value is a reference to a primitive token
+    Then every semantic token's $value is a reference that resolves to a primitive token
     And no semantic token holds a raw value
 
   @SEM-002 @tokens
