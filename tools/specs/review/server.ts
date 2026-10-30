@@ -60,14 +60,20 @@ const server = Bun.serve({
     const url = new URL(req.url);
 
     if (url.pathname === "/api/graph") {
-      const readme = fs.existsSync(path.join(root, "README.md")) ? fs.readFileSync(path.join(root, "README.md"), "utf8") : "";
+      const readme = fs.existsSync(path.join(root, "README.md"))
+        ? fs.readFileSync(path.join(root, "README.md"), "utf8")
+        : "";
       return json({ ...loadGraph(root), readme, root });
     }
 
     if (url.pathname === "/api/notes" && req.method === "GET") return json(readNotes());
 
     if (url.pathname === "/api/notes" && req.method === "PUT") {
-      const body = (await req.json().catch(() => null)) as { id?: string; status?: Note["status"]; note?: string } | null;
+      const body = (await req.json().catch(() => null)) as {
+        id?: string;
+        status?: Note["status"];
+        note?: string;
+      } | null;
       if (!body?.id || !/^[A-Z][A-Z0-9]*-\d{3}$/.test(body.id) || !STATUSES.has(body.status ?? null)) {
         return json({ error: "expected { id, status: approved|change|question|null, note }" }, 400);
       }
@@ -108,4 +114,6 @@ const server = Bun.serve({
 });
 
 console.log(`spec review → http://localhost:${server.port}`);
-console.log(`reading ${path.relative(process.cwd(), root) || root}; notes save to ${path.relative(process.cwd(), notesFile)}`);
+console.log(
+  `reading ${path.relative(process.cwd(), root) || root}; notes save to ${path.relative(process.cwd(), notesFile)}`,
+);

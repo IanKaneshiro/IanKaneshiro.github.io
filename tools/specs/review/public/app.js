@@ -2,7 +2,10 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = (s) =>
-  String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  String(s ?? "").replace(
+    /[&<>"']/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+  );
 const ID_RE = /\b([A-Z][A-Z0-9]*-\d{3})\b/g;
 
 const STATUS = {
@@ -54,7 +57,13 @@ function buildIndex(g) {
     text.set(b.id, `${b.id} ${b.title} ${b.tags.join(" ")} ${b.steps.map((s) => s.text).join(" ")}`.toLowerCase());
   }
   const areas = g.features.map((f) => ({
-    kind: "area", id: `AREA:${f.area}`, area: f.area, title: f.title, file: f.file, description: f.description, behaviors: f.behaviors,
+    kind: "area",
+    id: `AREA:${f.area}`,
+    area: f.area,
+    title: f.title,
+    file: f.file,
+    description: f.description,
+    behaviors: f.behaviors,
   }));
   for (const a of areas) byId.set(a.id, a);
 
@@ -136,7 +145,8 @@ function mdLink(text, url) {
   const [file] = url.replace(/^\.\//, "").split("#");
   const id = state.idx.fileToId.get(file);
   if (id) return `<button class="ref" data-go="${esc(id)}">${esc(text)}</button>`;
-  if (/^https?:\/\//.test(url)) return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(text)}</a>`;
+  if (/^https?:\/\//.test(url))
+    return `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(text)}</a>`;
   return `<span class="ref-dead" title="${esc(url)}">${esc(text)}</span>`;
 }
 
@@ -146,7 +156,7 @@ function linkIds(html) {
 
 function inline(s) {
   const keep = [];
-  const put = (html) => `\u0000${keep.push(html) - 1}\u0000`;
+  const put = (html) => `\uE000${keep.push(html) - 1}\uE001`;
   let h = String(s);
   h = h.replace(/`([^`]+)`/g, (_, c) => put(`<code>${esc(c)}</code>`));
   h = h.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t, u) => put(mdLink(t, u)));
@@ -154,7 +164,7 @@ function inline(s) {
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,:;!?]|$)/g, "$1<em>$2</em>");
   h = linkIds(h);
-  return h.replace(/\u0000(\d+)\u0000/g, (_, k) => keep[Number(k)]);
+  return h.replace(/\uE000(\d+)\uE001/g, (_, k) => keep[Number(k)]);
 }
 
 const LIST_ITEM = /^(\s*)([-*]|\d+\.)\s+(.*)$/;
@@ -176,24 +186,43 @@ function parseList(lines, i) {
     } else if (!m && l.trim() && /^\s+/.test(l) && items.length) {
       items.at(-1).text.push(l.trim());
       i++;
-    } else if (!l.trim() && i + 1 < lines.length && LIST_ITEM.exec(lines[i + 1])?.[1].length >= indent && items.length) {
+    } else if (
+      !l.trim() &&
+      i + 1 < lines.length &&
+      LIST_ITEM.exec(lines[i + 1])?.[1].length >= indent &&
+      items.length
+    ) {
       i++; // blank line inside a list
     } else break;
   }
   const tag = ordered ? "ol" : "ul";
-  return { html: `<${tag}>${items.map((it) => `<li>${inline(it.text.join(" "))}${it.sub}</li>`).join("")}</${tag}>`, i };
+  return {
+    html: `<${tag}>${items.map((it) => `<li>${inline(it.text.join(" "))}${it.sub}</li>`).join("")}</${tag}>`,
+    i,
+  };
 }
 
 function md(src) {
-  const lines = String(src || "").replace(/\r/g, "").split("\n");
+  const lines = String(src || "")
+    .replace(/\r/g, "")
+    .split("\n");
   const out = [];
-  const cells = (l) => l.trim().replace(/^\|/, "").replace(/\|$/, "").split(/(?<!\\)\|/).map((c) => c.trim().replace(/\\\|/g, "|"));
+  const cells = (l) =>
+    l
+      .trim()
+      .replace(/^\|/, "")
+      .replace(/\|$/, "")
+      .split(/(?<!\\)\|/)
+      .map((c) => c.trim().replace(/\\\|/g, "|"));
   const isTable = (k) => /^\s*\|/.test(lines[k] || "") && /^\s*\|?\s*:?-{2,}/.test(lines[k + 1] || "");
   const startsBlock = (k) => /^(```|#{1,6}\s)/.test(lines[k]) || LIST_ITEM.test(lines[k]) || isTable(k);
   let i = 0;
   while (i < lines.length) {
     const l = lines[i];
-    if (!l.trim()) { i++; continue; }
+    if (!l.trim()) {
+      i++;
+      continue;
+    }
     if (/^```/.test(l)) {
       const buf = [];
       i++;
@@ -445,8 +474,13 @@ function renderReview(main) {
     .join("");
 
   main.innerHTML = `<div class="filters">${["all", "unreviewed", "change", "question", "approved"]
-    .map((f) => `<button class="filter${state.filter === f ? " on" : ""}" data-filter="${f}">${f}<span>${counts[f]}</span></button>`)
-    .join("")}<span class="spacer"></span><button class="btn" id="copy" title="Copy a Markdown summary of your notes">copy summary</button></div>${
+    .map(
+      (f) =>
+        `<button class="filter${state.filter === f ? " on" : ""}" data-filter="${f}">${f}<span>${counts[f]}</span></button>`,
+    )
+    .join(
+      "",
+    )}<span class="spacer"></span><button class="btn" id="copy" title="Copy a Markdown summary of your notes">copy summary</button></div>${
     html || `<div class="empty">nothing here${state.query ? ` for “${esc(state.query)}”` : ""}</div>`
   }`;
 }
@@ -511,8 +545,13 @@ const DETAIL = {
         '<p class="muted">No intent: this behavior is in no journey.</p>'
       }
       <h3 class="d-h">used in</h3>${uses
-        .map((u) => `<div class="use">${chip(u.journey)}<span class="muted">step ${u.step}</span><span>${esc(node(u.journey).steps[u.step - 1].do)}</span></div>`)
-        .join("")}${siblings.size ? `<h3 class="d-h">shares steps with</h3><div class="chips">${[...siblings].map(chip).join("")}</div>` : ""}`;
+        .map(
+          (u) =>
+            `<div class="use">${chip(u.journey)}<span class="muted">step ${u.step}</span><span>${esc(node(u.journey).steps[u.step - 1].do)}</span></div>`,
+        )
+        .join(
+          "",
+        )}${siblings.size ? `<h3 class="d-h">shares steps with</h3><div class="chips">${[...siblings].map(chip).join("")}</div>` : ""}`;
   },
   area(a) {
     const js = [...state.idx.journeyAreas].filter(([, m]) => m.has(a.id)).map(([j]) => j);
