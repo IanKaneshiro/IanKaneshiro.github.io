@@ -4,7 +4,7 @@ import path from "node:path";
 import stylelint from "stylelint";
 import { stylelintFailures } from "../../tools/gate/checks";
 import { componentDoc, renderApi, type ComponentDoc, type DocsJson } from "../../packages/components/src/docs/api";
-import { open, scriptText, settle, type Opened } from "../support/browser";
+import { ensureBuilt, open, scriptText, settle, type Opened } from "../support/browser";
 import { Given, Then, When } from "../support/steps";
 
 const ROOT = path.resolve(import.meta.dir, "../..");
@@ -13,13 +13,15 @@ const SRC = path.join(COMPONENTS, "src/components");
 
 /** docs.json from the build the browser harness runs (open() builds once per test run). */
 async function docs(): Promise<DocsJson> {
-  await open("");
+  await ensureBuilt();
   return JSON.parse(fs.readFileSync(path.join(COMPONENTS, "docs.json"), "utf8"));
 }
 const tags = async () => (await docs()).components.map((c) => c.tag);
 
 /** Every story of every component, as HTML, leaving out the API pages. */
 async function stories(): Promise<{ tag: string; name: string; html: string }[]> {
+  // The stories import docs.json, which the Stencil build writes: build first (a fresh checkout has none).
+  await ensureBuilt();
   const out: { tag: string; name: string; html: string }[] = [];
   for (const tag of fs.readdirSync(SRC).sort()) {
     const file = path.join(SRC, tag, `${tag}.stories.ts`);
@@ -583,9 +585,10 @@ Then("each component's docs page lists its props, events, slots, CSS parts and c
 Then("the lists are generated from the Stencil docs JSON, not written by hand", async () => {
   for (const tag of await tags()) {
     const stories = fs.readFileSync(path.join(SRC, tag, `${tag}.stories.ts`), "utf8");
-    expect(stories).toContain('import docs from "@kan/components/docs.json";');
-    expect(stories).toContain(`renderApi(componentDoc(docs, "${tag}"))`);
+    expect(stories).toContain(`export const Api = apiStory("${tag}");`);
   }
+  const api = fs.readFileSync(path.join(COMPONENTS, "src/docs/api.ts"), "utf8");
+  expect(api).toContain('await import("@kan/components/docs.json")');
   const doc = componentDoc(await docs(), "kan-prompt");
   const changed = {
     ...doc,

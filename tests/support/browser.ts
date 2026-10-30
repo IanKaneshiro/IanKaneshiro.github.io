@@ -96,6 +96,9 @@ ${body}
 </html>`;
 }
 
+/** Builds the tokens and the components, once per test run. Anything that reads Stencil output waits for this. */
+export const ensureBuilt = () => serve().then(() => undefined);
+
 export type Opened = { page: Page; context: BrowserContext; url: string; scripts: string[] };
 
 /** Opens `body` in a fresh page, waits for the components to hydrate, and records the scripts loaded. */

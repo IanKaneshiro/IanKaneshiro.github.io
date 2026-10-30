@@ -1,6 +1,6 @@
 import "@kan/tokens/tokens.css";
 import "./preview.css";
-import { defineCustomElements } from "../dist/components/index.js";
+import { defineCustomElements } from "@kan/components/components";
 import { themeDecorator, themeGlobalType } from "../src/theme";
 
 defineCustomElements();

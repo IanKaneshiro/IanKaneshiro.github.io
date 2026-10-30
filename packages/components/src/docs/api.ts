@@ -3,16 +3,9 @@
  * CSS parts and custom properties all come from the source's types and JSDoc, never by hand.
  */
 
-export type DocsJson = { components: ComponentDoc[] };
-export type ComponentDoc = {
-  tag: string;
-  docs: string;
-  props: { name: string; attr?: string; type: string; default?: string; docs: string; reflectToAttr?: boolean }[];
-  events: { event: string; detail: string; bubbles: boolean; composed: boolean; docs: string }[];
-  slots: { name: string; docs: string }[];
-  parts: { name: string; docs: string }[];
-  styles: { name: string; docs: string }[];
-};
+import type { ComponentDoc, DocsJson } from "./types";
+
+export type { ComponentDoc, DocsJson };
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 const code = (s: string) => `<code>${esc(s)}</code>`;
@@ -64,3 +57,12 @@ export const componentDoc = (docs: DocsJson, tag: string): ComponentDoc => {
   if (!doc) throw new Error(`docs.json has no ${tag}; run the Stencil build`);
   return doc;
 };
+
+/**
+ * A component's API story. docs.json is loaded only when the story opens: it's written by the
+ * Stencil build, so nothing that merely imports a stories file should need it to exist.
+ */
+export const apiStory = (tag: string) => ({
+  loaders: [async () => ({ docs: (await import("@kan/components/docs.json")).default })],
+  render: (_args: unknown, { loaded }: { loaded: { docs: DocsJson } }) => renderApi(componentDoc(loaded.docs, tag)),
+});

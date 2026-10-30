@@ -1,5 +1,4 @@
-import docs from "@kan/components/docs.json";
-import { componentDoc, renderApi } from "../../docs/api";
+import { apiStory } from "../../docs/api";
 
 export default { title: "Components/kan-tool-call" };
 
@@ -21,4 +20,4 @@ export const Session = {
 <kan-tool-call name="Read" arg="stack"><span slot="result">TypeScript · StencilJS · Storybook</span></kan-tool-call>
 <kan-tool-call name="Read" arg="workflow"><span slot="result">spec-driven, with Claude Code, Cursor and Grok Build</span></kan-tool-call>`,
 };
-export const Api = { render: () => renderApi(componentDoc(docs, "kan-tool-call")) };
+export const Api = apiStory("kan-tool-call");
