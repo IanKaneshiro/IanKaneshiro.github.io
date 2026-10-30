@@ -1,0 +1,180 @@
+/* Docs page styles. Semantic tokens only, like every component (CMP-002). */
+body {
+  margin: 0;
+  background: var(--kan-color-bg-canvas);
+  color: var(--kan-color-text-default);
+  font-family: var(--kan-typography-body-md-font-family);
+  font-size: var(--kan-typography-body-md-font-size);
+  line-height: var(--kan-typography-body-md-line-height);
+}
+
+.doc {
+  max-width: var(--kan-layout-content-max-width);
+  margin: 0 auto;
+  padding: var(--kan-space-inset-lg);
+}
+
+.doc-title {
+  font-family: var(--kan-typography-heading-1-font-family);
+  font-size: var(--kan-typography-heading-2-font-size);
+  font-weight: var(--kan-typography-heading-1-font-weight);
+  line-height: var(--kan-typography-heading-1-line-height);
+  margin: 0 0 var(--kan-space-stack-sm);
+}
+
+.doc-title::before {
+  content: "> ";
+  color: var(--kan-color-text-accent);
+}
+
+.doc-lede,
+.doc-note {
+  color: var(--kan-color-text-muted);
+  max-width: var(--kan-layout-prose-max-width);
+}
+
+.doc-note {
+  margin: var(--kan-space-inline-sm) 0 0;
+  font-size: var(--kan-typography-body-sm-font-size);
+}
+
+.doc-h {
+  display: flex;
+  gap: var(--kan-space-inline-md);
+  align-items: center;
+  margin: var(--kan-space-stack-lg) 0 var(--kan-space-stack-md);
+  font-family: var(--kan-typography-label-font-family);
+  font-size: var(--kan-typography-label-font-size);
+  font-weight: var(--kan-typography-label-font-weight);
+  color: var(--kan-color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.doc-h::before {
+  content: "──";
+  color: var(--kan-color-border-strong);
+}
+
+.doc-h::after {
+  content: "";
+  flex: 1;
+  border-top: var(--kan-border-width-thin) solid var(--kan-color-border-default);
+}
+
+.doc h3 {
+  margin: var(--kan-space-stack-md) 0 var(--kan-space-stack-sm);
+  font-size: var(--kan-typography-body-md-font-size);
+}
+
+.doc code {
+  font-family: var(--kan-typography-code-font-family);
+  font-size: var(--kan-typography-label-font-size);
+  color: var(--kan-color-text-muted);
+}
+
+.doc-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--kan-space-inline-md);
+  padding: 0;
+  list-style: none;
+}
+
+.doc-swatches li {
+  display: grid;
+  gap: var(--kan-space-inline-sm);
+}
+
+.doc-swatch {
+  display: inline-block;
+  width: 100%;
+  min-width: var(--kan-space-stack-lg);
+  height: var(--kan-layout-gutter);
+  border: var(--kan-border-width-thin) solid var(--kan-color-border-subtle);
+  border-radius: var(--kan-radius-md);
+}
+
+.doc-swatches .doc-swatch {
+  height: var(--kan-layout-section-gap);
+}
+
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.doc-table th:first-child {
+  width: 40%;
+}
+
+.doc-table th,
+.doc-table td {
+  padding: var(--kan-space-inline-md);
+  border-bottom: var(--kan-border-width-thin) solid var(--kan-color-border-subtle);
+  text-align: left;
+  vertical-align: top;
+}
+
+.doc-table th {
+  font-family: var(--kan-typography-label-font-family);
+  font-size: var(--kan-typography-label-font-size);
+  color: var(--kan-color-text-subtle);
+}
+
+.doc-mode {
+  display: grid;
+  gap: var(--kan-space-inline-sm);
+  justify-items: start;
+}
+
+.doc-mode .doc-swatch {
+  width: var(--kan-layout-section-gap);
+}
+
+.doc-bar {
+  display: inline-block;
+  height: var(--kan-space-stack-sm);
+  background: var(--kan-color-accent-default);
+}
+
+.doc-box {
+  display: inline-block;
+  width: var(--kan-space-stack-lg);
+  height: var(--kan-space-stack-lg);
+  border: var(--kan-border-width-thin) solid var(--kan-color-border-strong);
+  background: var(--kan-color-accent-subtle);
+}
+
+.doc-sample {
+  display: inline-block;
+  padding: var(--kan-space-inline-sm) var(--kan-space-inline-md);
+  border-radius: var(--kan-radius-sm);
+  font-weight: var(--kan-font-weight-bold);
+}
+
+.doc-pass {
+  color: var(--kan-color-status-success-fg);
+}
+
+.doc-fail {
+  color: var(--kan-color-status-danger-fg);
+}
+
+.doc-type {
+  margin-bottom: var(--kan-space-stack-md);
+}
+
+.doc-type p {
+  margin: 0 0 var(--kan-space-inline-sm);
+}
+
+.doc-nowrap {
+  white-space: nowrap;
+}
+
+.doc-lines {
+  display: block;
+  max-width: var(--kan-layout-prose-max-width);
+}
