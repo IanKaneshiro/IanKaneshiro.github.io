@@ -13,5 +13,5 @@
     "verbatimModuleSyntax": false,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["tools/**/*.ts", "tests/**/*.ts"]
+  "include": ["tools/**/*.ts", "tests/**/*.ts", "packages/*/build.ts", "packages/*/src/**/*.ts"]
 }
