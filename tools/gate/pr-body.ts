@@ -32,6 +32,7 @@ export type Facts = {
 const AREAS: [string, RegExp][] = [
   ["Specs", /^specs\//],
   ["Gate", /^tools\/gate\//],
+  ["Agent tools", /^tools\/agent\//],
   ["Spec tooling", /^tools\/specs\//],
   ["Tests", /^tests\//],
   ["CI", /^\.github\//],
