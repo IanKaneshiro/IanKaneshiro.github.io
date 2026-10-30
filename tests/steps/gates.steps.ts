@@ -5,10 +5,21 @@ import os from "node:os";
 import path from "node:path";
 import stylelint from "stylelint";
 import { compareCoverage } from "../../tools/gate/behaviors";
-import { CHECKS, eslintFailures, stylelintFailures } from "../../tools/gate/checks";
+import { addedDependencies, CHECKS, eslintFailures, protectedFiles, stylelintFailures } from "../../tools/gate/checks";
 import { exec } from "../../tools/gate/git";
 import { checkHygiene } from "../../tools/gate/hygiene";
-import { behaviorIds, checkDependencies, checkProtected, checkTrace, protectedChanges } from "../../tools/gate/pr";
+import {
+  behaviorIds,
+  checkDependencies,
+  checkProtected,
+  checkSections,
+  checkTrace,
+  PR_SECTIONS,
+  protectedChanges,
+  prTraceFailures,
+  section,
+} from "../../tools/gate/pr";
+import { fileChanges, renderBody } from "../../tools/gate/pr-body";
 import { evaluateProtection, GITHUB_ACTIONS_APP_ID, type BranchRule } from "../../tools/gate/protection";
 import { runGate, type GateRun } from "../../tools/gate/run";
 import { scanSecrets } from "../../tools/gate/secrets";
@@ -579,4 +590,123 @@ Then("AGENTS.md states the same limits for Cursor, Grok Build and any other agen
   ]) {
     expect(limits).toContain(s);
   }
+});
+
+// ── GATE-019 Pull requests explain the work ─────────────
+
+const headings = (md: string) =>
+  [...md.replace(/<!--[\s\S]*?-->/g, "").matchAll(/^## (.+)$/gm)].map((m) => m[1].trim());
+
+Then(
+  "the pull request template has sections for the summary, behaviors, spec trace, what changed, verification, decisions, protected changes, dependencies, risks and follow-ups, and a review guide",
+  () => {
+    expect(PR_SECTIONS).toEqual([
+      "Summary",
+      "Behaviors",
+      "Spec trace",
+      "What changed",
+      "How it was verified",
+      "Decisions",
+      "Protected changes",
+      "Dependencies",
+      "Risks and follow-ups",
+      "Review guide",
+    ]);
+    expect(headings(read(".github/pull_request_template.md"))).toEqual(PR_SECTIONS);
+  },
+);
+
+Then("the pr-trace check fails if the summary, verification or review guide is empty, naming each one", () => {
+  const template = read(".github/pull_request_template.md");
+  const empty = prTraceFailures(template, ["chore"], known(), {});
+  expect(empty.map((f) => f.message)).toEqual([
+    "the ## Summary section is missing or empty",
+    "the ## How it was verified section is missing or empty",
+    "the ## Review guide section is missing or empty",
+  ]);
+  const filled = template
+    .replace("## Summary\n", "## Summary\n\nAdds the thing.\n")
+    .replace("## How it was verified\n", "## How it was verified\n\nbun run gate: 12/12.\n")
+    .replace("## Review guide\n", "## Review guide\n\nStart with pr.ts.\n");
+  expect(prTraceFailures(filled, ["chore"], known(), {})).toEqual([]);
+  expect(checkSections("## Summary\n\nOnly a summary.")).toHaveLength(2);
+});
+
+// ── GATE-020 The facts in a pull request are generated ──
+
+When('an agent runs "bun run pr:body"', (world) => {
+  expect(JSON.parse(read("package.json")).scripts["pr:body"]).toBe("bun tools/gate/pr-body.ts");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pr-body-"));
+  const git = (...a: string[]) => exec(["git", "-c", "user.name=t", "-c", "user.email=t@t", ...a], dir);
+  const write = (file: string, text: string) => {
+    fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    fs.writeFileSync(path.join(dir, file), text);
+  };
+  git("init", "-q");
+  write("package.json", JSON.stringify({ name: "x", scripts: { test: "bun test" }, dependencies: {} }, null, 2));
+  write("README.md", "# x\n");
+  git("add", ".");
+  git("commit", "-q", "-m", "base");
+  const base = git("rev-parse", "HEAD").stdout.trim();
+  write("tools/gate/pr.ts", "export const a = 1;\nexport const b = 2;\n");
+  write("packages/components/src/kan-plan.tsx", "export {};\n");
+  write("specs/portfolio/features/gates.feature", "@area-GATE\nFeature: Gates\n");
+  write(
+    "package.json",
+    JSON.stringify({ name: "x", scripts: { test: "bun test" }, dependencies: { "left-pad": "1.0.0" } }, null, 2),
+  );
+  const results: CheckResult[] = [
+    { name: "lint", title: "Lint", status: "fail", ms: 1, failures: [{ rule: "r", message: "m", fix: "f" }] },
+    { name: "behaviors", title: "Behaviors", status: "pass", ms: 1, failures: [], note: "1 → 2/3 behaviors pass" },
+    { name: "pr-trace", title: "PR", status: "skip", ms: 1, failures: [], note: "no pull request yet" },
+  ];
+  world.body = renderBody({
+    graph: loadGraph(path.join(ROOT, "specs/portfolio")),
+    before: { "GATE-001": "pass", "GATE-019": "todo", "GATE-020": "todo" },
+    after: { "GATE-001": "pass", "GATE-019": "pass", "GATE-020": "todo" },
+    changes: fileChanges(dir, base),
+    protectedFiles: protectedFiles(dir, base),
+    dependencies: addedDependencies(dir, base),
+    results,
+  });
+});
+
+Then(
+  "it drafts the description with the behaviors that now pass, the intents and journeys they serve, the files changed by area, the protected files, the added dependencies and each check's result",
+  (world) => {
+    const body = world.body as string;
+    expect(headings(body)).toEqual(PR_SECTIONS);
+    expect(section(body, "Behaviors")).toContain("| GATE-019 | Pull requests explain the work | todo → pass |");
+    expect(section(body, "Behaviors")).not.toContain("GATE-001");
+    expect(section(body, "Spec trace")).toContain(
+      "**Intents:** INT-010 Agent output is trusted because gates enforce the rules",
+    );
+    expect(section(body, "Spec trace")).toContain("JRN-014 An agent delivers a feature through the gates (step 3)");
+    const changed = section(body, "What changed");
+    expect(changed).toContain("| Gate | `tools/gate/pr.ts` | +2 −0 |");
+    expect(changed).toContain("| packages/components | `packages/components/src/kan-plan.tsx` |");
+    expect(changed).toContain("| Specs | `specs/portfolio/features/gates.feature` |");
+    const prot = section(body, "Protected changes");
+    expect(prot).toContain("`tools/gate/pr.ts` (gate scripts)");
+    expect(prot).toContain("`specs/portfolio/features/gates.feature` (specs)");
+    expect(prot).not.toContain("package.json");
+    expect(body).toContain("- `left-pad` (package.json):");
+    const verified = section(body, "How it was verified");
+    expect(verified).toContain("| `lint` | ✗ 1 failure |");
+    expect(verified).toContain("| `behaviors` | ✓ 1 → 2/3 behaviors pass |");
+    expect(verified).toContain("| `pr-trace` | – no pull request yet |");
+    expect(verified).toContain("Behavior coverage: 1 → 2 of 3 pass");
+  },
+);
+
+Then("it leaves the summary, decisions, risks and review guide for the agent to write", (world) => {
+  const body = world.body as string;
+  for (const title of ["Summary", "Decisions", "Risks and follow-ups", "Review guide"]) {
+    expect([title, section(body, title).trim()]).toEqual([title, ""]);
+  }
+  expect(body).toContain("<!-- What this does and why, in 2 to 4 sentences. Name the intent it serves. -->");
+  expect(checkSections(body).map((f) => f.message)).toEqual([
+    "the ## Summary section is missing or empty",
+    "the ## Review guide section is missing or empty",
+  ]);
 });

@@ -7,7 +7,7 @@ import { baseReport, compareCoverage, scenarioReport, type Report } from "./beha
 import { addedLines, changedFiles, exec, readAt } from "./git";
 import { evaluateProtection, type BranchRule, type Ruleset } from "./protection";
 import { checkHygiene } from "./hygiene";
-import { checkDependencies, checkProtected, checkTrace, dependencyNames, protectedChanges } from "./pr";
+import { checkDependencies, checkProtected, dependencyNames, prTraceFailures, protectedChanges } from "./pr";
 import { scanSecrets } from "./secrets";
 import { fromFailures, pass, skip, type Check, type Failure } from "./types";
 
@@ -55,6 +55,33 @@ export function stylelintFailures(results: stylelint.LintResult[], root: string)
         message: w.text.replace(/\s*\([^)]*\)$/, ""),
         fix: LINT_FIXES[w.rule] ?? `see https://stylelint.io/user-guide/rules/${w.rule}`,
       })),
+  );
+}
+
+/** Dependencies any package.json gained since `base`. */
+export function addedDependencies(root: string, base: string): { file: string; name: string }[] {
+  const added: { file: string; name: string }[] = [];
+  for (const file of changedFiles(root, base).filter((f) => /(?:^|\/)package\.json$/.test(f))) {
+    const full = path.join(root, file);
+    if (!fs.existsSync(full)) continue;
+    const before = dependencyNames(JSON.parse(readAt(root, base, file) ?? "{}"));
+    for (const name of dependencyNames(JSON.parse(fs.readFileSync(full, "utf8")))) {
+      if (!before.has(name)) added.push({ file, name });
+    }
+  }
+  return added;
+}
+
+/** Files changed since `base` that need Ian's owner-approved label. */
+export function protectedFiles(root: string, base: string): string[] {
+  const scriptsChanged = (file: string) => {
+    const before = JSON.parse(readAt(root, base, file) ?? "{}").scripts ?? {};
+    const after = JSON.parse(fs.readFileSync(path.join(root, file), "utf8")).scripts ?? {};
+    return JSON.stringify(before) !== JSON.stringify(after);
+  };
+  return protectedChanges(
+    changedFiles(root, base).filter((f) => fs.existsSync(path.join(root, f)) || f.startsWith("specs/")),
+    scriptsChanged,
   );
 }
 
@@ -156,9 +183,10 @@ export const CHECKS: Check[] = [
     async run({ root, base }) {
       if (!base) return skip("no base commit to compare with");
       const now = head(root);
-      const passing = Object.values(now).filter((s) => s === "pass").length;
+      const before = baseReport(root, base);
+      const count = (r: Report) => Object.values(r).filter((s) => s === "pass").length;
       const active = Object.values(now).filter((s) => s !== "retired").length;
-      return fromFailures(compareCoverage(baseReport(root, base), now), `${passing}/${active} behaviors pass`);
+      return fromFailures(compareCoverage(before, now), `${count(before)} → ${count(now)}/${active} behaviors pass`);
     },
   },
   {
@@ -180,12 +208,12 @@ export const CHECKS: Check[] = [
   },
   {
     name: "pr-trace",
-    title: "Pull request names its behaviors",
+    title: "Pull request names its behaviors and explains the work",
     async run({ root, pr }) {
       if (!pr) return skip("no pull request yet");
       const graph = loadGraph(path.join(root, SPECS));
       const known = new Map(graph.behaviors.map((b) => [b.id, { retired: b.retired }]));
-      return fromFailures(checkTrace(pr.body, pr.labels, known, head(root)));
+      return fromFailures(prTraceFailures(pr.body, pr.labels, known, head(root)));
     },
   },
   {
@@ -193,15 +221,7 @@ export const CHECKS: Check[] = [
     title: "New dependencies are explained",
     async run({ root, base, pr }) {
       if (!base) return skip("no base commit to compare with");
-      const added: { file: string; name: string }[] = [];
-      for (const file of changedFiles(root, base).filter((f) => /(?:^|\/)package\.json$/.test(f))) {
-        const full = path.join(root, file);
-        if (!fs.existsSync(full)) continue;
-        const before = dependencyNames(JSON.parse(readAt(root, base, file) ?? "{}"));
-        for (const name of dependencyNames(JSON.parse(fs.readFileSync(full, "utf8")))) {
-          if (!before.has(name)) added.push({ file, name });
-        }
-      }
+      const added = addedDependencies(root, base);
       if (!pr) {
         return added.length
           ? skip(`no pull request yet; its description must explain: ${added.map((a) => a.name).join(", ")}`)
@@ -215,15 +235,7 @@ export const CHECKS: Check[] = [
     title: "Specs and gates need Ian's sign-off",
     async run({ root, base, pr }) {
       if (!base) return skip("no base commit to compare with");
-      const scriptsChanged = (file: string) => {
-        const before = JSON.parse(readAt(root, base, file) ?? "{}").scripts ?? {};
-        const after = JSON.parse(fs.readFileSync(path.join(root, file), "utf8")).scripts ?? {};
-        return JSON.stringify(before) !== JSON.stringify(after);
-      };
-      const files = protectedChanges(
-        changedFiles(root, base).filter((f) => fs.existsSync(path.join(root, f)) || f.startsWith("specs/")),
-        scriptsChanged,
-      );
+      const files = protectedFiles(root, base);
       if (!pr)
         return files.length
           ? skip(`no pull request yet; ${files.length} protected files will need the owner-approved label`)

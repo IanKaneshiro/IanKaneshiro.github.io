@@ -22,8 +22,11 @@ because someone read every line.
    `tests/steps/<area>.steps.ts`, see it fail for the right reason, then write the smallest code
    that makes it pass. Each commit message starts with the behavior ID, e.g. `GATE-008: ...`.
 4. **Run the gate:** `bun run gate`. Fix everything it reports.
-5. **Open a pull request** with `gh pr create`, using the template. List the behavior IDs it
-   implements under `## Behaviors`, and every new dependency with a reason under `## Dependencies`.
+5. **Open a pull request** with `gh pr create`. Draft the description with
+   `bun run pr:body --out pr.md`, which fills in the behaviors, spec trace, changes, verification,
+   protected files and dependencies from the code. Then write the parts it leaves as prompts:
+   Summary, Decisions, Risks and follow-ups, Review guide, and a reason for each protected file and
+   dependency. In Claude Code, the `pr` skill does all of this.
 6. **Fix until green.** Read the failures (`gh pr checks`, and the gate summary comment on the
    pull request), fix them, push again. Repeat.
 7. **Done means green.** You're done only when the pull request passes every required check.
@@ -64,6 +67,7 @@ bun run specs:trace <ID>     # what's around a node: intents above, journeys and
 bun run specs:check          # the spec graph is consistent and GRAPH.md is current
 bun run specs:graph          # regenerate GRAPH.md and graph.json after a spec change
 bun run specs:review         # the spec review UI on http://localhost:4400
+bun run pr:body --out pr.md   # draft a pull request description from the code
 ```
 
 ## Layout
