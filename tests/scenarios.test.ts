@@ -1,6 +1,7 @@
 import { afterAll, describe, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
+import { closeBrowser } from "./support/browser";
 import { featureFiles, loadScenarios } from "./support/gherkin";
 import { status } from "./support/status";
 import { steps, type World } from "./support/steps";
@@ -58,7 +59,8 @@ for (const file of featureFiles(FEATURES)) {
   });
 }
 
-afterAll(() => {
+afterAll(async () => {
   const out = process.env.GATE_BEHAVIORS_REPORT;
   if (out) fs.writeFileSync(out, `${JSON.stringify(status, null, 2)}\n`);
+  await closeBrowser();
 });

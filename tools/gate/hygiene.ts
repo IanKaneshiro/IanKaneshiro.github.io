@@ -16,11 +16,13 @@ const SKIP_ONLY = /\b(?:describe|it|test)\s*\.\s*(skip|only)\b/;
 const DIRECTIVE =
   /(?:\/\/|\/\*)\s*(eslint-disable(?:-next-line|-line)?|stylelint-disable(?:-next-line|-line)?|@ts-ignore|@ts-expect-error|@ts-nocheck)/;
 const REASON = /\s--\s*\S.{2,}/;
+/** Files a compiler writes, listed one by one; a general "generated" escape would be a loophole. */
+const GENERATED = [/^packages\/[\w-]+\/src\/components\.d\.ts$/];
 
 export function checkHygiene(lines: AddedLine[]): Failure[] {
   const failures: Failure[] = [];
   for (const { file, line, text } of lines) {
-    if (!CODE.test(file)) continue;
+    if (!CODE.test(file) || GENERATED.some((re) => re.test(file))) continue;
     const so = SKIP_ONLY.exec(text);
     if (so && TEST_FILE.test(file)) {
       failures.push({

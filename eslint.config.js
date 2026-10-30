@@ -18,6 +18,11 @@ export default defineConfig(
       "**/www/",
       "**/.astro/",
       "**/storybook-static/",
+      // Stencil's generated output.
+      "**/loader/",
+      "**/.stencil/",
+      "packages/components/docs.d.ts",
+      "packages/components/src/components.d.ts",
     ],
   },
   js.configs.recommended,
@@ -33,6 +38,10 @@ export default defineConfig(
   {
     files: ["packages/components/**/*.{ts,tsx}"],
     plugins: { kan },
-    rules: { "kan/component-tag-prefix": "error" },
+    rules: {
+      "kan/component-tag-prefix": "error",
+      // JSX compiles to h() and Fragment, which ESLint can't see being used.
+      "@typescript-eslint/no-unused-vars": ["error", { varsIgnorePattern: "^(h|Fragment)$" }],
+    },
   },
 );

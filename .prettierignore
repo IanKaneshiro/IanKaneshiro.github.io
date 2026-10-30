@@ -5,6 +5,12 @@
 # Build output.
 **/dist/
 **/storybook-static/
+**/www/
+**/loader/
+**/.stencil/
+/packages/components/docs.json
+/packages/components/docs.d.ts
+/packages/components/src/components.d.ts
 # The old site, served as-is until the cutover (SHIP-008).
 /index.html
 /css/
