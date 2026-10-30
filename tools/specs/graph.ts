@@ -147,7 +147,9 @@ export function loadGraph(root: string): Graph {
         fs.readFileSync(path.join(root, file), "utf8"),
       );
     } catch (e) {
-      problems.push(`${file}: ${(e as Error).message.replace(/\s+/g, " ")}`);
+      const message = (e as Error).message.replace(/\s+/g, " ").replace(/^Parser errors: /, "");
+      const at = /\((\d+):\d+\)/.exec(message);
+      problems.push(`${file}${at ? `:${at[1]}` : ""}: invalid Gherkin: ${message}`);
       continue;
     }
     if (!doc.feature) {

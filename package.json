@@ -13,7 +13,9 @@
     "test": "bun test",
     "specs:check": "bun tools/specs/cli.ts check",
     "specs:graph": "bun tools/specs/cli.ts graph",
-    "specs:review": "bun tools/specs/review/server.ts"
+    "specs:review": "bun tools/specs/review/server.ts",
+    "specs:trace": "bun tools/specs/cli.ts trace",
+    "specs:find": "bun tools/specs/cli.ts find"
   },
   "devDependencies": {
     "@cucumber/gherkin": "^42.0.1",

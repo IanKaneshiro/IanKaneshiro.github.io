@@ -13,8 +13,10 @@ because someone read every line.
 
 ## The loop
 
-1. **Plan with Ian.** Find where the request fits in the graph, then propose the spec change:
-   new or changed behaviors, journey steps, or intents. Ian approves it before you build.
+1. **Plan with Ian.** Find where the request fits in the graph (`bun run specs:find <words>`), read
+   what's around it (`bun run specs:trace <ID>`): the intent's *Why* and *Not this*, the journey's
+   steps, the behaviors already there. Then propose the spec change: new or changed behaviors,
+   journey steps, or intents. Ian approves it before you build.
 2. **Branch.** Never work on `main`. One branch per feature.
 3. **Build one behavior at a time.** Write step definitions for its scenario in
    `tests/steps/<area>.steps.ts`, see it fail for the right reason, then write the smallest code
@@ -57,6 +59,8 @@ bun test                     # unit tests and scenarios (a scenario without step
 bun test tests/scenarios.test.ts -t "GATE-007"    # one behavior
 bun run format               # Prettier
 bun run lint:fix             # ESLint and Stylelint autofixes
+bun run specs:find <words>   # where a request belongs: matching intents, journeys, behaviors
+bun run specs:trace <ID>     # what's around a node: intents above, journeys and behaviors around
 bun run specs:check          # the spec graph is consistent and GRAPH.md is current
 bun run specs:graph          # regenerate GRAPH.md and graph.json after a spec change
 bun run specs:review         # the spec review UI on http://localhost:4400
