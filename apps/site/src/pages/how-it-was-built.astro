@@ -1,0 +1,49 @@
+---
+import Base from "../layouts/Base.astro";
+import Link from "../components/Link.astro";
+import { BUILT, getPage } from "../lib/pages";
+import { countLine, loadSpecGraph } from "../lib/spec-graph";
+
+const meta = await getPage("/how-it-was-built/");
+const graph = loadSpecGraph();
+---
+
+<Base title={meta.title} description={meta.description}>
+  <section class="built-intro">
+    <h1 class="hero-name">{BUILT.heading}</h1>
+    <div class="prose">
+      {BUILT.intro.map((paragraph) => (
+        <p>{paragraph}</p>
+      ))}
+      <p class="built-counts">{countLine(graph.counts)}</p>
+    </div>
+  </section>
+
+  {graph.intents.map((intent) => (
+    <section class="intent">
+      <kan-section-heading>{`${intent.id} ${intent.title}`}</kan-section-heading>
+      {intent.journeys.map((journey) => (
+        <div class="journey">
+          <kan-section-heading level={3}>{`${journey.id} ${journey.title}`}</kan-section-heading>
+          <ol class="steps">
+            {journey.steps.map((step) => (
+              <li>
+                <p class="step-text">{step.text}</p>
+                <ul class="behaviors">
+                  {step.behaviors.map((behavior) => (
+                    <li>
+                      <kan-tag>{behavior.area}</kan-tag>
+                      <Link href={behavior.url} newTab>
+                        <span class="spec-id">{behavior.id}</span> {behavior.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ))}
+    </section>
+  ))}
+</Base>

@@ -8,8 +8,8 @@ import { openSite, SITE_DIST, siteOrigin, type OpenedSite } from "../support/bro
 import { Given, Then, When, type World } from "../support/steps";
 
 /**
- * The built site (apps/site), tested in a real browser: SITE-001 to SITE-013 (SITE-014 and SITE-015
- * wait for the spec-graph page and the resume), THEME-001, 004, 005 and 007, and QUAL-003 to QUAL-005.
+ * The built site (apps/site), tested in a real browser: SITE-001 to SITE-014 (SITE-015
+ * waits for the resume), AGENT-001 to AGENT-005, THEME-001, 004, 005 and 007, and QUAL-003 to QUAL-005.
  * siteOrigin() builds the site once per test run and serves apps/site/dist like GitHub Pages does.
  */
 
@@ -47,8 +47,8 @@ const projects = () =>
     .map((f) => readJson<Project>("projects", f))
     .sort((a, b) => a.order - b.order);
 
-/** The pages of the site: the home page and the 404 (any path that isn't a page). */
-const PAGES = ["/", "/no-such-page"];
+/** The pages of the site: the home page, the 404 (any path that isn't a page) and "How this site was built". */
+const PAGES = ["/", "/no-such-page", "/how-it-was-built/"];
 const VIEWPORTS = [
   { width: 375, height: 667 },
   { width: 1280, height: 800 },
@@ -665,9 +665,10 @@ Then("every word of it is in the page HTML from the start", async () => {
     expect([s, html.includes(s)]).toEqual([s, true]);
   }
   // Nothing is typed in by script: the page's own scripts are the loader and the theme snippet only.
-  const scripts = [...(await rawHtml("/")).matchAll(/<script\b([^>]*)>/g)].map(
-    (m) => /\ssrc="([^"]+)"/.exec(m[1])?.[1] ?? "(inline)",
-  );
+  // The JSON-LD block is data (AGENT-003), not a script.
+  const scripts = [...(await rawHtml("/")).matchAll(/<script\b([^>]*)>/g)]
+    .filter((m) => !m[1].includes('type="application/ld+json"'))
+    .map((m) => /\ssrc="([^"]+)"/.exec(m[1])?.[1] ?? "(inline)");
   expect(scripts.sort()).toEqual(["(inline)", "/build/kan.esm.js"]);
 });
 
@@ -937,4 +938,441 @@ Then("every page passes axe with no violations in light and in dark", async () =
       }
     }
   }
+});
+
+// ── Agents: the Markdown versions, llms.txt, JSON-LD and crawlers ──
+
+const REPO_URL = "https://github.com/IanKaneshiro/IanKaneshiro.github.io";
+const AI_CRAWLERS = ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended"];
+
+/** The HTML pages of the build, as URL paths: "/", "/how-it-was-built/" and "/404.html". */
+const builtPages = (): string[] =>
+  (fs.readdirSync(SITE_DIST, { recursive: true }) as string[])
+    .filter((f) => f.endsWith(".html") && !f.startsWith("build") && !f.startsWith("_astro"))
+    .map((f) =>
+      f === "index.html" ? "/" : f.endsWith("/index.html") ? `/${f.slice(0, -"index.html".length)}` : `/${f}`,
+    )
+    .sort();
+/** The Markdown version of an HTML page: the same path ending in .md. */
+const mdPath = (page: string) => (page === "/" ? "/index.md" : `${page.replace(/(\/|\.html)$/, "")}.md`);
+/** What the site's public URL is on the test server. */
+const local = async (url: string) => url.replace(SITE_URL, await siteOrigin());
+const fetchText = async (urlPath: string) => {
+  const res = await fetch(await local(urlPath.startsWith("/") ? `${SITE_URL}${urlPath}` : urlPath));
+  return { status: res.status, text: await res.text() };
+};
+
+type Graph = {
+  nodes: { kind: string; id: string; title: string; area?: string; file: string; line?: number }[];
+  edges: { from: string; to: string; type: string; step?: number; stepText?: string }[];
+};
+const graph = () => JSON.parse(fs.readFileSync(path.join(ROOT, "specs/portfolio/graph.json"), "utf8")) as Graph;
+const specUrl = (n: { file: string; line?: number }) => `${REPO_URL}/blob/main/specs/portfolio/${n.file}#L${n.line}`;
+
+// ── AGENT-001 llms.txt ──────────────────────────────────
+
+Then("/llms.txt follows the llms.txt convention", async () => {
+  const { status, text } = await fetchText("/llms.txt");
+  expect(status).toBe(200);
+  const lines = text.split("\n");
+  // llmstxt.org: an H1 with the name, a blockquote summary, then sections of links.
+  expect(lines[0]).toBe(`# ${profile().name}`);
+  expect(lines.filter((l) => l.startsWith("# ")).length).toBe(1);
+  expect(lines.findIndex((l) => l.startsWith("> "))).toBeGreaterThan(0);
+  expect(lines).toContain("## Pages");
+  expect(lines).toContain("## Optional");
+  const optional = text.slice(text.indexOf("## Optional"));
+  expect(optional).toContain("(" + SITE_URL + "/storybook/)");
+  expect(optional).toContain(`(${REPO_URL})`);
+  for (const l of lines.filter((x) => x.startsWith("- ")))
+    expect([l, /^- \[[^\]]+\]\(https:\/\/[^)]+\)(: .+)?$/.test(l)]).toEqual([l, true]);
+});
+
+Then("summarizes who Ian is and links to the Markdown version of every page", async () => {
+  const p = profile();
+  const { text } = await fetchText("/llms.txt");
+  const summary = text.split("\n").find((l) => l.startsWith("> "))!;
+  expect(summary.toLowerCase()).toContain(p.role.toLowerCase());
+  expect(summary).toContain(p.headline);
+  const pagesSection = text.slice(text.indexOf("## Pages"), text.indexOf("## Optional"));
+  const links = [...pagesSection.matchAll(/^- \[[^\]]+\]\(([^)]+)\)/gm)].map((m) => m[1]);
+  for (const link of links) {
+    expect([link, link.startsWith(`${SITE_URL}/`), link.endsWith(".md")]).toEqual([link, true, true]);
+    expect([link, (await fetchText(link)).status]).toEqual([link, 200]);
+  }
+  expect(links.map((l) => l.slice(SITE_URL.length)).sort()).toEqual(builtPages().map(mdPath).sort());
+});
+
+// ── AGENT-002 A Markdown version of every page ──────────
+
+Then("every page has a Markdown version at the same path ending in .md", async () => {
+  expect(builtPages().length).toBeGreaterThanOrEqual(3);
+  for (const page of builtPages()) {
+    const md = await fetchText(mdPath(page));
+    expect([page, mdPath(page), md.status]).toEqual([page, mdPath(page), 200]);
+    expect([page, md.text.startsWith("# ")]).toEqual([page, true]);
+  }
+});
+
+Then("it's generated from the same content collections as the page", async () => {
+  await siteOrigin(); // public/build exists once the site has been built
+  const file = path.join(CONTENT, "profile/ian.json");
+  const original = fs.readFileSync(file);
+  const marker = "Marker headline for the generation check";
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "site-generated-"));
+  fs.writeFileSync(file, JSON.stringify({ ...profile(), headline: marker }));
+  try {
+    const build = Bun.spawnSync([path.join(SITE, "node_modules/.bin/astro"), "build", "--outDir", out], {
+      cwd: SITE,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    expect([build.exitCode, `${build.stdout}${build.stderr}`.slice(-500)]).toEqual([0, expect.any(String)]);
+    for (const f of ["index.html", "index.md", "llms.txt"]) {
+      expect([f, fs.readFileSync(path.join(out, f), "utf8").includes(marker)]).toEqual([f, true]);
+    }
+  } finally {
+    fs.writeFileSync(file, original);
+    fs.rmSync(out, { recursive: true, force: true });
+  }
+  // The files say the same as the Markdown: nothing in it is typed by hand.
+  const md = (await fetchText("/index.md")).text;
+  const p = profile();
+  for (const s of [p.name, p.role, p.headline, p.summary, p.email, p.links.github, p.links.linkedin, ...about().bio])
+    expect([s, md.includes(s)]).toEqual([s, true]);
+  for (const x of projects())
+    for (const s of [x.name, x.summary, x.source, ...(x.demo ? [x.demo] : []), ...(x.highlights ?? []), ...x.stack])
+      expect([s, md.includes(s)]).toEqual([s, true]);
+  for (const g of stack().groups) for (const s of [g.name, ...g.items]) expect([s, md.includes(s)]).toEqual([s, true]);
+});
+
+// ── AGENT-003 Structured data ───────────────────────────
+
+type LdNode = Record<string, unknown> & { "@type": string; "@id"?: string };
+const jsonLd = async () => {
+  const o = await openSite("/");
+  const scripts = await o.page.$$eval('script[type="application/ld+json"]', (els) =>
+    els.map((e) => e.textContent ?? ""),
+  );
+  await close(o);
+  expect(scripts).toHaveLength(1);
+  const doc = JSON.parse(scripts[0]) as { "@context": string; "@graph": LdNode[] };
+  expect(doc["@context"]).toBe("https://schema.org");
+  return doc["@graph"];
+};
+
+Then("the home page has JSON-LD for Ian as a Person, with job title and profile links", async () => {
+  const p = profile();
+  const people = (await jsonLd()).filter((n) => n["@type"] === "Person");
+  expect(people).toHaveLength(1);
+  expect(people[0]).toMatchObject({
+    name: p.name,
+    jobTitle: p.role,
+    url: `${SITE_URL}/`,
+    email: p.email,
+  });
+  expect((people[0].sameAs as string[]).sort()).toEqual([p.links.github, p.links.linkedin].sort());
+});
+
+Then("each featured project as a SoftwareSourceCode entry with its repository and demo links", async () => {
+  const graphNodes = await jsonLd();
+  const person = graphNodes.find((n) => n["@type"] === "Person")!;
+  const code = graphNodes.filter((n) => n["@type"] === "SoftwareSourceCode");
+  expect(code.map((c) => c.name)).toEqual(projects().map((x) => x.name));
+  for (const [i, x] of projects().entries()) {
+    expect([x.name, code[i].codeRepository]).toEqual([x.name, x.source]);
+    expect([x.name, code[i].description]).toEqual([x.name, x.summary]);
+    expect([x.name, code[i].url]).toEqual([x.name, x.demo]); // no demo, no url
+    expect([x.name, code[i].author]).toEqual([x.name, { "@id": person["@id"] }]);
+  }
+  expect(code.length).toBe(projects().length);
+});
+
+// ── AGENT-004 Agents read what people see ───────────────
+
+/**
+ * Every text node of the rendered page (open shadow roots included), sorted into: shown to people,
+ * screen-reader-only (clipped or visually hidden, still in the accessibility tree), or hidden from people.
+ * Hidden text, and text hidden from assistive technology too, is reported in `bad`.
+ */
+const readText = (o: OpenedSite) =>
+  o.page.evaluate(() => {
+    const bad: string[] = [];
+    const seen: string[] = [];
+    const skip = new Set(["SCRIPT", "STYLE", "TEMPLATE", "NOSCRIPT"]);
+    const flatParent = (el: Element): Element | null =>
+      el.assignedSlot ?? el.parentElement ?? (el.getRootNode() as ShadowRoot).host ?? null;
+    const check = (node: Text) => {
+      const text = (node.data ?? "").replace(/\s+/g, " ").trim();
+      if (!text) return;
+      const el = node.parentElement ?? (node.getRootNode() as ShadowRoot).host;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const rects = [...range.getClientRects()];
+      const chain: Element[] = [];
+      for (let cur: Element | null = el; cur; cur = flatParent(cur)) chain.push(cur);
+      const style = getComputedStyle(el);
+      const ariaHidden = chain.some((e) => e.getAttribute("aria-hidden") === "true" || e.hasAttribute("hidden"));
+      const rendered = rects.some((r) => r.width > 0 || r.height > 0) && style.display !== "none";
+      const focusable = chain.some((e) => e.matches("a[href], button, input, select, textarea, [tabindex]"));
+      const reasons: string[] = [];
+      if (chain.some((e) => getComputedStyle(e).opacity === "0")) reasons.push("opacity 0");
+      if (/rgba\(.*,\s*0\)$|transparent/.test(style.color)) reasons.push("transparent text");
+      if (parseFloat(style.fontSize) === 0) reasons.push("font-size 0");
+      // Hiding that leaves the text for assistive technology: tiny, clipped or off the page.
+      const srOnly: string[] = [];
+      if (rendered && rects.every((r) => r.width <= 1 || r.height <= 1)) srOnly.push("tiny");
+      if (
+        chain.some((e) => {
+          const s = getComputedStyle(e);
+          return (s.clip !== "auto" && s.clip !== "") || (s.clipPath !== "none" && s.clipPath !== "");
+        })
+      )
+        srOnly.push("clip");
+      for (const e of chain) {
+        const s = getComputedStyle(e);
+        if (s.overflow === "visible" && s.overflowX === "visible") continue;
+        const box = e.getBoundingClientRect();
+        if (
+          rects.every((r) => r.right <= box.left || r.left >= box.right || r.bottom <= box.top || r.top >= box.bottom)
+        )
+          srOnly.push("clipped by overflow");
+      }
+      if (!focusable && rects.every((r) => r.right <= 0 || r.bottom <= 0)) srOnly.push("off the page");
+      const shown = rendered && style.visibility === "visible" && !reasons.length && !srOnly.length;
+      const readable = rendered && style.visibility === "visible" && !ariaHidden;
+      if (shown || (readable && !reasons.length && (srOnly.length || focusable))) {
+        seen.push(text);
+        return;
+      }
+      if (!rendered || style.visibility !== "visible" || ariaHidden || reasons.length || srOnly.length)
+        bad.push(
+          `${text.slice(0, 60)} (${[!rendered && "not rendered", style.visibility !== "visible" && style.visibility, ariaHidden && "aria-hidden", ...reasons, ...srOnly].filter(Boolean).join(", ")})`,
+        );
+    };
+    const walk = (root: Node) => {
+      for (const child of root.childNodes) {
+        if (child.nodeType === Node.TEXT_NODE) check(child as Text);
+        else if (child.nodeType === Node.ELEMENT_NODE) {
+          const el = child as Element;
+          if (skip.has(el.tagName)) continue;
+          if (el.shadowRoot) walk(el.shadowRoot);
+          walk(el);
+        }
+      }
+    };
+    walk(document.body);
+    const hrefs: string[] = [];
+    const collect = (root: Document | ShadowRoot | Element) => {
+      for (const el of root.querySelectorAll("*")) {
+        const href = el.getAttribute("href");
+        if (href)
+          hrefs.push(new URL(href, location.href).href.replace(location.origin, "https://www.iankaneshiro.dev"));
+        if (el.shadowRoot) collect(el.shadowRoot);
+      }
+    };
+    collect(document);
+    return { bad, text: seen.join(" ").replace(/\s+/g, " "), hrefs };
+  });
+
+const agentViews = async (colorScheme: "light" | "dark", page: string) =>
+  openSite(page, { colorScheme, reducedMotion: true, viewport: VIEWPORTS[1] });
+
+Then("no page contains text that is hidden from people but readable by agents", async () => {
+  for (const page of PAGES) {
+    for (const colorScheme of ["light", "dark"] as const) {
+      const o = await agentViews(colorScheme, page);
+      const { bad, text } = await readText(o);
+      expect([page, colorScheme, bad]).toEqual([page, colorScheme, []]);
+      expect([page, colorScheme, text.length > 100]).toEqual([page, colorScheme, true]);
+      await close(o);
+    }
+  }
+  // The facts in the JSON-LD are on the page too: in its text, or in a link.
+  const o = await agentViews("light", "/");
+  const { text, hrefs } = await readText(o);
+  await close(o);
+  const facts: string[] = [];
+  const collect = (v: unknown, key = "") => {
+    if (typeof v === "string") {
+      if (!key.startsWith("@")) facts.push(v);
+    } else if (Array.isArray(v)) v.forEach((x) => collect(x, key));
+    else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) collect(x, k);
+  };
+  collect(await jsonLd());
+  expect(facts.length).toBeGreaterThan(10);
+  for (const fact of facts) expect([fact, text.includes(fact) || hrefs.includes(fact)]).toEqual([fact, true]);
+});
+
+/** The sentences of a Markdown document, without its syntax. */
+const sentences = (md: string) =>
+  md
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .split("\n")
+    .map((l) => l.replace(/^\s*(#{1,6}|>|[-*+]|\d+\.)\s+/, "").replace(/[`*_]/g, ""))
+    .flatMap((l) => l.split(/(?<=[.!?])\s+/))
+    .map((s) => s.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+
+Then("every sentence in a page's Markdown version also appears on the page", async () => {
+  const pairs: [string, string][] = [
+    ["/", "/index.md"],
+    ["/how-it-was-built/", "/how-it-was-built.md"],
+    ["/no-such-page", "/404.md"],
+  ];
+  for (const [page, md] of pairs) {
+    const o = await agentViews("light", page);
+    const { text } = await readText(o);
+    await close(o);
+    const found = sentences((await fetchText(md)).text);
+    expect([md, found.length > 3]).toEqual([md, true]);
+    for (const s of found) expect([md, s, text.includes(s)]).toEqual([md, s, true]);
+  }
+});
+
+// ── AGENT-005 AI crawlers are welcome ───────────────────
+
+Then("/robots.txt allows every crawler, AI crawlers included, and lists the sitemap", async () => {
+  const { status, text } = await fetchText("/robots.txt");
+  expect(status).toBe(200);
+  const groups = text
+    .split(/\n\s*\n/)
+    .map((g) =>
+      g
+        .split("\n")
+        .map((l) => l.trim())
+        .filter((l) => l && !l.startsWith("#")),
+    )
+    .filter((g) => g.some((l) => l.startsWith("User-agent:")));
+  for (const agent of ["*", ...AI_CRAWLERS]) {
+    const group = groups.find((g) => g.includes(`User-agent: ${agent}`));
+    expect([agent, group !== undefined]).toEqual([agent, true]);
+    expect([agent, group!.includes("Allow: /")]).toEqual([agent, true]);
+    expect([agent, group!.some((l) => l.startsWith("Disallow:") && l !== "Disallow:")]).toEqual([agent, false]);
+  }
+  const sitemap = text.split("\n").find((l) => l.startsWith("Sitemap:"));
+  expect(sitemap).toBe(`Sitemap: ${SITE_URL}/sitemap.xml`);
+  // The sitemap it points to exists and lists every page but the 404.
+  const map = await fetchText(sitemap!.slice("Sitemap: ".length));
+  expect(map.status).toBe(200);
+  const locs = [...map.text.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  expect(locs).toContain(`${SITE_URL}/`);
+  expect(locs).toContain(`${SITE_URL}/how-it-was-built/`);
+  expect(locs.some((l) => l.includes("404"))).toBe(false);
+  expect(locs.sort()).toEqual(
+    builtPages()
+      .filter((p) => p !== "/404.html")
+      .map((p) => `${SITE_URL}${p}`)
+      .sort(),
+  );
+  for (const loc of locs) expect([loc, (await fetchText(loc)).status]).toEqual([loc, 200]);
+});
+
+// ── SITE-014 How this site was built ────────────────────
+
+/** The journeys that serve an intent, and the behaviors each step of a journey uses, from graph.json. */
+const specTree = () => {
+  const g = graph();
+  const node = (id: string) => g.nodes.find((n) => n.id === id)!;
+  return g.nodes
+    .filter((n) => n.kind === "intent")
+    .map((intent) => ({
+      intent,
+      journeys: g.edges
+        .filter((e) => e.type === "serves" && e.to === intent.id)
+        .map((e) => {
+          const uses = g.edges.filter((u) => u.type === "uses" && u.from === e.from);
+          const steps = [...new Set(uses.map((u) => u.step!))]
+            .sort((a, b) => a - b)
+            .map((n) => ({
+              text: uses.find((u) => u.step === n)!.stepText!,
+              behaviors: uses.filter((u) => u.step === n).map((u) => node(u.to)),
+            }));
+          return { journey: node(e.from), steps };
+        }),
+    }));
+};
+
+Then(
+  "a page shows the spec graph: the intents, the journeys that serve them and the behaviors behind each step",
+  async () => {
+    const g = graph();
+    const o = await openSite("/how-it-was-built/");
+    const outline = await headings(o);
+    expect(outline.filter((h) => h.level === 1)).toHaveLength(1);
+    const tree = specTree();
+    // The headings, in order: each intent, then the journeys that serve it.
+    expect(outline.filter((h) => h.level > 1).map((h) => [h.level, h.text])).toEqual(
+      tree.flatMap((t) => [
+        [2, `${t.intent.id} ${t.intent.title}`],
+        ...t.journeys.map((j) => [3, `${j.journey.id} ${j.journey.title}`]),
+      ]),
+    );
+    // Each journey's steps in order, and for each step the behaviors it uses.
+    const shown = await o.page.evaluate(() =>
+      [...document.querySelectorAll(".journey")].map((j) =>
+        [...j.querySelectorAll(":scope > ol > li")].map((li) => ({
+          text: li.querySelector(".step-text")!.textContent!.trim(),
+          behaviors: [...li.querySelectorAll("kan-link")].map((a) => ({
+            href: a.getAttribute("href"),
+            target: a.getAttribute("target"),
+            text: (a.textContent ?? "").replace(/\s+/g, " ").trim(),
+          })),
+        })),
+      ),
+    );
+    expect(shown).toEqual(
+      tree.flatMap((t) =>
+        t.journeys.map((j) =>
+          j.steps.map((s) => ({
+            text: s.text,
+            behaviors: s.behaviors.map((b) => ({ href: specUrl(b), target: "_blank", text: `${b.id} ${b.title}` })),
+          })),
+        ),
+      ),
+    );
+    // The counts, near the top.
+    const counts = (n: string) => g.nodes.filter((x) => x.kind === n).length;
+    const top = await o.page.evaluate(() => document.querySelector(".built-counts")!.textContent);
+    expect(top).toBe(`${counts("intent")} intents, ${counts("journey")} journeys and ${counts("behavior")} behaviors.`);
+    expect(
+      await o.page
+        .locator("kan-tag")
+        .first()
+        .evaluate((e) => e.textContent),
+    ).toMatch(/^[A-Z]+$/);
+    await close(o);
+  },
+);
+
+Then("it is generated from graph.json at build time, with links to each spec file in the source repo", async () => {
+  const g = graph();
+  // One link per uses edge of each journey, under each intent the journey serves.
+  const expected = g.edges
+    .filter((e) => e.type === "serves")
+    .reduce((n, e) => n + g.edges.filter((u) => u.type === "uses" && u.from === e.from).length, 0);
+  expect(expected).toBeGreaterThan(100);
+  // Counted in the HTML as served, before any script runs.
+  const html = await rawHtml("/how-it-was-built/");
+  const links = [...html.matchAll(/<kan-link href="([^"]+)" target="_blank"/g)].map((m) => m[1]);
+  const specLinks = links.filter((l) => l.startsWith(`${REPO_URL}/blob/main/specs/portfolio/`));
+  expect(specLinks.length).toBe(expected);
+  const nodes = new Map(g.nodes.map((n) => [n.id, n]));
+  const allowed = new Set(g.nodes.filter((n) => n.kind === "behavior").map(specUrl));
+  for (const l of specLinks) {
+    expect([l, allowed.has(l)]).toEqual([l, true]);
+    // The link goes to a real file, and the line is the scenario's.
+    const m = /specs\/portfolio\/(.+)#L(\d+)$/.exec(l)!;
+    const lines = fs.readFileSync(path.join(ROOT, "specs/portfolio", m[1]), "utf8").split("\n");
+    expect([l, lines[Number(m[2]) - 1].trim().startsWith("Scenario")]).toEqual([l, true]);
+  }
+  // Every behavior a journey uses is linked.
+  const used = new Set(g.edges.filter((e) => e.type === "uses").map((e) => e.to));
+  for (const id of used) expect([id, specLinks.includes(specUrl(nodes.get(id)!))]).toEqual([id, true]);
+  // No-JS visitors get plain anchors for the same links.
+  expect(
+    (html.match(new RegExp(`<a[^>]*href="${REPO_URL}/blob/main/specs/portfolio/[^"]+#L\\d+"`, "g")) ?? []).length,
+  ).toBe(expected);
+  // And the footer on every page links to it.
+  expect(await rawHtml("/")).toContain('href="/how-it-was-built/"');
 });
