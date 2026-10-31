@@ -3,6 +3,7 @@ import "@kan/tokens/tokens.css";
 import "../styles/fonts.css";
 import "../styles/global.css";
 import "../styles/home.css";
+import "../styles/built.css";
 import Link from "../components/Link.astro";
 import { getEntry } from "astro:content";
 
@@ -56,6 +57,7 @@ const imageAlt = `${profile.name}, ${profile.role}`;
       <link rel="stylesheet" href="/no-js.css" />
     </noscript>
     <meta name="generator" content={Astro.generator} />
+    <slot name="head" />
     <!-- The kan- components, through Stencil's lazy loader (CMP-004). Vite must not bundle it. -->
     <script is:inline type="module" src="/build/kan.esm.js"></script>
   </head>
@@ -92,6 +94,7 @@ const imageAlt = `${profile.name}, ${profile.role}`;
         Source
       </Link>
       <Link href="/storybook/">Storybook</Link>
+      <Link href="/how-it-was-built/">How this site was built</Link>
     </kan-site-footer>
   </body>
 </html>

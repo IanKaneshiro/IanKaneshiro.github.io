@@ -1,0 +1,64 @@
+/* "How this site was built": the spec graph as a page. Semantic tokens only (SITE-007). */
+.built-intro {
+  gap: var(--kan-space-stack-md);
+  padding-block: var(--kan-space-inset-md) 0;
+}
+
+.built-counts {
+  color: var(--kan-color-text-accent);
+  font-family: var(--kan-typography-code-font-family);
+  font-size: var(--kan-typography-code-font-size);
+}
+
+.intent {
+  gap: var(--kan-space-stack-md);
+}
+
+.journey {
+  display: grid;
+  gap: var(--kan-space-stack-sm);
+  padding: var(--kan-space-inset-md);
+  border: 1px solid var(--kan-color-border-subtle);
+  background: var(--kan-color-bg-surface);
+}
+
+.steps {
+  display: grid;
+  gap: var(--kan-space-stack-md);
+  margin: 0;
+  padding-inline-start: var(--kan-space-inset-lg);
+}
+
+.step-text {
+  color: var(--kan-color-text-default);
+  font-family: var(--kan-typography-label-font-family);
+  font-size: var(--kan-typography-body-md-font-size);
+  font-weight: var(--kan-typography-label-font-weight);
+  line-height: var(--kan-typography-body-md-line-height);
+}
+
+.behaviors {
+  display: grid;
+  gap: var(--kan-space-stack-sm);
+  margin-block-start: var(--kan-space-stack-sm);
+}
+
+.behaviors > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--kan-space-inline-sm);
+  font-size: var(--kan-typography-body-sm-font-size);
+  line-height: var(--kan-typography-body-sm-line-height);
+}
+
+.spec-id {
+  font-family: var(--kan-typography-code-font-family);
+}
+
+/* Wide screens: the behaviors of a step sit in two columns, so the page is shorter. */
+@media (width >= 1024px) {
+  .behaviors {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
