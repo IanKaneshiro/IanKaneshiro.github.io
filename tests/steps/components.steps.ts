@@ -5,7 +5,8 @@ import stylelint from "stylelint";
 import { stylelintFailures } from "../../tools/gate/checks";
 import { componentDoc, renderApi, type ComponentDoc, type DocsJson } from "../../packages/components/src/docs/api";
 import { ensureBuilt, open, scriptText, settle, type Opened } from "../support/browser";
-import { Given, Then, When } from "../support/steps";
+import { loadScenarios } from "../support/gherkin";
+import { Given, steps, Then, When, type World } from "../support/steps";
 
 const ROOT = path.resolve(import.meta.dir, "../..");
 const COMPONENTS = path.join(ROOT, "packages/components");
@@ -260,7 +261,14 @@ const INTERACTIVE = [
   { host: "kan-link", inner: "a", tab: "A", pseudo: undefined, hash: "#link" },
   { host: "kan-card", inner: "a", tab: "A", pseudo: "::after", hash: "#card" },
   { host: "kan-terminal", inner: "[part=body]", tab: "DIV", pseudo: undefined, hash: undefined },
+  { host: "kan-button", inner: "button", tab: "BUTTON", pseudo: undefined, hash: undefined },
+  { host: "kan-theme-toggle", inner: "button", tab: "BUTTON", pseudo: undefined, hash: undefined },
+  // The header's menu button only exists below 768px, so the page is opened at a phone's width.
+  { host: "kan-site-header", inner: ".menu-button", tab: "BUTTON", pseudo: undefined, hash: undefined },
 ] as const;
+
+/** The header's own theme toggle is a second stop inside kan-site-header, after its menu button. */
+const HEADER_TOGGLE_STOP = ["kan-site-header", "KAN-THEME-TOGGLE"];
 
 const interactivePage = () =>
   open(
@@ -269,10 +277,15 @@ const interactivePage = () =>
 <kan-tool-call name="Glob" arg="y"><span slot="result">no details, so no button</span></kan-tool-call>
 <kan-link href="#link">Link</kan-link>
 <kan-card href="#card"><strong slot="header">Card</strong><p>Body</p></kan-card>
-<kan-terminal heading="~/ian"><pre>ls</pre></kan-terminal>`,
+<kan-terminal heading="~/ian"><pre>ls</pre></kan-terminal>
+<kan-button>Button</kan-button>
+<kan-theme-toggle></kan-theme-toggle>
+<kan-site-header><span slot="brand">Ian Kaneshiro</span></kan-site-header>`,
+    { viewport: { width: 375, height: 800 } },
   );
 
-const innerOf = (o: Opened, t: (typeof INTERACTIVE)[number]) => o.page.locator(`${t.host} ${t.inner}`);
+/** The first match: a page can hold the same component twice (the header has its own theme toggle). */
+const innerOf = (o: Opened, t: (typeof INTERACTIVE)[number]) => o.page.locator(`${t.host} ${t.inner}`).first();
 
 /** Focuses the page's first link, then Tabs to the nth interactive component, as a keyboard user would. */
 async function tabTo(o: Opened, n: number) {
@@ -282,25 +295,20 @@ async function tabTo(o: Opened, n: number) {
 }
 
 const ring = (o: Opened, t: (typeof INTERACTIVE)[number]) =>
-  o.page.$eval(
-    t.host,
-    (el, [inner, pseudo]) => {
-      const target = el.shadowRoot!.querySelector(inner!)!;
-      const s = getComputedStyle(target, pseudo);
-      const probe = document.createElement("div");
-      probe.style.color = "var(--kan-focus-ring-color)";
-      document.body.append(probe);
-      const want = getComputedStyle(probe).color;
-      probe.remove();
-      return { style: s.outlineStyle, color: s.outlineColor, width: s.outlineWidth, want };
-    },
-    [t.inner, t.pseudo] as [string, string | undefined],
-  );
+  innerOf(o, t).evaluate((target, pseudo) => {
+    const s = getComputedStyle(target, pseudo);
+    const probe = document.createElement("div");
+    probe.style.color = "var(--kan-focus-ring-color)";
+    document.body.append(probe);
+    const want = getComputedStyle(probe).color;
+    probe.remove();
+    return { style: s.outlineStyle, color: s.outlineColor, width: s.outlineWidth, want };
+  }, t.pseudo);
 
 Then("every interactive component is reachable by Tab", async (world) => {
   const o = await interactivePage();
   const stops: string[][] = [];
-  for (let i = 0; i < INTERACTIVE.length + 1; i++) {
+  for (let i = 0; i < INTERACTIVE.length + 2; i++) {
     await o.page.keyboard.press("Tab");
     stops.push(
       await o.page.evaluate(() => {
@@ -310,7 +318,7 @@ Then("every interactive component is reachable by Tab", async (world) => {
     );
   }
   // The page's own link first, then each component in turn; the tool call without details has no stop.
-  expect(stops).toEqual([["a", ""], ...INTERACTIVE.map((t) => [t.host, t.tab])]);
+  expect(stops).toEqual([["a", ""], ...INTERACTIVE.map((t) => [t.host, t.tab]), HEADER_TOGGLE_STOP]);
   world.o = o;
 });
 
@@ -331,23 +339,30 @@ Then("responds to Enter and Space the way its native equivalent does", async (wo
   const o = world.o as Opened;
   const hash = () => o.page.evaluate(() => location.hash);
   const clearHash = () => o.page.evaluate(() => history.replaceState(null, "", location.pathname + location.search));
+  // Every click that reaches the document, by the host it came from.
+  await o.page.evaluate(() => {
+    const w = window as unknown as { clicked: string[] };
+    w.clicked = [];
+    document.addEventListener("click", (e) => w.clicked.push((e.target as Element).localName));
+  });
+  const clicks = (host: string) =>
+    o.page.evaluate((h) => (window as unknown as { clicked: string[] }).clicked.filter((c) => c === h).length, host);
   for (const [n, t] of INTERACTIVE.entries()) {
     if (t.host === "kan-terminal") continue; // scrolls; it has nothing to activate
     await tabTo(o, n);
     if (t.hash === undefined) {
-      // A button: both keys toggle.
-      const call = o.page.locator(t.host).first();
-      const isOpen = async () => (await call.getAttribute("open")) !== null;
-      const before = await isOpen();
+      // A button: both keys activate it, and what it toggles flips each time.
+      const expanded = () => innerOf(o, t).getAttribute("aria-expanded");
+      const before = await expanded();
+      const clicksBefore = await clicks(t.host);
       await o.page.keyboard.press("Enter");
       await settle(o);
-      expect(await isOpen()).toBe(!before);
+      expect([t.host, "Enter", await clicks(t.host)]).toEqual([t.host, "Enter", clicksBefore + 1]);
+      if (before !== null) expect(await expanded()).toBe(String(before !== "true"));
       await o.page.keyboard.press("Space");
       await settle(o);
-      expect(await isOpen()).toBe(before);
-      expect(
-        await o.page.$eval(t.host, (el) => el.shadowRoot!.querySelector("button")!.getAttribute("aria-expanded")),
-      ).toBe(String(before));
+      expect([t.host, "Space", await clicks(t.host)]).toEqual([t.host, "Space", clicksBefore + 2]);
+      if (before !== null) expect(await expanded()).toBe(before);
     } else {
       // A link: Enter follows it, Space doesn't.
       await clearHash();
@@ -474,6 +489,487 @@ Then("the cursor doesn't blink when the visitor prefers reduced motion", async (
   );
   expect(anims).toBe(0);
 });
+
+// ── Helpers for the interactive components ──────────────
+
+/** The computed color a semantic token resolves to, as a CSS property on a probe (so oklch and rgb compare equal). */
+const tokenColor = (o: Opened, token: string) =>
+  o.page.evaluate((v) => {
+    const probe = document.createElement("div");
+    probe.style.color = `var(${v})`;
+    document.body.append(probe);
+    const c = getComputedStyle(probe).color;
+    probe.remove();
+    return c;
+  }, token);
+
+/** The styles a kan-button's inner element is painted with. */
+const buttonLook = (o: Opened, selector: string) =>
+  o.page.locator(selector).evaluate((host) => {
+    const s = getComputedStyle(host.shadowRoot!.querySelector("[part=button]")!);
+    return {
+      background: s.backgroundColor,
+      color: s.color,
+      border: s.borderTopColor,
+      borderWidth: s.borderTopWidth,
+      height: host.getBoundingClientRect().height,
+    };
+  });
+
+// ── KIT-001 kan-button ──────────────────────────────────
+
+Then("it has primary, secondary and ghost variants and sm and md sizes", async (world) => {
+  const o = await open(
+    `<kan-button id="primary" variant="primary">Primary</kan-button>
+<kan-button id="secondary" variant="secondary">Secondary</kan-button>
+<kan-button id="ghost" variant="ghost">Ghost</kan-button>
+<kan-button id="sm" size="sm">Small</kan-button>
+<kan-button id="md" size="md">Medium</kan-button>
+<kan-button id="default">Default</kan-button>`,
+    { theme: "light" },
+  );
+  world.o = o;
+  const token = (t: string) => tokenColor(o, `--kan-color-${t}`);
+  const primary = await buttonLook(o, "#primary");
+  expect([primary.background, primary.color]).toEqual([await token("accent-default"), await token("text-on-accent")]);
+  const secondary = await buttonLook(o, "#secondary");
+  expect([secondary.background, secondary.color, secondary.border, secondary.borderWidth]).toEqual([
+    await token("bg-surface"),
+    await token("text-default"),
+    await token("border-strong"),
+    "1px",
+  ]);
+  const ghost = await buttonLook(o, "#ghost");
+  expect([ghost.background, ghost.color]).toEqual(["rgba(0, 0, 0, 0)", await token("text-accent")]);
+  // Hover shifts a primary to accent.hover.
+  await o.page.locator("#primary").hover();
+  expect((await buttonLook(o, "#primary")).background).toBe(await token("accent-hover"));
+  await o.page.mouse.move(0, 0);
+  // Variant and size default to primary and md.
+  expect(await buttonLook(o, "#default")).toEqual(await buttonLook(o, "#md"));
+  expect((await buttonLook(o, "#default")).background).toBe(primary.background);
+  expect((await buttonLook(o, "#sm")).height).toBeLessThan((await buttonLook(o, "#md")).height);
+  // The focus ring shows for the keyboard only.
+  await o.page.keyboard.press("Tab");
+  const ringOf = (id: string) =>
+    o.page
+      .locator(`#${id}`)
+      .evaluate((h) => getComputedStyle(h.shadowRoot!.querySelector("[part=button]")!).outlineStyle);
+  expect(await ringOf("primary")).toBe("solid");
+  await o.page.mouse.click(5, 5);
+  await o.page.locator("#secondary").click();
+  expect(await ringOf("secondary")).toBe("none");
+});
+
+Then("renders a native button, or a native link when href is set", async () => {
+  const o = await open(
+    `<form id="form"><kan-button id="plain">Plain</kan-button><kan-button id="send" type="submit">Send</kan-button><kan-button id="disabled-send" type="submit" disabled>Off</kan-button></form>
+<kan-button id="link" href="#target" variant="secondary">Link</kan-button>`,
+  );
+  const tags = await o.page.$$eval("kan-button", (els) =>
+    els.map((e) => {
+      const inner = e.shadowRoot!.querySelector("[part=button]")!;
+      return [e.id, inner.localName, inner.getAttribute("href"), inner.getAttribute("type")];
+    }),
+  );
+  expect(tags).toEqual([
+    ["plain", "button", null, "button"],
+    ["send", "button", null, "button"],
+    ["disabled-send", "button", null, "button"],
+    ["link", "a", "#target", null],
+  ]);
+  // The native roles are what assistive tech gets.
+  expect(await o.page.getByRole("button", { name: "Plain" }).count()).toBe(1);
+  expect(await o.page.getByRole("link", { name: "Link" }).count()).toBe(1);
+  // A link follows its href; type="submit" submits the form around it; type="button" doesn't.
+  await o.page.evaluate(() => {
+    const w = window as unknown as { submits: number };
+    w.submits = 0;
+    document.getElementById("form")!.addEventListener("submit", (e) => {
+      e.preventDefault();
+      w.submits++;
+    });
+  });
+  const submits = () => o.page.evaluate(() => (window as unknown as { submits: number }).submits);
+  await o.page.locator("#plain").click();
+  await o.page.locator("#disabled-send").click({ force: true });
+  expect(await submits()).toBe(0);
+  await o.page.locator("#send").click();
+  expect(await submits()).toBe(1);
+  await o.page.locator("#link").click();
+  expect(await o.page.evaluate(() => location.hash)).toBe("#target");
+});
+
+Then("a disabled button can't be activated and says so to assistive tech", async () => {
+  const o = await open(
+    `<kan-button id="off" disabled>Off</kan-button>
+<kan-button id="off-link" href="#nowhere" disabled>Off link</kan-button>
+<kan-button id="on">On</kan-button>`,
+  );
+  await o.page.evaluate(() => {
+    const w = window as unknown as { clicked: string[] };
+    w.clicked = [];
+    document.addEventListener("click", (e) => w.clicked.push((e.target as Element).id));
+    document.getElementById("off")!.addEventListener("click", () => w.clicked.push("off-listener"));
+    document.getElementById("off-link")!.addEventListener("click", () => w.clicked.push("off-link-listener"));
+  });
+  const clicked = () => o.page.evaluate(() => (window as unknown as { clicked: string[] }).clicked);
+  // Said to assistive tech: a native disabled button, and a link marked aria-disabled.
+  const off = await o.page.$eval("#off", (e) => e.shadowRoot!.querySelector("button")!.disabled);
+  expect(off).toBe(true);
+  expect(await o.page.getByRole("button", { name: "Off" }).isDisabled()).toBe(true);
+  expect(await o.page.getByRole("button", { name: "On" }).isDisabled()).toBe(false);
+  const link = await o.page.$eval("#off-link", (e) => {
+    const a = e.shadowRoot!.querySelector("[part=button]")!;
+    return {
+      tag: a.localName,
+      href: a.getAttribute("href"),
+      aria: a.getAttribute("aria-disabled"),
+      tabindex: a.getAttribute("tabindex"),
+    };
+  });
+  expect(link).toEqual({ tag: "a", href: null, aria: "true", tabindex: null });
+  expect(await o.page.getByRole("link", { name: "Off link" }).getAttribute("aria-disabled")).toBe("true");
+  // Not activated: pointer clicks do nothing, and the keyboard can't reach it.
+  await o.page.locator("#off").click({ force: true });
+  await o.page.locator("#off-link").click({ force: true });
+  expect(await o.page.evaluate(() => location.hash)).toBe("");
+  const stops: string[] = [];
+  for (let i = 0; i < 3; i++) {
+    await o.page.keyboard.press("Tab");
+    stops.push(await o.page.evaluate(() => document.activeElement?.id ?? ""));
+  }
+  expect(stops.filter((id) => id.startsWith("off"))).toEqual([]);
+  expect(stops[0]).toBe("on");
+  await o.page.keyboard.press("Enter");
+  await o.page.keyboard.press("Space");
+  expect((await clicked()).filter((c) => c.startsWith("off"))).toEqual([]);
+  // The enabled one still works, so the test could have seen a click.
+  expect((await clicked()).filter((c) => c === "on")).toEqual(["on", "on"]);
+});
+
+// ── KIT-009, THEME-002, THEME-003, THEME-006: the theme toggle ──
+
+const TOGGLE = `<kan-theme-toggle></kan-theme-toggle>`;
+const toggleButton = (o: Opened) => o.page.locator("kan-theme-toggle button");
+const toggleName = async (o: Opened) => (await toggleButton(o).getAttribute("aria-label")) ?? "";
+const dataTheme = (o: Opened) => o.page.evaluate(() => document.documentElement.getAttribute("data-theme"));
+const savedTheme = (o: Opened) => o.page.evaluate(() => localStorage.getItem("kan-theme"));
+const canvas = (o: Opened) => o.page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+
+/** Presses the toggle until it names `theme`, at most once around the cycle. */
+async function chooseTheme(o: Opened, theme: "Light" | "Dark" | "System") {
+  for (let i = 0; i < 3 && (await toggleName(o)) !== `Theme: ${theme}`; i++) {
+    await toggleButton(o).click();
+    await settle(o);
+  }
+  expect(await toggleName(o)).toBe(`Theme: ${theme}`);
+}
+
+When("I choose dark with the theme toggle", async (world) => {
+  // Light mode system, so a page that turned dark did it because of the toggle.
+  const o = await open(TOGGLE);
+  world.before = await canvas(o);
+  world.o = o;
+  await chooseTheme(o, "Dark");
+});
+
+Then("the page turns dark right away", async (world) => {
+  const o = world.o as Opened;
+  expect(await dataTheme(o)).toBe("dark");
+  expect(await canvas(o)).not.toBe(world.before as string);
+  expect(await canvas(o)).toBe(await tokenColorBackground(o));
+});
+
+/** The canvas color tokens.css gives a dark page, read from a page that is dark by attribute. */
+async function tokenColorBackground(o: Opened) {
+  const dark = await open(`<p>dark</p>`, { theme: "dark", context: o.context });
+  const color = await canvas(dark);
+  await dark.page.close();
+  return color;
+}
+
+Then("the next page I open and my next visit are dark too", async (world) => {
+  const first = world.o as Opened;
+  // The next page, while the first is still open: same browser context, so the same storage.
+  const next = await open(TOGGLE, { context: first.context });
+  expect(await dataTheme(next)).toBe("dark");
+  expect(await toggleName(next)).toBe("Theme: Dark");
+  expect(await canvas(next)).toBe(await canvas(first));
+  // The next visit: every page closed, then a page opened again.
+  await first.page.close();
+  await next.page.close();
+  const visit = await open(TOGGLE, { context: first.context });
+  expect(await dataTheme(visit)).toBe("dark");
+  expect(await toggleName(visit)).toBe("Theme: Dark");
+  expect(await canvas(visit)).toBe(await canvas(next === visit ? first : visit));
+  await visit.context.close();
+});
+
+Then("the toggle offers light, dark and system", async (world) => {
+  const o = await open(TOGGLE);
+  world.o = o;
+  const seen: [string, string | null, string | null][] = [];
+  for (let i = 0; i < 4; i++) {
+    seen.push([
+      await toggleName(o),
+      await o.page.$eval(
+        "kan-theme-toggle",
+        (e) => (e.shadowRoot!.querySelector("kan-icon") as unknown as { name: string }).name,
+      ),
+      await dataTheme(o),
+    ]);
+    await toggleButton(o).click();
+    await settle(o);
+  }
+  // From the system setting it goes light, dark, system, and round again.
+  expect(seen).toEqual([
+    ["Theme: System", "monitor", null],
+    ["Theme: Light", "sun", "light"],
+    ["Theme: Dark", "moon", "dark"],
+    ["Theme: System", "monitor", null],
+  ]);
+});
+
+Then("choosing system clears my saved choice", async (world) => {
+  const o = world.o as Opened;
+  await chooseTheme(o, "Dark");
+  expect(await savedTheme(o)).toBe("dark");
+  await chooseTheme(o, "Light");
+  expect(await savedTheme(o)).toBe("light");
+  await chooseTheme(o, "System");
+  expect(await savedTheme(o)).toBeNull();
+  expect(await dataTheme(o)).toBeNull();
+  // A reload then follows the system, and the toggle says so.
+  await o.page.reload();
+  await o.page.waitForFunction(() => document.querySelector("kan-theme-toggle")!.classList.contains("hydrated"));
+  expect(await toggleName(o)).toBe("Theme: System");
+  expect(await dataTheme(o)).toBeNull();
+});
+
+Then("the toggle is reachable and operable by keyboard alone", async (world) => {
+  const o = await open(`<a href="#x">before</a>${TOGGLE}`);
+  world.o = o;
+  await o.page.keyboard.press("Tab");
+  await o.page.keyboard.press("Tab");
+  expect(await o.page.evaluate(() => document.activeElement?.localName)).toBe("kan-theme-toggle");
+  expect(await o.page.evaluate(() => document.activeElement!.shadowRoot!.activeElement!.localName)).toBe("button");
+  await o.page.keyboard.press("Enter");
+  await settle(o);
+  expect(await toggleName(o)).toBe("Theme: Light");
+  await o.page.keyboard.press("Space");
+  await settle(o);
+  expect(await toggleName(o)).toBe("Theme: Dark");
+});
+
+Then("its accessible name says the current theme", async (world) => {
+  const o = world.o as Opened;
+  // The name a screen reader gets, from the accessibility tree.
+  expect(await o.page.getByRole("button", { name: "Theme: Dark", exact: true }).count()).toBe(1);
+  await toggleButton(o).click();
+  await settle(o);
+  expect(await o.page.getByRole("button", { name: "Theme: System", exact: true }).count()).toBe(1);
+  expect(await o.page.getByRole("button", { name: "Theme: Dark", exact: true }).count()).toBe(0);
+});
+
+Then("a screen reader announces the new theme when it changes", async () => {
+  const o = await open(TOGGLE);
+  const region = () =>
+    o.page.$eval("kan-theme-toggle", (e) => {
+      const live = e.shadowRoot!.querySelector("[aria-live]")!;
+      return {
+        live: live.getAttribute("aria-live"),
+        text: live.textContent,
+        insideButton: !!live.closest("button"),
+      };
+    });
+  // A live region is there from the start, empty, so a change in it is announced.
+  expect(await region()).toEqual({ live: "polite", text: "", insideButton: false });
+  await toggleButton(o).click();
+  await settle(o);
+  expect(await region()).toEqual({ live: "polite", text: "Theme: Light", insideButton: false });
+  await toggleButton(o).click();
+  await settle(o);
+  expect((await region()).text).toBe("Theme: Dark");
+});
+
+Then("it implements THEME-002, THEME-003 and THEME-006", async () => {
+  const theme = loadScenarios(path.join(ROOT, "specs/portfolio/features/theme.feature"));
+  for (const id of ["THEME-002", "THEME-003", "THEME-006"]) {
+    const scenario = theme.find((s) => s.id === id)!;
+    expect([id, !!scenario]).toEqual([id, true]);
+    const world: World = {};
+    for (const text of scenario.steps) {
+      const match = steps.match(text);
+      expect([id, text, match !== null]).toEqual([id, text, true]);
+      await match!.definition.fn(world, ...match!.args);
+    }
+  }
+});
+
+Then("it emits kanThemeChange with the chosen theme", async () => {
+  const o = await open(`<div id="outer">${TOGGLE}</div>`);
+  await o.page.evaluate(() => {
+    const w = window as unknown as { seen: unknown[] };
+    w.seen = [];
+    document.getElementById("outer")!.addEventListener("kanThemeChange", (e) => w.seen.push((e as CustomEvent).detail));
+  });
+  for (let i = 0; i < 4; i++) {
+    await toggleButton(o).click();
+    await settle(o);
+  }
+  // Heard outside the shadow root, once per choice, in cycle order.
+  expect(await o.page.evaluate(() => (window as unknown as { seen: unknown[] }).seen)).toEqual([
+    { theme: "light" },
+    { theme: "dark" },
+    { theme: "system" },
+    { theme: "light" },
+  ]);
+});
+
+// ── KIT-010 kan-site-header ─────────────────────────────
+
+const HEADER = `<kan-site-header>
+  <a slot="brand" href="#home">Ian Kaneshiro</a>
+  <kan-link href="#work">Work</kan-link>
+  <a href="#about">About</a>
+  <kan-link href="#contact">Contact</kan-link>
+</kan-site-header>
+<main id="main"><h1>Page</h1></main>`;
+
+Then("it shows Ian's name, the navigation links and the theme toggle", async (world) => {
+  const o = await open(HEADER, { viewport: { width: 1280, height: 800 } });
+  world.o = o;
+  const { page } = o;
+  expect(await page.getByRole("banner").count()).toBe(1);
+  const nav = page.getByRole("navigation", { name: "Main" });
+  expect(await nav.count()).toBe(1);
+  expect(await page.getByRole("link", { name: "Ian Kaneshiro" }).isVisible()).toBe(true);
+  for (const name of ["Work", "About", "Contact"]) {
+    const link = page.getByRole("link", { name });
+    expect([name, await link.count(), await link.isVisible()]).toEqual([name, 1, true]);
+  }
+  expect(await page.getByRole("button", { name: "Theme: System" }).isVisible()).toBe(true);
+  // On a wide screen there is no menu button.
+  expect(await page.locator("kan-site-header .menu-button").isVisible()).toBe(false);
+});
+
+Then("below the md breakpoint the links move into a menu button that opens and closes with the keyboard", async () => {
+  const linksVisible = async (o: Opened) =>
+    (
+      await Promise.all(
+        ["Work", "About", "Contact"].map((name) => o.page.getByRole("link", { name }).first().isVisible()),
+      )
+    ).every(Boolean);
+  // The md token is 768px: at it the links are in the bar, a pixel under it they are behind the button.
+  for (const [width, narrow] of [
+    [768, false],
+    [767, true],
+  ] as const) {
+    const o = await open(HEADER, { viewport: { width, height: 800 } });
+    expect([width, await linksVisible(o), await o.page.locator(".menu-button").isVisible()]).toEqual([
+      width,
+      !narrow,
+      narrow,
+    ]);
+    await o.context.close();
+  }
+
+  const o = await open(HEADER, { viewport: { width: 375, height: 800 } });
+  const menu = o.page.getByRole("button", { name: "Menu" });
+  const state = () =>
+    o.page.$eval("kan-site-header", (e) => {
+      const inner = e.shadowRoot!;
+      const button = inner.querySelector(".menu-button")!;
+      return {
+        expanded: button.getAttribute("aria-expanded"),
+        controlsNav: inner.getElementById(button.getAttribute("aria-controls")!)?.localName,
+        active: inner.activeElement?.className ?? document.activeElement?.localName,
+        icon: (button.querySelector("kan-icon") as unknown as { name: string }).name,
+      };
+    });
+  // Closed: the links aren't shown, and Tab goes from the name to the menu button to the toggle, never to a link.
+  expect(await menu.isVisible()).toBe(true);
+  expect(await linksVisible(o)).toBe(false);
+  expect(await state()).toMatchObject({ expanded: "false", controlsNav: "nav", icon: "menu" });
+  const tabStops: string[] = [];
+  for (let i = 0; i < 3; i++) {
+    await o.page.keyboard.press("Tab");
+    tabStops.push(
+      await o.page.evaluate(() => {
+        const a = document.activeElement!;
+        return a.shadowRoot?.activeElement ? `${a.localName}>${a.shadowRoot.activeElement.localName}` : a.localName;
+      }),
+    );
+  }
+  expect(tabStops).toEqual(["a", "kan-site-header>button", "kan-site-header>kan-theme-toggle"]);
+
+  // Enter opens it; the links are shown and Tab reaches the first.
+  await o.page.keyboard.press("Shift+Tab");
+  await o.page.keyboard.press("Enter");
+  await settle(o);
+  expect(await state()).toMatchObject({ expanded: "true", icon: "close" });
+  expect(await linksVisible(o)).toBe(true);
+  await o.page.keyboard.press("Tab");
+  expect(await o.page.evaluate(() => document.activeElement?.textContent)).toBe("Work");
+  // Escape closes it from inside the links and puts focus back on the button.
+  await o.page.keyboard.press("Escape");
+  await settle(o);
+  expect(await state()).toMatchObject({ expanded: "false", icon: "menu", active: "menu-button" });
+  expect(await linksVisible(o)).toBe(false);
+  // Space opens and closes it too, and Escape on a closed menu does nothing.
+  await o.page.keyboard.press("Space");
+  await settle(o);
+  expect((await state()).expanded).toBe("true");
+  await o.page.keyboard.press("Space");
+  await settle(o);
+  expect((await state()).expanded).toBe("false");
+  await o.page.keyboard.press("Escape");
+  await settle(o);
+  expect(await state()).toMatchObject({ expanded: "false", active: "menu-button" });
+});
+
+// ── KIT-011 kan-site-footer ─────────────────────────────
+
+Then(
+  `it shows Ian's contact links and links to the site's source, the Storybook and "How this site was built"`,
+  async () => {
+    const o = await open(
+      `<kan-site-footer>
+  <kan-link slot="contact" href="mailto:iandkaneshiro@gmail.com">Email</kan-link>
+  <kan-link slot="contact" href="https://github.com/IanKaneshiro" target="_blank">GitHub</kan-link>
+  <kan-link href="https://github.com/IanKaneshiro/IanKaneshiro.github.io" target="_blank">Source</kan-link>
+  <kan-link href="/storybook/">Storybook</kan-link>
+  <kan-link href="/how-this-site-was-built/">How this site was built</kan-link>
+</kan-site-footer>`,
+    );
+    const footer = await o.page.$eval("kan-site-footer", (e) => {
+      const r = e.shadowRoot!;
+      const assigned = (sel: string) =>
+        (r.querySelector(sel) as HTMLSlotElement).assignedElements().map((a) => a.textContent);
+      return {
+        element: r.querySelector("footer") !== null,
+        contact: assigned("slot[name=contact]"),
+        links: assigned("slot:not([name])"),
+        ownText: [...r.querySelectorAll("*")].flatMap((n) =>
+          [...n.childNodes].filter((c) => c.nodeType === Node.TEXT_NODE && c.textContent!.trim()),
+        ).length,
+      };
+    });
+    // Every word comes from the page: the footer adds none of its own.
+    expect(footer).toEqual({
+      element: true,
+      contact: ["Email", "GitHub"],
+      links: ["Source", "Storybook", "How this site was built"],
+      ownText: 0,
+    });
+    expect(await o.page.getByRole("contentinfo").count()).toBe(1);
+    for (const name of ["Email", "GitHub", "Source", "Storybook", "How this site was built"]) {
+      const link = o.page.getByRole("link", { name }).first();
+      expect([name, await link.isVisible()]).toEqual([name, true]);
+    }
+  },
+);
 
 // ── KIT-013 kan-tool-call ───────────────────────────────
 

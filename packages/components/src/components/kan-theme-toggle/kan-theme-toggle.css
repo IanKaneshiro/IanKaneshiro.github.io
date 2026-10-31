@@ -1,0 +1,39 @@
+:host {
+  display: inline-block;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--kan-space-inset-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--kan-color-text-default);
+  font-size: var(--kan-typography-body-lg-font-size);
+  line-height: 1;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--kan-color-border-default);
+  background: var(--kan-color-bg-raised);
+}
+
+button:focus-visible {
+  outline: var(--kan-focus-ring-width) solid var(--kan-focus-ring-color);
+  outline-offset: var(--kan-focus-ring-offset);
+}
+
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

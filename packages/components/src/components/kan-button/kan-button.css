@@ -1,0 +1,80 @@
+:host {
+  display: inline-block;
+}
+
+/* A disabled button takes no pointer events, so a click never reaches it or the host. */
+:host([disabled]) {
+  pointer-events: none;
+}
+
+.button {
+  display: inline-flex;
+  gap: var(--kan-space-inline-md);
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  font-family: var(--kan-typography-label-font-family);
+  font-weight: var(--kan-typography-label-font-weight);
+  line-height: var(--kan-typography-body-md-line-height);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.md {
+  padding: var(--kan-space-inset-sm) var(--kan-space-inset-md);
+  font-size: var(--kan-typography-body-md-font-size);
+}
+
+.sm {
+  padding: var(--kan-space-inline-sm) var(--kan-space-inline-lg);
+  font-size: var(--kan-typography-label-font-size);
+}
+
+.primary {
+  background: var(--kan-color-accent-default);
+  color: var(--kan-color-text-on-accent);
+}
+
+.primary:hover {
+  background: var(--kan-color-accent-hover);
+}
+
+.primary:active {
+  background: var(--kan-color-accent-active);
+}
+
+.secondary {
+  border-color: var(--kan-color-border-strong);
+  background: var(--kan-color-bg-surface);
+  color: var(--kan-color-text-default);
+}
+
+.secondary:hover {
+  background: var(--kan-color-bg-raised);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--kan-color-text-accent);
+}
+
+.ghost:hover {
+  background: var(--kan-color-accent-subtle);
+}
+
+.button:disabled,
+.button[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button:focus-visible {
+  outline: var(--kan-focus-ring-width) solid var(--kan-focus-ring-color);
+  outline-offset: var(--kan-focus-ring-offset);
+}
+
+.button:focus:not(:focus-visible) {
+  outline: none;
+}

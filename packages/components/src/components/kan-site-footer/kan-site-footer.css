@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kan-space-stack-md) var(--kan-space-inline-lg);
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--kan-space-inset-lg) var(--kan-layout-gutter);
+  border-top: 1px solid var(--kan-color-border-default);
+  background: var(--kan-color-bg-canvas);
+  color: var(--kan-color-text-muted);
+  font-family: var(--kan-typography-body-sm-font-family);
+  font-size: var(--kan-typography-body-sm-font-size);
+}
+
+.contact,
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kan-space-inline-lg);
+  align-items: baseline;
+}

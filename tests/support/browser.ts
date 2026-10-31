@@ -101,7 +101,7 @@ export const ensureBuilt = () => serve().then(() => undefined);
 
 export type Opened = { page: Page; context: BrowserContext; url: string; scripts: string[] };
 
-/** Opens `body` in a fresh page, waits for the components to hydrate, and records the scripts loaded. */
+/** Opens `body` in a fresh page (in a fresh context, unless `context` is given), waits for the components to hydrate, and records the scripts loaded. */
 export async function open(
   body: string,
   options: {
@@ -109,15 +109,19 @@ export async function open(
     reducedMotion?: boolean;
     javaScript?: boolean;
     viewport?: { width: number; height: number };
+    /** Opens the page in this browser context, so it shares storage with pages opened earlier in it (a second page, a next visit). */
+    context?: BrowserContext;
   } = {},
 ): Promise<Opened> {
   const { url } = await serve();
   const b = await (browser ??= chromium.launch({ executablePath: chromiumPath() }));
-  const context = await b.newContext({
-    javaScriptEnabled: options.javaScript ?? true,
-    reducedMotion: options.reducedMotion ? "reduce" : "no-preference",
-    ...(options.viewport ? { viewport: options.viewport } : {}),
-  });
+  const context =
+    options.context ??
+    (await b.newContext({
+      javaScriptEnabled: options.javaScript ?? true,
+      reducedMotion: options.reducedMotion ? "reduce" : "no-preference",
+      ...(options.viewport ? { viewport: options.viewport } : {}),
+    }));
   const page = await context.newPage();
   const scripts: string[] = [];
   page.on("response", (r) => {
