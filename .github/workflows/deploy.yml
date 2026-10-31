@@ -1,6 +1,5 @@
 # Deploys www.iankaneshiro.dev on every merge to main (SHIP-005): the site at the root and
-# Storybook under /storybook. Until the new site ships, the root is the old site's files,
-# unchanged (SHIP-008). The deploy job needs the build job, so a failed build leaves the live
+# Storybook under /storybook (SHIP-008). The deploy job needs the build job, so a failed build leaves the live
 # site as it was.
 name: deploy
 
@@ -26,6 +25,7 @@ jobs:
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
+      - run: bun run --cwd apps/site build
       - run: bun run --cwd packages/components build-storybook
       - run: bun tools/site/assemble.ts _site
       - uses: actions/upload-pages-artifact@v3

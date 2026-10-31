@@ -40,9 +40,9 @@ Feature: Building, deploying and the profile README
 
   @SHIP-008 @ci
   Scenario: Cutover from the old site
-    Then until the new site ships, the deploy publishes the old site's files unchanged at the root of www.iankaneshiro.dev
-    And the pull request that ships the new site replaces them with the new site and removes the old files
-    And www.iankaneshiro.dev keeps working through each switch
+    Then the deploy publishes the new site at the root of www.iankaneshiro.dev, with Storybook under /storybook
+    And the old site's files are gone from the repo
+    And links people already have to the old site still work: the home page, and the resume at /assets/Kaneshiro_Ian_Resume.pdf
 
   @SHIP-007 @profile
   Scenario: The profile README points to the site

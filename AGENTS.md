@@ -100,5 +100,5 @@ tools/gate/        the gate: checks.ts lists every check; cli.ts runs them
 tools/agent/       the agent's identity: token minting, agent:gh, agent:push and their guards
 tools/specs/       spec graph loader, checker and review UI
 docs/              drafts (content-draft.md)
-index.html css/ js/ assets/ CNAME   the old site, served until the new one ships (SHIP-008)
+apps/site/         the Astro site, served at the root of www.iankaneshiro.dev (Storybook under /storybook)
 ```

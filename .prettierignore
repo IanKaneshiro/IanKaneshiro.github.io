@@ -11,12 +11,6 @@
 /packages/components/docs.json
 /packages/components/docs.d.ts
 /packages/components/src/components.d.ts
-# The old site, served as-is until the cutover (SHIP-008).
-/index.html
-/css/
-/js/
-/assets/
-/CNAME
 /.nojekyll
 # Specs are Ian's; GRAPH.md and graph.json are generated.
 /specs/

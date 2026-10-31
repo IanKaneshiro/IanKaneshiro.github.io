@@ -2,8 +2,7 @@
 export default {
   extends: ["stylelint-config-standard"],
   plugins: ["./tools/gate/lint/stylelint-plugin-kan.js"],
-  // The old site's CSS is served as-is until the cutover (SHIP-008).
-  ignoreFiles: ["node_modules/**", "css/**", "**/dist/**", "**/www/**", "**/storybook-static/**"],
+  ignoreFiles: ["node_modules/**", "**/dist/**", "**/www/**", "**/storybook-static/**"],
   overrides: [
     {
       files: ["packages/components/**/*.css", "apps/site/**/*.css"],

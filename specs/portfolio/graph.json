@@ -2488,15 +2488,15 @@
       "steps": [
         {
           "keyword": "Then",
-          "text": "until the new site ships, the deploy publishes the old site's files unchanged at the root of www.iankaneshiro.dev"
+          "text": "the deploy publishes the new site at the root of www.iankaneshiro.dev, with Storybook under /storybook"
         },
         {
           "keyword": "And",
-          "text": "the pull request that ships the new site replaces them with the new site and removes the old files"
+          "text": "the old site's files are gone from the repo"
         },
         {
           "keyword": "And",
-          "text": "www.iankaneshiro.dev keeps working through each switch"
+          "text": "links people already have to the old site still work: the home page, and the resume at /assets/Kaneshiro_Ian_Resume.pdf"
         }
       ],
       "file": "features/ship.feature",

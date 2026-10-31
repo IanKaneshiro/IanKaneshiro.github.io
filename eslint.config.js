@@ -6,12 +6,8 @@ import kan from "./tools/gate/lint/eslint-plugin-kan.js";
 
 export default defineConfig(
   {
-    // The old site (index.html, css/, js/, assets/) is served as-is until the cutover (SHIP-008).
     ignores: [
       "node_modules/",
-      "css/",
-      "js/",
-      "assets/",
       "specs/",
       "gate-reports/",
       "**/dist/",
