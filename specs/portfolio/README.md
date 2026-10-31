@@ -114,7 +114,7 @@ Confirmed on 2026-10-30.
 
 | Decision | Where |
 |---|---|
-| Served at https://www.iankaneshiro.dev (the existing custom domain) from the `IanKaneshiro.github.io` repo, deployed by GitHub Actions with Storybook under `/storybook`. The old site's files stay at the root until the new site ships | SHIP-005, SHIP-006, SHIP-008, SITE-010 |
+| Served at https://www.iankaneshiro.dev (the existing custom domain) from the `IanKaneshiro.github.io` repo, deployed by GitHub Actions with Storybook under `/storybook`. The new site is served at the root, and the old site's files are gone from the repo | SHIP-005, SHIP-006, SHIP-008, SITE-010 |
 | A resume download, shown once an updated PDF is in the content | SITE-015 |
 | Component prefix `kan-`: tags `kan-*`, classes `Kan*`, events `kan*`, custom properties `--kan-*` | CMP-001, CMP-008, TOK-002 |
 | JetBrains Mono for headings, labels and code; Inter for body text | PRIM-007 |

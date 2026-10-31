@@ -2,31 +2,32 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * Assembles what GitHub Pages serves at www.iankaneshiro.dev (SHIP-005): the site at the root
- * and Storybook under /storybook. Until the new site ships, the root is the old site's files,
- * copied unchanged (SHIP-008).
+ * Assembles what GitHub Pages serves at www.iankaneshiro.dev (SHIP-005, SHIP-008): the built site
+ * (apps/site/dist) at the root and Storybook under /storybook. Throws, writing nothing, if either
+ * build is missing.
  *
- *   bun tools/site/assemble.ts <out dir>     after bun run --cwd packages/components build-storybook
+ *   bun tools/site/assemble.ts <out dir>     after bun run --cwd apps/site build
+ *                                            and bun run --cwd packages/components build-storybook
  */
 
-/** The old site, served as-is until the new site replaces it. */
-export const OLD_SITE = ["index.html", "css", "js", "assets", "CNAME"];
+export const SITE = "apps/site/dist";
 export const STORYBOOK = "packages/components/storybook-static";
 
 export function assemble(root: string, out: string): string[] {
+  const site = path.join(root, SITE);
   const storybook = path.join(root, STORYBOOK);
+  if (!fs.existsSync(path.join(site, "index.html"))) {
+    throw new Error(`no site build at ${SITE}; run bun run --cwd apps/site build first`);
+  }
   if (!fs.existsSync(path.join(storybook, "index.html"))) {
     throw new Error(`no Storybook build at ${STORYBOOK}; run bun run --cwd packages/components build-storybook first`);
   }
-  for (const f of OLD_SITE) {
-    if (!fs.existsSync(path.join(root, f))) throw new Error(`the old site's ${f} is missing`);
-  }
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
-  for (const f of OLD_SITE) fs.cpSync(path.join(root, f), path.join(out, f), { recursive: true });
+  fs.cpSync(site, out, { recursive: true });
   fs.cpSync(storybook, path.join(out, "storybook"), { recursive: true });
   fs.writeFileSync(path.join(out, ".nojekyll"), "");
-  return [...OLD_SITE, "storybook", ".nojekyll"];
+  return [...fs.readdirSync(site), "storybook", ".nojekyll"];
 }
 
 if (import.meta.main) {
