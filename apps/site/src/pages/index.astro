@@ -2,15 +2,17 @@
 import Base from "../layouts/Base.astro";
 import Button from "../components/Button.astro";
 import Link from "../components/Link.astro";
-import { getCollection, getEntry } from "astro:content";
+import { getPage } from "../lib/pages";
+import { homeJsonLd } from "../lib/json-ld";
+import { getSiteData } from "../lib/site-data";
 
-const profile = (await getEntry("profile", "ian"))!.data;
-const about = (await getEntry("about", "ian"))!.data;
-const stack = (await getEntry("stack", "ian"))!.data;
-const projects = (await getCollection("projects")).map((p) => p.data).sort((a, b) => a.order - b.order);
+const site = await getSiteData();
+const { profile, about, stack, projects } = site;
+const meta = await getPage("/");
 ---
 
-<Base title={`${profile.name} · ${profile.role}`} description={profile.headline}>
+<Base title={meta.title} description={meta.description}>
+  <script slot="head" type="application/ld+json" is:inline set:html={homeJsonLd(site)} />
   <section class="hero" id="home">
     <h1 class="hero-name">{profile.name}</h1>
     <p class="hero-role">{profile.role}</p>

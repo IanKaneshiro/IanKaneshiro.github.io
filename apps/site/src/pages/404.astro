@@ -1,21 +1,20 @@
 ---
 import Base from "../layouts/Base.astro";
 import Button from "../components/Button.astro";
+import { getPage, NOT_FOUND } from "../lib/pages";
+
+const meta = await getPage("/404.html");
 ---
 
-<Base
-  title="Command not found · Ian Kaneshiro"
-  description="That page doesn't exist. Head back to Ian Kaneshiro's home page."
-  noindex
->
+<Base title={meta.title} description={meta.description} noindex>
   <section class="not-found">
-    <h1 class="hero-name">Command not found</h1>
+    <h1 class="hero-name">{NOT_FOUND.heading}</h1>
     <kan-terminal class="hero-session" heading="~/ian">
-      <kan-prompt cursor="false">open this-page</kan-prompt>
-      <pre class="session-error">ian: command not found: this-page</pre>
+      <kan-prompt cursor="false">{NOT_FOUND.prompt}</kan-prompt>
+      <pre class="session-error">{NOT_FOUND.error}</pre>
     </kan-terminal>
     <p>
-      <Button href="/">Back to the home page</Button>
+      <Button href="/">{NOT_FOUND.back}</Button>
     </p>
   </section>
 </Base>
