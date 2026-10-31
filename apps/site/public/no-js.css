@@ -1,0 +1,68 @@
+/* Loaded only when JavaScript is off (SITE-008): the kan- components are plain elements then. */
+kan-link,
+kan-button {
+  display: none;
+}
+
+kan-terminal,
+kan-prompt,
+kan-tool-call,
+kan-plan,
+kan-plan-step,
+kan-section-heading,
+kan-project-card,
+kan-site-header,
+kan-site-footer {
+  display: block;
+}
+
+kan-section-heading {
+  margin-block-start: var(--kan-space-stack-md);
+  font-family: var(--kan-typography-heading-2-font-family);
+  font-size: var(--kan-typography-heading-2-font-size);
+  font-weight: var(--kan-typography-heading-2-font-weight);
+}
+
+kan-terminal {
+  padding: var(--kan-space-inset-md);
+  background: var(--kan-color-bg-inset);
+  color: var(--kan-color-text-default);
+  font-family: var(--kan-typography-code-font-family);
+}
+
+kan-project-card {
+  padding: var(--kan-space-inset-md);
+  border: 1px solid var(--kan-color-border-subtle);
+  background: var(--kan-color-bg-surface);
+}
+
+kan-tag {
+  display: inline-block;
+  padding-inline: var(--kan-space-inset-sm);
+  background: var(--kan-color-bg-raised);
+  font-family: var(--kan-typography-code-font-family);
+  font-size: var(--kan-typography-label-font-size);
+}
+
+a {
+  color: var(--kan-color-text-accent);
+}
+
+kan-site-header,
+kan-site-footer {
+  padding: var(--kan-space-inset-sm) var(--kan-layout-gutter);
+  border-block: 1px solid var(--kan-color-border-default);
+}
+
+kan-site-header > a,
+kan-site-footer > noscript > a {
+  margin-inline-end: var(--kan-space-inline-lg);
+}
+
+.button {
+  display: inline-block;
+  padding: var(--kan-space-inset-sm) var(--kan-space-inset-md);
+  border: 1px solid var(--kan-color-border-strong);
+  font-family: var(--kan-typography-label-font-family);
+  text-decoration: none;
+}

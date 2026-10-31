@@ -1,0 +1,7 @@
+{
+  "order": 3,
+  "name": "KanairBnB",
+  "summary": "An Airbnb-style booking app with user accounts, listings and a documented REST API.",
+  "stack": ["React", "Redux", "Express", "Sequelize", "PostgreSQL"],
+  "source": "https://github.com/IanKaneshiro/KanairBnB"
+}

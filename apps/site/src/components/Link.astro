@@ -1,0 +1,25 @@
+---
+/**
+ * A kan-link, and a plain anchor for visitors without JavaScript (SITE-008): the component draws
+ * its own anchor in its shadow root, so without scripts it would be text that goes nowhere.
+ */
+interface Props {
+  href: string;
+  newTab?: boolean;
+  /** The named slot of the component this sits in, like "links". */
+  place?: string;
+}
+
+const { href, newTab = false, place } = Astro.props;
+const target = newTab ? "_blank" : undefined;
+const rel = newTab ? "noopener noreferrer" : undefined;
+---
+
+<kan-link slot={place} href={href} target={target}>
+  <slot />
+</kan-link>
+<noscript>
+  <a slot={place} href={href} target={target} rel={rel}>
+    <slot />
+  </a>
+</noscript>

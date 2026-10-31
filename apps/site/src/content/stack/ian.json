@@ -1,0 +1,11 @@
+{
+  "highlights": "TypeScript · StencilJS · Storybook",
+  "groups": [
+    {
+      "name": "Agentic development",
+      "items": ["Claude Code", "Cursor", "Grok Build", "Spec-driven development", "Gherkin"]
+    },
+    { "name": "Design systems", "items": ["StencilJS", "Storybook", "Web components", "Design tokens"] },
+    { "name": "Languages", "items": ["TypeScript", "JavaScript", "Python"] }
+  ]
+}

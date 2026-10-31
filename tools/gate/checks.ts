@@ -59,13 +59,13 @@ export function stylelintFailures(results: stylelint.LintResult[], root: string)
   );
 }
 
-/** tsconfig.json files of the workspace packages, e.g. packages/components/tsconfig.json. */
+/** tsconfig.json files of the workspace packages and apps, e.g. packages/components/tsconfig.json. */
 export function packageTsconfigs(root: string): string[] {
-  const dir = path.join(root, "packages");
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .map((p) => `packages/${p}/tsconfig.json`)
+  return ["packages", "apps"]
+    .flatMap((group) => {
+      const dir = path.join(root, group);
+      return fs.existsSync(dir) ? fs.readdirSync(dir).map((p) => `${group}/${p}/tsconfig.json`) : [];
+    })
     .filter((f) => fs.existsSync(path.join(root, f)))
     .sort();
 }

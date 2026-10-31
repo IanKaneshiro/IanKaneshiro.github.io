@@ -1,0 +1,13 @@
+{
+  "order": 1,
+  "name": "KanDiscer",
+  "summary": "A web app that helps disc golfers improve their game.",
+  "highlights": [
+    "Course previews and live GPS navigation with Mapbox.",
+    "Charts of each disc's flight path (Recharts), so players can find gaps in their bag.",
+    "Filters by manufacturer and flight characteristics, built on SQLAlchemy.",
+    "Debounced search to cut unnecessary API calls."
+  ],
+  "stack": ["React", "Redux", "Python", "Flask", "SQLAlchemy", "Mapbox", "AWS"],
+  "source": "https://github.com/IanKaneshiro/KanDiscer"
+}

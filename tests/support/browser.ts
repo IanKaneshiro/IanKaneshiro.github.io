@@ -42,6 +42,8 @@ export function chromiumPath(): string {
   return found;
 }
 
+const launch = () => (browser ??= chromium.launch({ executablePath: chromiumPath() }));
+
 let ready: Promise<{ url: string; tokensCss: string }> | undefined;
 let browser: Promise<Browser> | undefined;
 let server: ReturnType<typeof Bun.serve> | undefined;
@@ -114,7 +116,7 @@ export async function open(
   } = {},
 ): Promise<Opened> {
   const { url } = await serve();
-  const b = await (browser ??= chromium.launch({ executablePath: chromiumPath() }));
+  const b = await launch();
   const context =
     options.context ??
     (await b.newContext({
@@ -150,8 +152,102 @@ export async function closeBrowser(): Promise<void> {
   if (browser) await (await browser).close();
   browser = undefined;
   server?.stop(true);
+  siteServer?.stop(true);
+  siteReady = undefined;
 }
 
 /** Waits for Stencil to re-render: its updates land on the next animation frame. */
 export const settle = (o: Opened) =>
   o.page.evaluate(() => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))));
+
+// ── The built site (apps/site) ──────────────────────────
+
+const SITE = path.join(ROOT, "apps/site");
+export const SITE_DIST = path.join(SITE, "dist");
+
+let siteReady: Promise<string> | undefined;
+let siteServer: ReturnType<typeof Bun.serve> | undefined;
+
+/**
+ * Builds the site once per test run (`bun run --cwd apps/site build`) and serves apps/site/dist the way
+ * GitHub Pages does: a path that isn't a file or a folder with an index.html gets 404.html and status 404.
+ * Resolves to the server's origin.
+ */
+export function siteOrigin(): Promise<string> {
+  return (siteReady ??= (async () => {
+    const build = Bun.spawnSync(["bun", "run", "--cwd", SITE, "build"], { stdout: "pipe", stderr: "pipe" });
+    if (build.exitCode !== 0) throw new Error(`site build failed:\n${build.stdout}${build.stderr}`);
+    const file = (rel: string) => {
+      const full = path.join(SITE_DIST, path.normalize(rel));
+      if (!full.startsWith(SITE_DIST)) return undefined;
+      for (const f of [full, path.join(full, "index.html"), `${full}.html`]) {
+        if (fs.existsSync(f) && fs.statSync(f).isFile()) return f;
+      }
+      return undefined;
+    };
+    siteServer = Bun.serve({
+      port: 0,
+      hostname: "127.0.0.1",
+      fetch(req) {
+        const found = file(decodeURIComponent(new URL(req.url).pathname));
+        if (found) return new Response(Bun.file(found));
+        return new Response(Bun.file(path.join(SITE_DIST, "404.html")), {
+          status: 404,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        });
+      },
+    });
+    return `http://127.0.0.1:${siteServer.port}`;
+  })());
+}
+
+export type OpenedSite = Opened & {
+  /** The response status of the page itself. */
+  status: number;
+  /** Every request the page made, in order. */
+  requests: string[];
+};
+
+/** Opens `urlPath` on the built site (like "/" or "/nope") and, with JavaScript on, waits for the kan- components to hydrate. */
+export async function openSite(
+  urlPath: string,
+  options: {
+    viewport?: { width: number; height: number };
+    colorScheme?: "light" | "dark";
+    reducedMotion?: boolean;
+    javaScript?: boolean;
+    /** Opens the page in this browser context, so it shares storage with pages opened earlier in it. */
+    context?: BrowserContext;
+    /** Runs in the page before any of its own scripts. */
+    initScript?: () => void;
+  } = {},
+): Promise<OpenedSite> {
+  const origin = await siteOrigin();
+  const b = await launch();
+  const context =
+    options.context ??
+    (await b.newContext({
+      javaScriptEnabled: options.javaScript ?? true,
+      colorScheme: options.colorScheme ?? "light",
+      reducedMotion: options.reducedMotion ? "reduce" : "no-preference",
+      ...(options.viewport ? { viewport: options.viewport } : {}),
+    }));
+  const page = await context.newPage();
+  const scripts: string[] = [];
+  const requests: string[] = [];
+  page.on("request", (r) => requests.push(r.url()));
+  page.on("response", (r) => {
+    if (r.url().endsWith(".js")) scripts.push(r.url());
+  });
+  if (options.initScript) await page.addInitScript(options.initScript);
+  const response = await page.goto(`${origin}${urlPath}`);
+  if (options.javaScript ?? true) {
+    await page.waitForFunction(() =>
+      [...document.querySelectorAll("*")]
+        .filter((e) => e.tagName.toLowerCase().startsWith("kan-"))
+        .every((e) => e.classList.contains("hydrated")),
+    );
+    await page.evaluate(() => document.fonts.ready);
+  }
+  return { page, context, url: `${origin}${urlPath}`, scripts, status: response?.status() ?? 0, requests };
+}

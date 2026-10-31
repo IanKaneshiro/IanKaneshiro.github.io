@@ -17,6 +17,7 @@ export default defineConfig(
       "**/dist/",
       "**/www/",
       "**/.astro/",
+      "apps/site/public/build/",
       "**/storybook-static/",
       // Stencil's generated output.
       "**/loader/",

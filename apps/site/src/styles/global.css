@@ -1,0 +1,83 @@
+/* The page frame: the canvas, the reading column and the skip link. Semantic tokens only (SITE-007). */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--kan-space-inset-lg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--kan-color-bg-canvas);
+  color: var(--kan-color-text-default);
+  font-family: var(--kan-typography-body-md-font-family);
+  font-size: var(--kan-typography-body-md-font-size);
+  font-weight: var(--kan-typography-body-md-font-weight);
+  line-height: var(--kan-typography-body-md-line-height);
+  overflow-wrap: break-word;
+
+  /* Short pages (the 404) keep the footer at the bottom of the window. */
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+}
+
+main {
+  display: grid;
+  gap: var(--kan-space-stack-lg);
+  max-width: var(--kan-layout-content-max-width);
+  margin-inline: auto;
+  padding: var(--kan-space-inset-lg) var(--kan-layout-gutter) var(--kan-layout-section-gap);
+}
+
+section {
+  display: grid;
+  gap: var(--kan-space-stack-md);
+  min-width: 0;
+}
+
+@media (width >= 768px) {
+  main {
+    gap: var(--kan-layout-section-gap);
+  }
+}
+
+h1,
+h3,
+p,
+ul {
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+.skip-link {
+  position: absolute;
+  inset-block-start: var(--kan-space-inset-sm);
+  inset-inline-start: var(--kan-space-inset-sm);
+  z-index: 10;
+  padding: var(--kan-space-inset-sm) var(--kan-space-inset-md);
+  background: var(--kan-color-accent-default);
+  color: var(--kan-color-text-on-accent);
+  font-family: var(--kan-typography-label-font-family);
+  transform: translateY(-300%);
+}
+
+.skip-link:focus {
+  transform: none;
+  outline: var(--kan-focus-ring-width) solid var(--kan-focus-ring-color);
+  outline-offset: var(--kan-focus-ring-offset);
+}
