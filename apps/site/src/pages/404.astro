@@ -1,0 +1,21 @@
+---
+import Base from "../layouts/Base.astro";
+import Button from "../components/Button.astro";
+---
+
+<Base
+  title="Command not found · Ian Kaneshiro"
+  description="That page doesn't exist. Head back to Ian Kaneshiro's home page."
+  noindex
+>
+  <section class="not-found">
+    <h1 class="hero-name">Command not found</h1>
+    <kan-terminal class="hero-session" heading="~/ian">
+      <kan-prompt cursor="false">open this-page</kan-prompt>
+      <pre class="session-error">ian: command not found: this-page</pre>
+    </kan-terminal>
+    <p>
+      <Button href="/">Back to the home page</Button>
+    </p>
+  </section>
+</Base>

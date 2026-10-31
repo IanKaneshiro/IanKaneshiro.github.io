@@ -1,0 +1,11 @@
+{
+  "bio": [
+    "I'm a software engineer who builds design systems and web components with TypeScript, StencilJS and Storybook. More and more of my work happens alongside AI agents. I write the spec as intents, journeys and Gherkin behaviors, and agents like Claude Code, Cursor and Grok Build build against it, with tests checking every step. This site was built that way, and you can read the specs that built it.",
+    "I came to software from 8+ years in retail operations, where I led and managed high-performing teams in fast-paced environments. During the COVID lockdowns I started building websites, got hooked, and went through App Academy's year-long program. I still love that I never have to say \"I wish there was an app for that\". I can build it."
+  ],
+  "workingOnNow": [
+    { "text": "The spec graph for this site: intents → journeys → behaviors", "state": "done" },
+    { "text": "A token pipeline and the kan- web component library", "state": "in-progress" },
+    { "text": "Tools that let agents search and trace a spec graph before they change anything", "state": "pending" }
+  ]
+}

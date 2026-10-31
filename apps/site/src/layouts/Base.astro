@@ -1,0 +1,97 @@
+---
+import "@kan/tokens/tokens.css";
+import "../styles/fonts.css";
+import "../styles/global.css";
+import "../styles/home.css";
+import Link from "../components/Link.astro";
+import { getEntry } from "astro:content";
+
+interface Props {
+  title: string;
+  description: string;
+  /** Keeps a page out of search results, e.g. the 404. */
+  noindex?: boolean;
+}
+
+const { title, description, noindex = false } = Astro.props;
+const profile = (await getEntry("profile", "ian"))!.data;
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site).href;
+const image = new URL("/og.png", site).href;
+const imageAlt = `${profile.name}, ${profile.role}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Runs before the first paint: a saved choice sets data-theme; with none, CSS follows the system (THEME-004). -->
+    <script is:inline>
+      try {
+        var saved = localStorage.getItem("kan-theme");
+        if (saved === "light" || saved === "dark") document.documentElement.setAttribute("data-theme", saved);
+      } catch (e) {}
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+    <noscript>
+      <link rel="stylesheet" href="/no-js.css" />
+    </noscript>
+    <meta name="generator" content={Astro.generator} />
+    <!-- The kan- components, through Stencil's lazy loader (CMP-004). Vite must not bundle it. -->
+    <script is:inline type="module" src="/build/kan.esm.js"></script>
+  </head>
+  <body>
+    <!-- In a landmark of its own: axe can't tell this is a skip link while the first real link sits in a shadow root. -->
+    <nav aria-label="Skip links">
+      <a class="skip-link" href="#main">
+        Skip to main content
+      </a>
+    </nav>
+    <kan-site-header>
+      <a slot="brand" href="/">
+        {profile.name}
+      </a>
+      <a href="/#about">About</a>
+      <a href="/#stack">Stack</a>
+      <a href="/#projects">Projects</a>
+      <a href="/#contact">Contact</a>
+    </kan-site-header>
+    <main id="main">
+      <slot />
+    </main>
+    <kan-site-footer>
+      <Link place="contact" href={`mailto:${profile.email}`}>
+        Email
+      </Link>
+      <Link place="contact" href={profile.links.github} newTab>
+        GitHub
+      </Link>
+      <Link place="contact" href={profile.links.linkedin} newTab>
+        LinkedIn
+      </Link>
+      <Link href="https://github.com/IanKaneshiro/IanKaneshiro.github.io" newTab>
+        Source
+      </Link>
+      <Link href="/storybook/">Storybook</Link>
+    </kan-site-footer>
+  </body>
+</html>

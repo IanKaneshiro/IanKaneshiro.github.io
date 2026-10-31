@@ -5,6 +5,9 @@
 .card {
   position: relative;
   display: grid;
+
+  /* The body takes the spare height, so footers line up across a row of cards. */
+  grid-template-rows: auto 1fr auto;
   gap: var(--kan-space-stack-sm);
   height: 100%;
   box-sizing: border-box;

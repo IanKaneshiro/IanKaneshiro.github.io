@@ -1,0 +1,12 @@
+{
+  "name": "Ian Kaneshiro",
+  "role": "Software Engineer",
+  "headline": "Software engineer building with AI agents, spec-first.",
+  "summary": "Ian is a software engineer who builds with AI agents: Ian writes the spec, agents build against it, and tests check every step.",
+  "workflow": "spec-driven, built with Claude Code, Cursor and Grok Build",
+  "email": "iandkaneshiro@gmail.com",
+  "links": {
+    "github": "https://github.com/IanKaneshiro",
+    "linkedin": "https://www.linkedin.com/in/iandkaneshiro"
+  }
+}

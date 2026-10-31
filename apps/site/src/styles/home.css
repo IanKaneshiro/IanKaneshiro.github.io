@@ -1,0 +1,139 @@
+/* The home page and the 404. Semantic tokens only (SITE-007). */
+.hero,
+.not-found {
+  gap: var(--kan-space-stack-md);
+  padding-block: var(--kan-space-inset-md) 0;
+}
+
+.hero-name {
+  font-family: var(--kan-typography-heading-1-font-family);
+  font-size: min(var(--kan-typography-heading-1-font-size), 10.5vw);
+  font-weight: var(--kan-typography-heading-1-font-weight);
+  line-height: var(--kan-typography-heading-1-line-height);
+}
+
+.hero-role {
+  color: var(--kan-color-text-accent);
+  font-family: var(--kan-typography-heading-3-font-family);
+  font-size: var(--kan-typography-heading-3-font-size);
+  font-weight: var(--kan-typography-heading-3-font-weight);
+}
+
+.hero-headline {
+  max-width: var(--kan-layout-prose-max-width);
+  color: var(--kan-color-text-muted);
+  font-size: var(--kan-typography-body-lg-font-size);
+  line-height: var(--kan-typography-body-lg-line-height);
+}
+
+.hero-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kan-space-inline-md);
+}
+
+.hero-session {
+  max-width: var(--kan-layout-prose-max-width);
+  margin-block-start: var(--kan-space-stack-sm);
+}
+
+.session-summary {
+  margin-block-start: var(--kan-space-stack-md);
+  font-family: var(--kan-typography-code-font-family);
+  font-size: var(--kan-typography-code-font-size);
+  line-height: var(--kan-typography-code-line-height);
+}
+
+.session-error {
+  margin: 0;
+  color: var(--kan-color-status-danger-fg);
+  font-family: var(--kan-typography-code-font-family);
+  font-size: var(--kan-typography-code-font-size);
+}
+
+.prose {
+  display: grid;
+  gap: var(--kan-space-stack-md);
+  max-width: var(--kan-layout-prose-max-width);
+  font-size: var(--kan-typography-body-lg-font-size);
+  line-height: var(--kan-typography-body-lg-line-height);
+}
+
+kan-plan {
+  max-width: var(--kan-layout-prose-max-width);
+}
+
+.stack-groups {
+  display: grid;
+  gap: var(--kan-space-stack-lg);
+}
+
+.stack-group {
+  display: grid;
+  gap: var(--kan-space-stack-sm);
+}
+
+.group-name {
+  color: var(--kan-color-text-muted);
+  font-family: var(--kan-typography-label-font-family);
+  font-size: var(--kan-typography-label-font-size);
+  font-weight: var(--kan-typography-label-font-weight);
+  line-height: var(--kan-typography-label-line-height);
+}
+
+.tags,
+.contact-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kan-space-inline-sm);
+}
+
+.contact-links {
+  gap: var(--kan-space-inline-lg);
+}
+
+.projects {
+  display: grid;
+  gap: var(--kan-space-stack-md);
+}
+
+@media (width >= 1024px) {
+  .projects {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.highlights {
+  display: grid;
+  gap: var(--kan-space-stack-sm);
+  margin-block-start: var(--kan-space-stack-sm);
+  padding-inline-start: var(--kan-space-inset-md);
+  color: var(--kan-color-text-muted);
+  font-size: var(--kan-typography-body-sm-font-size);
+  list-style: disc;
+}
+
+#about kan-section-heading[level="3"] {
+  margin-block-start: var(--kan-space-stack-md);
+}
+
+/* Wide screens: the introduction on the left, the agent session on the right. */
+@media (width >= 1024px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--kan-space-inline-lg);
+    align-content: center;
+    align-items: start;
+  }
+
+  .hero > .hero-session {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    max-width: none;
+    margin-block-start: 0;
+  }
+
+  .hero > :not(.hero-session) {
+    grid-column: 1;
+  }
+}

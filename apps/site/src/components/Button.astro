@@ -1,0 +1,20 @@
+---
+/** A kan-button link, and a plain anchor for visitors without JavaScript (SITE-008). */
+interface Props {
+  href: string;
+  variant?: "primary" | "secondary" | "ghost";
+  icon?: "github" | "linkedin" | "mail";
+}
+
+const { href, variant = "primary", icon } = Astro.props;
+---
+
+<kan-button href={href} variant={variant}>
+  {icon && <kan-icon name={icon} />}
+  <slot />
+</kan-button>
+<noscript>
+  <a class="button" href={href}>
+    <slot />
+  </a>
+</noscript>

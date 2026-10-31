@@ -1,0 +1,13 @@
+{
+  "order": 2,
+  "name": "Jeanak Eats",
+  "summary": "An Uber Eats–style app for restaurants, menus and reviews.",
+  "highlights": [
+    "Image upload and retrieval with AWS S3.",
+    "A Flask and SQLAlchemy REST API.",
+    "Real-time store availability from store hours and the current time.",
+    "Built by a team using a feature-branch Git workflow."
+  ],
+  "stack": ["React", "Redux", "Python", "Flask", "SQLAlchemy", "AWS"],
+  "source": "https://github.com/IanKaneshiro/Jeanak-Eats"
+}

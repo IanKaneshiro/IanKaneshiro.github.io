@@ -1,5 +1,11 @@
 :host {
   display: block;
+  height: 100%;
+}
+
+/* Fill the row, so cards side by side are the same height. */
+kan-card {
+  height: 100%;
 }
 
 .name {

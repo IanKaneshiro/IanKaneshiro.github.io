@@ -6,6 +6,7 @@ import { stylelintFailures } from "../../tools/gate/checks";
 import { componentDoc, renderApi, type ComponentDoc, type DocsJson } from "../../packages/components/src/docs/api";
 import { ensureBuilt, open, scriptText, settle, type Opened } from "../support/browser";
 import { loadScenarios } from "../support/gherkin";
+import { siteProjectLinks } from "./site.steps";
 import { Given, steps, Then, When, type World } from "../support/steps";
 
 const ROOT = path.resolve(import.meta.dir, "../..");
@@ -1278,7 +1279,9 @@ Then("it shows a project's name, one-line summary and stack tags", async () => {
   expect(seen.stack).toEqual(["React", "Python"]);
 });
 
-Then("links to its source, and to its live demo when there is one", async () => {
+Then("links to its source, and to its live demo when there is one", async (world) => {
+  // The same sentence is in SITE-002, where it is about the site's project cards.
+  if (world.cards) return siteProjectLinks(world);
   const both = await open(projectCard(source + demo));
   const href = (o: Opened, name: string) => o.page.getByRole("link", { name, exact: true }).getAttribute("href");
   expect(await href(both, "Source (opens in a new tab)")).toBe("https://github.com/IanKaneshiro/KanDiscer");

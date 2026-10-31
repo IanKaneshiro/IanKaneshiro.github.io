@@ -21,3 +21,5 @@
 # Specs are Ian's; GRAPH.md and graph.json are generated.
 /specs/
 **/*.md
+/apps/site/public/build/
+/apps/site/.astro/

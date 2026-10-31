@@ -1,0 +1,129 @@
+---
+import Base from "../layouts/Base.astro";
+import Button from "../components/Button.astro";
+import Link from "../components/Link.astro";
+import { getCollection, getEntry } from "astro:content";
+
+const profile = (await getEntry("profile", "ian"))!.data;
+const about = (await getEntry("about", "ian"))!.data;
+const stack = (await getEntry("stack", "ian"))!.data;
+const projects = (await getCollection("projects")).map((p) => p.data).sort((a, b) => a.order - b.order);
+---
+
+<Base title={`${profile.name} · ${profile.role}`} description={profile.headline}>
+  <section class="hero" id="home">
+    <h1 class="hero-name">{profile.name}</h1>
+    <p class="hero-role">{profile.role}</p>
+    <p class="hero-headline">{profile.headline}</p>
+    <div class="hero-links">
+      <Button href={profile.links.github} variant="secondary" icon="github">
+        GitHub
+      </Button>
+      <Button href={profile.links.linkedin} variant="secondary" icon="linkedin">
+        LinkedIn
+      </Button>
+      <Button href={`mailto:${profile.email}`} icon="mail">
+        Email
+      </Button>
+    </div>
+    <kan-terminal class="hero-session" heading="~/ian">
+      <kan-prompt cursor="false">who is {profile.name}?</kan-prompt>
+      <kan-tool-call name="Read" arg="profile">
+        <span slot="result">{profile.role}</span>
+      </kan-tool-call>
+      <kan-tool-call name="Read" arg="stack">
+        <span slot="result">{stack.highlights}</span>
+      </kan-tool-call>
+      <kan-tool-call name="Read" arg="workflow">
+        <span slot="result">{profile.workflow}</span>
+      </kan-tool-call>
+      <p class="session-summary">{profile.summary}</p>
+    </kan-terminal>
+  </section>
+
+  <section id="about">
+    <kan-section-heading>about</kan-section-heading>
+    <div class="prose">
+      {about.bio.map((paragraph) => (
+        <p>{paragraph}</p>
+      ))}
+    </div>
+    <kan-section-heading level={3}>working on now</kan-section-heading>
+    <kan-plan>
+      {about.workingOnNow.map((step) => (
+        <kan-plan-step state={step.state}>{step.text}</kan-plan-step>
+      ))}
+    </kan-plan>
+  </section>
+
+  <section id="stack">
+    <kan-section-heading>stack</kan-section-heading>
+    <div class="stack-groups">
+      {stack.groups.map((group) => (
+        <div class="stack-group">
+          <h3 class="group-name">{group.name}</h3>
+          <ul class="tags">
+            {group.items.map((item) => (
+              <li>
+                <kan-tag>{item}</kan-tag>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="projects">
+    <kan-section-heading>projects</kan-section-heading>
+    <ul class="projects">
+      {projects.map((project) => (
+        <li>
+          <kan-project-card name={project.name}>
+            <noscript>
+              <h3>{project.name}</h3>
+            </noscript>
+            {project.summary}
+            {project.highlights.length > 0 && (
+              <ul class="highlights">
+                {project.highlights.map((highlight) => (
+                  <li>{highlight}</li>
+                ))}
+              </ul>
+            )}
+            {project.stack.map((tech) => (
+              <kan-tag slot="stack">{tech}</kan-tag>
+            ))}
+            <Link place="links" href={project.source} newTab>
+              Source
+            </Link>
+            {project.demo && (
+              <Link place="links" href={project.demo} newTab>
+                Live demo
+              </Link>
+            )}
+          </kan-project-card>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section id="contact">
+    <kan-section-heading>contact</kan-section-heading>
+    <ul class="contact-links">
+      <li>
+        <Link href={`mailto:${profile.email}`}>{profile.email}</Link>
+      </li>
+      <li>
+        <Link href={profile.links.linkedin} newTab>
+          LinkedIn
+        </Link>
+      </li>
+      <li>
+        <Link href={profile.links.github} newTab>
+          GitHub
+        </Link>
+      </li>
+    </ul>
+  </section>
+</Base>
