@@ -13,7 +13,7 @@
     "loader/"
   ],
   "scripts": {
-    "build": "stencil build --docs",
+    "build": "stencil build",
     "tokens": "bun run --cwd ../tokens build",
     "storybook": "bun run tokens && bun run build && storybook dev --port 6006 --no-open",
     "build-storybook": "bun run tokens && bun run build && storybook build --output-dir storybook-static"

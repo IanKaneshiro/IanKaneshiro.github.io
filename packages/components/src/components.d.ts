@@ -5,13 +5,48 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { ButtonSize, ButtonType, ButtonVariant } from "./components/kan-button/kan-button";
 import { IconName } from "./components/kan-icon/icons";
 import { StepState } from "./components/kan-plan-step/kan-plan-step";
+import { Theme } from "./theme";
 import { ToolCallStatus } from "./components/kan-tool-call/kan-tool-call";
+export { ButtonSize, ButtonType, ButtonVariant } from "./components/kan-button/kan-button";
 export { IconName } from "./components/kan-icon/icons";
 export { StepState } from "./components/kan-plan-step/kan-plan-step";
+export { Theme } from "./theme";
 export { ToolCallStatus } from "./components/kan-tool-call/kan-tool-call";
 export namespace Components {
+    /**
+     * A button (KIT-001): a native button, or a native link when it has an href. A disabled button
+     * can't be activated and is announced as unavailable; a disabled link has no href, is marked
+     * aria-disabled and can't be focused.
+     */
+    interface KanButton {
+        /**
+          * Whether it can't be activated.
+          * @default false
+         */
+        "disabled": boolean;
+        /**
+          * Makes it a link to this address instead of a button.
+         */
+        "href"?: string;
+        /**
+          * How big it is.
+          * @default "md"
+         */
+        "size": ButtonSize;
+        /**
+          * What a button does in a form: "submit" submits the form it is in. Links ignore it.
+          * @default "button"
+         */
+        "type": ButtonType;
+        /**
+          * How prominent it is: a filled primary, an outlined secondary or a quiet ghost.
+          * @default "primary"
+         */
+        "variant": ButtonVariant;
+    }
     /**
      * A container on bg.surface with optional header and footer (KIT-004). With an href, the whole
      * card is clickable through one link around the header, stretched over the card, so links in the
@@ -110,6 +145,19 @@ export namespace Components {
         "level": 2 | 3 | 4 | 5 | 6;
     }
     /**
+     * The site footer (KIT-011): Ian's contact links and links to the site's source, the Storybook
+     * and "How this site was built". Every word comes from the slots (CMP-006).
+     */
+    interface KanSiteFooter {
+    }
+    /**
+     * The site header (KIT-010): Ian's name, the main navigation and the theme toggle. Below the md
+     * breakpoint (768px) the links sit behind a menu button that opens and closes with the keyboard;
+     * Escape closes the menu and puts focus back on the button.
+     */
+    interface KanSiteHeader {
+    }
+    /**
      * A short mono label, like a technology name (KIT-003). It isn't interactive.
      */
     interface KanTag {
@@ -129,6 +177,13 @@ export namespace Components {
           * @default "terminal"
          */
         "heading": string;
+    }
+    /**
+     * A button that cycles the theme light, dark, system and back (KIT-009, THEME-002, THEME-003,
+     * THEME-006). It shows a sun, moon or monitor, names the current theme ("Theme: Dark") and
+     * announces a change. Light and dark are remembered in localStorage; system clears that.
+     */
+    interface KanThemeToggle {
     }
     /**
      * A tool call the way an agent session shows it (KIT-013):
@@ -158,11 +213,26 @@ export namespace Components {
         "status": ToolCallStatus;
     }
 }
+export interface KanThemeToggleCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLKanThemeToggleElement;
+}
 export interface KanToolCallCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLKanToolCallElement;
 }
 declare global {
+    /**
+     * A button (KIT-001): a native button, or a native link when it has an href. A disabled button
+     * can't be activated and is announced as unavailable; a disabled link has no href, is marked
+     * aria-disabled and can't be focused.
+     */
+    interface HTMLKanButtonElement extends Components.KanButton, HTMLStencilElement {
+    }
+    var HTMLKanButtonElement: {
+        prototype: HTMLKanButtonElement;
+        new (): HTMLKanButtonElement;
+    };
     /**
      * A container on bg.surface with optional header and footer (KIT-004). With an href, the whole
      * card is clickable through one link around the header, stretched over the card, so links in the
@@ -246,6 +316,27 @@ declare global {
         new (): HTMLKanSectionHeadingElement;
     };
     /**
+     * The site footer (KIT-011): Ian's contact links and links to the site's source, the Storybook
+     * and "How this site was built". Every word comes from the slots (CMP-006).
+     */
+    interface HTMLKanSiteFooterElement extends Components.KanSiteFooter, HTMLStencilElement {
+    }
+    var HTMLKanSiteFooterElement: {
+        prototype: HTMLKanSiteFooterElement;
+        new (): HTMLKanSiteFooterElement;
+    };
+    /**
+     * The site header (KIT-010): Ian's name, the main navigation and the theme toggle. Below the md
+     * breakpoint (768px) the links sit behind a menu button that opens and closes with the keyboard;
+     * Escape closes the menu and puts focus back on the button.
+     */
+    interface HTMLKanSiteHeaderElement extends Components.KanSiteHeader, HTMLStencilElement {
+    }
+    var HTMLKanSiteHeaderElement: {
+        prototype: HTMLKanSiteHeaderElement;
+        new (): HTMLKanSiteHeaderElement;
+    };
+    /**
      * A short mono label, like a technology name (KIT-003). It isn't interactive.
      */
     interface HTMLKanTagElement extends Components.KanTag, HTMLStencilElement {
@@ -264,6 +355,30 @@ declare global {
     var HTMLKanTerminalElement: {
         prototype: HTMLKanTerminalElement;
         new (): HTMLKanTerminalElement;
+    };
+    interface HTMLKanThemeToggleElementEventMap {
+        "kanThemeChange": {
+    theme: Theme;
+  };
+    }
+    /**
+     * A button that cycles the theme light, dark, system and back (KIT-009, THEME-002, THEME-003,
+     * THEME-006). It shows a sun, moon or monitor, names the current theme ("Theme: Dark") and
+     * announces a change. Light and dark are remembered in localStorage; system clears that.
+     */
+    interface HTMLKanThemeToggleElement extends Components.KanThemeToggle, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLKanThemeToggleElementEventMap>(type: K, listener: (this: HTMLKanThemeToggleElement, ev: KanThemeToggleCustomEvent<HTMLKanThemeToggleElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLKanThemeToggleElementEventMap>(type: K, listener: (this: HTMLKanThemeToggleElement, ev: KanThemeToggleCustomEvent<HTMLKanThemeToggleElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLKanThemeToggleElement: {
+        prototype: HTMLKanThemeToggleElement;
+        new (): HTMLKanThemeToggleElement;
     };
     interface HTMLKanToolCallElementEventMap {
         "kanToggle": { open: boolean };
@@ -289,6 +404,7 @@ declare global {
         new (): HTMLKanToolCallElement;
     };
     interface HTMLElementTagNameMap {
+        "kan-button": HTMLKanButtonElement;
         "kan-card": HTMLKanCardElement;
         "kan-icon": HTMLKanIconElement;
         "kan-link": HTMLKanLinkElement;
@@ -297,12 +413,54 @@ declare global {
         "kan-project-card": HTMLKanProjectCardElement;
         "kan-prompt": HTMLKanPromptElement;
         "kan-section-heading": HTMLKanSectionHeadingElement;
+        "kan-site-footer": HTMLKanSiteFooterElement;
+        "kan-site-header": HTMLKanSiteHeaderElement;
         "kan-tag": HTMLKanTagElement;
         "kan-terminal": HTMLKanTerminalElement;
+        "kan-theme-toggle": HTMLKanThemeToggleElement;
         "kan-tool-call": HTMLKanToolCallElement;
     }
 }
 declare namespace LocalJSX {
+    /**
+     * A button (KIT-001): a native button, or a native link when it has an href. A disabled button
+     * can't be activated and is announced as unavailable; a disabled link has no href, is marked
+     * aria-disabled and can't be focused.
+     */
+    interface KanButton {
+        /**
+          * Whether it can't be activated.
+          * @default false
+         */
+        "disabled"?: boolean;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        /**
+          * Makes it a link to this address instead of a button.
+         */
+        "href"?: string;
+        /**
+          * The name of the element, used when submitting an HTML form.
+         */
+        "name"?: string;
+        /**
+          * How big it is.
+          * @default "md"
+         */
+        "size"?: ButtonSize;
+        /**
+          * What a button does in a form: "submit" submits the form it is in. Links ignore it.
+          * @default "button"
+         */
+        "type"?: ButtonType;
+        /**
+          * How prominent it is: a filled primary, an outlined secondary or a quiet ghost.
+          * @default "primary"
+         */
+        "variant"?: ButtonVariant;
+    }
     /**
      * A container on bg.surface with optional header and footer (KIT-004). With an href, the whole
      * card is clickable through one link around the header, stretched over the card, so links in the
@@ -401,6 +559,19 @@ declare namespace LocalJSX {
         "level"?: 2 | 3 | 4 | 5 | 6;
     }
     /**
+     * The site footer (KIT-011): Ian's contact links and links to the site's source, the Storybook
+     * and "How this site was built". Every word comes from the slots (CMP-006).
+     */
+    interface KanSiteFooter {
+    }
+    /**
+     * The site header (KIT-010): Ian's name, the main navigation and the theme toggle. Below the md
+     * breakpoint (768px) the links sit behind a menu button that opens and closes with the keyboard;
+     * Escape closes the menu and puts focus back on the button.
+     */
+    interface KanSiteHeader {
+    }
+    /**
      * A short mono label, like a technology name (KIT-003). It isn't interactive.
      */
     interface KanTag {
@@ -420,6 +591,19 @@ declare namespace LocalJSX {
           * @default "terminal"
          */
         "heading"?: string;
+    }
+    /**
+     * A button that cycles the theme light, dark, system and back (KIT-009, THEME-002, THEME-003,
+     * THEME-006). It shows a sun, moon or monitor, names the current theme ("Theme: Dark") and
+     * announces a change. Light and dark are remembered in localStorage; system clears that.
+     */
+    interface KanThemeToggle {
+        /**
+          * Fires when the visitor picks a theme. `detail.theme` is "light", "dark" or "system".
+         */
+        "onKanThemeChange"?: (event: KanThemeToggleCustomEvent<{
+    theme: Theme;
+  }>) => void;
     }
     /**
      * A tool call the way an agent session shows it (KIT-013):
@@ -453,6 +637,13 @@ declare namespace LocalJSX {
         "status"?: ToolCallStatus;
     }
 
+    interface KanButtonAttributes {
+        "variant": ButtonVariant;
+        "size": ButtonSize;
+        "href": string;
+        "disabled": boolean;
+        "type": ButtonType;
+    }
     interface KanCardAttributes {
         "href": string;
     }
@@ -491,6 +682,7 @@ declare namespace LocalJSX {
     }
 
     interface IntrinsicElements {
+        "kan-button": Omit<KanButton, keyof KanButtonAttributes> & { [K in keyof KanButton & keyof KanButtonAttributes]?: KanButton[K] } & { [K in keyof KanButton & keyof KanButtonAttributes as `attr:${K}`]?: KanButtonAttributes[K] } & { [K in keyof KanButton & keyof KanButtonAttributes as `prop:${K}`]?: KanButton[K] };
         "kan-card": Omit<KanCard, keyof KanCardAttributes> & { [K in keyof KanCard & keyof KanCardAttributes]?: KanCard[K] } & { [K in keyof KanCard & keyof KanCardAttributes as `attr:${K}`]?: KanCardAttributes[K] } & { [K in keyof KanCard & keyof KanCardAttributes as `prop:${K}`]?: KanCard[K] };
         "kan-icon": Omit<KanIcon, keyof KanIconAttributes> & { [K in keyof KanIcon & keyof KanIconAttributes]?: KanIcon[K] } & { [K in keyof KanIcon & keyof KanIconAttributes as `attr:${K}`]?: KanIconAttributes[K] } & { [K in keyof KanIcon & keyof KanIconAttributes as `prop:${K}`]?: KanIcon[K] };
         "kan-link": Omit<KanLink, keyof KanLinkAttributes> & { [K in keyof KanLink & keyof KanLinkAttributes]?: KanLink[K] } & { [K in keyof KanLink & keyof KanLinkAttributes as `attr:${K}`]?: KanLinkAttributes[K] } & { [K in keyof KanLink & keyof KanLinkAttributes as `prop:${K}`]?: KanLink[K] };
@@ -499,8 +691,11 @@ declare namespace LocalJSX {
         "kan-project-card": Omit<KanProjectCard, keyof KanProjectCardAttributes> & { [K in keyof KanProjectCard & keyof KanProjectCardAttributes]?: KanProjectCard[K] } & { [K in keyof KanProjectCard & keyof KanProjectCardAttributes as `attr:${K}`]?: KanProjectCardAttributes[K] } & { [K in keyof KanProjectCard & keyof KanProjectCardAttributes as `prop:${K}`]?: KanProjectCard[K] };
         "kan-prompt": Omit<KanPrompt, keyof KanPromptAttributes> & { [K in keyof KanPrompt & keyof KanPromptAttributes]?: KanPrompt[K] } & { [K in keyof KanPrompt & keyof KanPromptAttributes as `attr:${K}`]?: KanPromptAttributes[K] } & { [K in keyof KanPrompt & keyof KanPromptAttributes as `prop:${K}`]?: KanPrompt[K] };
         "kan-section-heading": Omit<KanSectionHeading, keyof KanSectionHeadingAttributes> & { [K in keyof KanSectionHeading & keyof KanSectionHeadingAttributes]?: KanSectionHeading[K] } & { [K in keyof KanSectionHeading & keyof KanSectionHeadingAttributes as `attr:${K}`]?: KanSectionHeadingAttributes[K] } & { [K in keyof KanSectionHeading & keyof KanSectionHeadingAttributes as `prop:${K}`]?: KanSectionHeading[K] };
+        "kan-site-footer": KanSiteFooter;
+        "kan-site-header": KanSiteHeader;
         "kan-tag": Omit<KanTag, keyof KanTagAttributes> & { [K in keyof KanTag & keyof KanTagAttributes]?: KanTag[K] } & { [K in keyof KanTag & keyof KanTagAttributes as `attr:${K}`]?: KanTagAttributes[K] } & { [K in keyof KanTag & keyof KanTagAttributes as `prop:${K}`]?: KanTag[K] };
         "kan-terminal": Omit<KanTerminal, keyof KanTerminalAttributes> & { [K in keyof KanTerminal & keyof KanTerminalAttributes]?: KanTerminal[K] } & { [K in keyof KanTerminal & keyof KanTerminalAttributes as `attr:${K}`]?: KanTerminalAttributes[K] } & { [K in keyof KanTerminal & keyof KanTerminalAttributes as `prop:${K}`]?: KanTerminal[K] };
+        "kan-theme-toggle": KanThemeToggle;
         "kan-tool-call": Omit<KanToolCall, keyof KanToolCallAttributes> & { [K in keyof KanToolCall & keyof KanToolCallAttributes]?: KanToolCall[K] } & { [K in keyof KanToolCall & keyof KanToolCallAttributes as `attr:${K}`]?: KanToolCallAttributes[K] } & { [K in keyof KanToolCall & keyof KanToolCallAttributes as `prop:${K}`]?: KanToolCall[K] };
     }
 }
@@ -508,6 +703,12 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            /**
+             * A button (KIT-001): a native button, or a native link when it has an href. A disabled button
+             * can't be activated and is announced as unavailable; a disabled link has no href, is marked
+             * aria-disabled and can't be focused.
+             */
+            "kan-button": LocalJSX.IntrinsicElements["kan-button"] & JSXBase.HTMLAttributes<HTMLKanButtonElement>;
             /**
              * A container on bg.surface with optional header and footer (KIT-004). With an href, the whole
              * card is clickable through one link around the header, stretched over the card, so links in the
@@ -551,6 +752,17 @@ declare module "@stencil/core" {
              */
             "kan-section-heading": LocalJSX.IntrinsicElements["kan-section-heading"] & JSXBase.HTMLAttributes<HTMLKanSectionHeadingElement>;
             /**
+             * The site footer (KIT-011): Ian's contact links and links to the site's source, the Storybook
+             * and "How this site was built". Every word comes from the slots (CMP-006).
+             */
+            "kan-site-footer": LocalJSX.IntrinsicElements["kan-site-footer"] & JSXBase.HTMLAttributes<HTMLKanSiteFooterElement>;
+            /**
+             * The site header (KIT-010): Ian's name, the main navigation and the theme toggle. Below the md
+             * breakpoint (768px) the links sit behind a menu button that opens and closes with the keyboard;
+             * Escape closes the menu and puts focus back on the button.
+             */
+            "kan-site-header": LocalJSX.IntrinsicElements["kan-site-header"] & JSXBase.HTMLAttributes<HTMLKanSiteHeaderElement>;
+            /**
              * A short mono label, like a technology name (KIT-003). It isn't interactive.
              */
             "kan-tag": LocalJSX.IntrinsicElements["kan-tag"] & JSXBase.HTMLAttributes<HTMLKanTagElement>;
@@ -560,6 +772,12 @@ declare module "@stencil/core" {
              * focused and scrolled with the keyboard, instead of widening the page.
              */
             "kan-terminal": LocalJSX.IntrinsicElements["kan-terminal"] & JSXBase.HTMLAttributes<HTMLKanTerminalElement>;
+            /**
+             * A button that cycles the theme light, dark, system and back (KIT-009, THEME-002, THEME-003,
+             * THEME-006). It shows a sun, moon or monitor, names the current theme ("Theme: Dark") and
+             * announces a change. Light and dark are remembered in localStorage; system clears that.
+             */
+            "kan-theme-toggle": LocalJSX.IntrinsicElements["kan-theme-toggle"] & JSXBase.HTMLAttributes<HTMLKanThemeToggleElement>;
             /**
              * A tool call the way an agent session shows it (KIT-013):
              *     ● Read(profile)

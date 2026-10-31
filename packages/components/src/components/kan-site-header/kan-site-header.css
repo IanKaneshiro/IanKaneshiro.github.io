@@ -1,0 +1,107 @@
+:host {
+  display: block;
+}
+
+header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "brand nav toggle";
+  gap: var(--kan-space-inline-lg);
+  align-items: center;
+  padding: var(--kan-space-inset-sm) var(--kan-layout-gutter);
+  border-bottom: 1px solid var(--kan-color-border-default);
+  background: var(--kan-color-bg-canvas);
+  color: var(--kan-color-text-default);
+}
+
+.brand {
+  grid-area: brand;
+  min-width: 0;
+  font-family: var(--kan-typography-heading-3-font-family);
+  font-size: var(--kan-typography-heading-3-font-size);
+  font-weight: var(--kan-typography-heading-3-font-weight);
+  white-space: nowrap;
+}
+
+::slotted([slot="brand"]) {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Plain anchors in the nav get the accent color, like kan-link. */
+::slotted(a:not([slot])) {
+  color: var(--kan-color-text-accent);
+}
+
+nav {
+  display: flex;
+  grid-area: nav;
+  flex-wrap: wrap;
+  gap: var(--kan-space-inline-lg);
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.toggle {
+  grid-area: toggle;
+}
+
+.menu-button {
+  display: none;
+  grid-area: menu;
+  align-items: center;
+  justify-content: center;
+  padding: var(--kan-space-inset-sm);
+  border: 1px solid var(--kan-color-border-strong);
+  background: transparent;
+  color: var(--kan-color-text-default);
+  font-size: var(--kan-typography-body-lg-font-size);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.menu-button:hover {
+  background: var(--kan-color-bg-raised);
+}
+
+.menu-button:focus-visible {
+  outline: var(--kan-focus-ring-width) solid var(--kan-focus-ring-color);
+  outline-offset: var(--kan-focus-ring-offset);
+}
+
+.menu-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* 768px is the breakpoint.md token; CSS can't use custom properties in media queries. */
+@media (width < 768px) {
+  /* The name stays on one line on a phone: the body-lg size fits it beside both buttons. */
+  .brand {
+    font-size: var(--kan-typography-body-lg-font-size);
+  }
+
+  header {
+    grid-template-columns: 1fr auto auto;
+    grid-template-areas:
+      "brand menu toggle"
+      "nav nav nav";
+  }
+
+  .menu-button {
+    display: inline-flex;
+  }
+
+  /* Closed, the links are removed from the page, so they can't be focused or read. */
+  nav {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding-top: var(--kan-space-inset-sm);
+    border-top: 1px solid var(--kan-color-border-default);
+  }
+
+  .open nav {
+    display: flex;
+  }
+}
